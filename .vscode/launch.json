@@ -1,0 +1,58 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "vybe",
+            "request": "launch",
+            "type": "dart",
+            "exceptionBreakpointFilters": [
+                {
+                    "filter": "all",
+                    "label": "All Exceptions",
+                    "default": false
+                },
+                {
+                    "filter": "uncaught",
+                    "label": "Uncaught Exceptions",
+                    "default": true
+                }
+            ]
+        },
+        {
+            "name": "vybe (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "exceptionBreakpointFilters": [
+                {
+                    "filter": "all",
+                    "label": "All Exceptions",
+                    "default": false
+                },
+                {
+                    "filter": "uncaught",
+                    "label": "Uncaught Exceptions",
+                    "default": true
+                }
+            ]
+        },
+        {
+            "name": "vybe (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "exceptionBreakpointFilters": [
+                {
+                    "filter": "all",
+                    "label": "All Exceptions",
+                    "default": false
+                },
+                {
+                    "filter": "uncaught",
+                    "label": "Uncaught Exceptions",
+                    "default": true
+                }
+            ]
+        }
+    ]
+}
