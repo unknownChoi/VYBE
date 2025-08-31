@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:vybe/constants/AppColors.dart';
 import 'package:vybe/constants/app_textstyles.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
 import 'package:vybe/utils/subway_utils.dart';
+import 'package:vybe/widgets/common/common.dart';
 
 class ClubOverviewSection extends StatefulWidget {
   final Map<String, dynamic> clubData;
@@ -262,114 +264,117 @@ class ClubSignatureSection extends StatefulWidget {
 class _ClubSignatureSectionState extends State<ClubSignatureSection> {
   @override
   Widget build(BuildContext context) {
+    final mainMenuItems =
+        menuItemsData.values
+            .expand((menuList) => menuList)
+            .where((item) => item['isMain'] as bool)
+            .toList();
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text(
-              "메뉴",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w600,
-                height: 1.10,
-                letterSpacing: -0.50,
-              ),
-            ),
+            Text("메뉴", style: AppTextStyles.sectionTitle),
             Spacer(),
-            Text(
-              "전체보기",
-              style: TextStyle(
-                color: const Color(0xFFCACACB),
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400,
-                height: 1.17,
-                letterSpacing: -0.30,
-              ),
-            ),
+            Text("전체보기", style: AppTextStyles.seeAll),
             SizedBox(width: 4.w),
             SvgPicture.asset('assets/icons/club_detail_main/arrow_right.svg'),
           ],
         ),
         SizedBox(height: 12.h),
         Divider(thickness: 1.h, color: const Color(0xFF404042)),
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 12.h),
-          child: MenuCard(),
+        ...mainMenuItems.expand((item) {
+          return [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 10.h),
+              child: MenuCard(
+                menuName: item['name'] as String,
+                menuPrice: item['price'] as int,
+                menuImageSrc: item['image'] as String,
+                isRepresentative: item['isMain'] as bool,
+              ),
+            ),
+            Divider(thickness: 1.h, color: const Color(0xFF404042)),
+          ];
+        }),
+        Text(
+          '메뉴 항목과 가격은 각 매장 사정에 따라 기재된 내용과 다를 수 있습니다.',
+          style: TextStyle(
+            color: const Color(0xFF9F9FA1),
+            fontSize: 12.sp,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w400,
+            height: 1.17,
+            letterSpacing: -0.30.w,
+          ),
         ),
-        Divider(thickness: 1.h, color: const Color(0xFF404042)),
       ],
     );
   }
 }
 
-class MenuCard extends StatelessWidget {
-  const MenuCard({super.key});
+class ClubImageArea extends StatelessWidget {
+  final List<String> images;
+  const ClubImageArea({super.key, required this.images});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      // menu item card
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Row(
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-                  width: 25.w,
-                  height: 18.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.appPurpleColor,
-                    borderRadius: BorderRadius.circular(999.r),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "대표",
-                      style: TextStyle(
-                        color: const Color(0xFFECECEC),
-                        fontSize: 10.sp,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w600,
-                        height: 1.40,
-                        letterSpacing: -0.50,
-                      ),
+            Text("사진", style: AppTextStyles.sectionTitle),
+            SizedBox(width: 8.w),
+            Spacer(),
+            Text('전체보기', style: AppTextStyles.seeAll),
+            SizedBox(width: 4.w),
+            SvgPicture.asset('assets/icons/club_detail_main/arrow_right.svg'),
+          ],
+        ),
+        SizedBox(height: 24.h),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final imagePath in images)
+                Padding(
+                  padding: EdgeInsets.only(right: 8.w),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.r),
+                    child: Image.asset(
+                      imagePath,
+                      width: 165.w,
+                      height: 110.h,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                SizedBox(width: 4.w),
-                Text(
-                  "LEMON DROP",
-                  style: TextStyle(
-                    color: const Color(0xFFECECEC),
-                    fontSize: 16,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w400,
-                    height: 1.12,
-                    letterSpacing: -0.80,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              "100,000원",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w600,
-                height: 1.11,
-                letterSpacing: -0.90,
-              ),
-            ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class NearClubSection extends StatelessWidget {
+  const NearClubSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text("주변 클럽", style: AppTextStyles.sectionTitle),
+            Spacer(),
+            Text("전체 보기", style: AppTextStyles.seeAll),
+            SizedBox(width: 4.w),
+            SvgPicture.asset('assets/icons/club_detail_main/arrow_right.svg'),
           ],
         ),
-        Spacer(),
-        Image.asset('assets/images/test_image_2.png'),
       ],
     );
   }

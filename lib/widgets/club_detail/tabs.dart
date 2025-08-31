@@ -36,23 +36,28 @@ class HomeTab extends StatelessWidget {
             child: ClubSignatureSection(),
           ),
           const CustomDivider(),
-          // Padding(
-          //   padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-          //   child: ClubImageArea(
-          //     images: clubData['images']! as List<String>,
-          //     onSeeAllTap: () {
-          //       tabController.animateTo(2); // 2 is the index for PhotoTab
-          //       if (scrollController.hasClients) {
-          //         scrollController.animateTo(
-          //           0,
-          //           duration: const Duration(milliseconds: 300),
-          //           curve: Curves.easeOut,
-          //         );
-          //       }
-          //     },
-          //   ),
-          // ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
+            child: ClubImageArea(
+              images: clubData['images']! as List<String>,
+              // onSeeAllTap: () {
+              //   tabController.animateTo(2); // 2 is the index for PhotoTab
+              //   if (scrollController.hasClients) {
+              //     scrollController.animateTo(
+              //       0,
+              //       duration: const Duration(milliseconds: 300),
+              //       curve: Curves.easeOut,
+              //     );
+              //   }
+              // },
+            ),
+          ),
           const CustomDivider(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
+            child: NearClubSection(),
+          ),
+          SizedBox(height: 118.h),
         ],
       ),
     );

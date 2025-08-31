@@ -86,7 +86,7 @@ final menuItemsData = const {
     },
   ],
   "BEER": [
-    {"name": "LAGER LIGHT", "price": 8000, "image": "", "isMain": false},
+    {"name": "LAGER LIGHT", "price": 8000, "image": "", "isMain": true},
   ],
   "DRINK": [
     {"name": "COLA CLASSIC", "price": 4000, "image": "", "isMain": false},
