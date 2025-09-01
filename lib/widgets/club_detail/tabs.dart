@@ -10,9 +10,11 @@ import 'package:vybe/screens/photo_viewer_screen.dart';
 import 'package:vybe/widgets/club_detail/common.dart';
 import 'package:vybe/widgets/club_detail/components.dart';
 
+/// 홈 탭
 class HomeTab extends StatelessWidget {
   final TabController tabController;
   final ScrollController scrollController;
+
   const HomeTab({
     required this.tabController,
     required this.scrollController,
@@ -33,29 +35,17 @@ class HomeTab extends StatelessWidget {
           const CustomDivider(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-            child: ClubSignatureSection(),
+            child: const ClubSignatureSection(),
           ),
           const CustomDivider(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-            child: ClubImageArea(
-              images: clubData['images']! as List<String>,
-              // onSeeAllTap: () {
-              //   tabController.animateTo(2); // 2 is the index for PhotoTab
-              //   if (scrollController.hasClients) {
-              //     scrollController.animateTo(
-              //       0,
-              //       duration: const Duration(milliseconds: 300),
-              //       curve: Curves.easeOut,
-              //     );
-              //   }
-              // },
-            ),
+            child: ClubImageArea(images: clubData['images']! as List<String>),
           ),
           const CustomDivider(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-            child: NearClubSection(),
+            child: const NearClubSection(),
           ),
           SizedBox(height: 118.h),
         ],
@@ -64,6 +54,7 @@ class HomeTab extends StatelessWidget {
   }
 }
 
+/// 메뉴 탭
 class MenuTab extends StatelessWidget {
   final Map<String, GlobalKey> categoryKeys;
   final String selectedCategory;
@@ -81,16 +72,14 @@ class MenuTab extends StatelessWidget {
     return CustomScrollView(
       physics: const ClampingScrollPhysics(),
       slivers: [
-        // SliverToBoxAdapter(
-        //   child: Padding(
-        //     padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-        //     child: ClubImageArea(
-        //       title: '메뉴 이미지',
-        //       images: clubData['menuImages']! as List<String>,
-        //       showSeeAll: false,
-        //     ),
-        //   ),
-        // ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
+            child: ClubImageArea(
+              images: clubData['menuImages']! as List<String>,
+            ),
+          ),
+        ),
         const SliverToBoxAdapter(child: CustomDivider()),
         SliverToBoxAdapter(
           child: SizedBox(
@@ -180,6 +169,7 @@ class MenuTab extends StatelessWidget {
   }
 }
 
+/// 사진 탭
 class PhotoTab extends StatefulWidget {
   const PhotoTab({super.key});
 
@@ -223,7 +213,7 @@ class _PhotoTabState extends State<PhotoTab> {
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6.r),
-                  child: Image.asset(photosToShow[index], fit: BoxFit.contain),
+                  child: Image.asset(photosToShow[index], fit: BoxFit.cover),
                 ),
               );
             },
@@ -261,6 +251,7 @@ class _PhotoTabState extends State<PhotoTab> {
   }
 }
 
+/// 리뷰 탭
 class ReviewTab extends StatefulWidget {
   const ReviewTab({super.key});
 
@@ -270,6 +261,7 @@ class ReviewTab extends StatefulWidget {
 
 class _ReviewTabState extends State<ReviewTab> {
   bool _isExpanded = false;
+  final Set<int> _expandedContent = <int>{};
 
   @override
   Widget build(BuildContext context) {
@@ -280,18 +272,32 @@ class _ReviewTabState extends State<ReviewTab> {
       physics: const ClampingScrollPhysics(),
       child: Column(
         children: [
-          ListView.separated(
+          ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
             itemCount: reviewsToShow.length,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
-              Text('good');
-              return null;
+              final review = reviewsToShow[index];
+              final String content = review['content'];
+              final bool isLong = content.length > 70;
+              final bool isContentExpanded = _expandedContent.contains(index);
+
+              return ReviewCard(
+                review: review,
+                isExpandedContent: isContentExpanded,
+                isLong: isLong,
+                onToggle: () {
+                  setState(() {
+                    if (isContentExpanded) {
+                      _expandedContent.remove(index);
+                    } else {
+                      _expandedContent.add(index);
+                    }
+                  });
+                },
+              );
             },
-            separatorBuilder:
-                (context, index) =>
-                    Divider(color: const Color(0xFF2F2F33), height: 16.h),
           ),
           if (reviewsData.length > 5 && !_isExpanded)
             Padding(
@@ -323,6 +329,7 @@ class _ReviewTabState extends State<ReviewTab> {
   }
 }
 
+/// 클럽 정보 탭
 class ClubInfoTab extends StatefulWidget {
   const ClubInfoTab({super.key});
 
@@ -359,7 +366,7 @@ class _ClubInfoTabState extends State<ClubInfoTab>
       id: 'my-marker',
       position: position,
       icon: icon,
-      size: const NSize(48, 48),
+      size: NSize(48.w, 48.w),
     );
 
     if (_mapController != null) {
@@ -457,12 +464,6 @@ class _ClubInfoTabState extends State<ClubInfoTab>
                             ),
                           ),
                           SizedBox(width: 4.w),
-                          // Text(
-                          //   clubData['distance']! as String,
-                          //   style: AppTextStyles.body.copyWith(
-                          //     color: const Color(0xFFD1C9C9),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ],
@@ -473,7 +474,7 @@ class _ClubInfoTabState extends State<ClubInfoTab>
           ),
           const CustomDivider(),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.h, vertical: 32.w),
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -481,7 +482,6 @@ class _ClubInfoTabState extends State<ClubInfoTab>
                 SizedBox(height: 24.h),
                 Text(
                   '전화번호',
-                  textAlign: TextAlign.center,
                   style: AppTextStyles.body.copyWith(
                     color: const Color(0xFFCACACB),
                   ),
@@ -489,11 +489,14 @@ class _ClubInfoTabState extends State<ClubInfoTab>
                 SizedBox(height: 12.h),
                 Row(
                   children: [
-                    SvgPicture.asset('assets/icons/club_detail_main/phone.svg'),
+                    SvgPicture.asset(
+                      'assets/icons/club_detail_main/phone.svg',
+                      width: 16.w,
+                      height: 16.w,
+                    ),
                     SizedBox(width: 8.w),
                     Text(
                       clubData['phoneNumber']! as String,
-                      textAlign: TextAlign.center,
                       style: AppTextStyles.body.copyWith(
                         color: const Color(0xFFCACACB),
                       ),
@@ -503,7 +506,6 @@ class _ClubInfoTabState extends State<ClubInfoTab>
                 SizedBox(height: 24.h),
                 Text(
                   '안내 및 유의사항',
-                  textAlign: TextAlign.center,
                   style: AppTextStyles.body.copyWith(
                     color: const Color(0xFFCACACB),
                   ),
@@ -518,7 +520,6 @@ class _ClubInfoTabState extends State<ClubInfoTab>
                 SizedBox(height: 24.h),
                 Text(
                   '영업 시간',
-                  textAlign: TextAlign.center,
                   style: AppTextStyles.body.copyWith(
                     color: const Color(0xFFCACACB),
                   ),
@@ -533,7 +534,6 @@ class _ClubInfoTabState extends State<ClubInfoTab>
                 SizedBox(height: 24.h),
                 Text(
                   '오픈 채팅',
-                  textAlign: TextAlign.center,
                   style: AppTextStyles.body.copyWith(
                     color: const Color(0xFFCACACB),
                   ),

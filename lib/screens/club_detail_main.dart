@@ -73,9 +73,9 @@ class _ClubDetailMainState extends State<ClubDetailMain>
                 _scrollToCategory(category);
               },
             ),
-            const PhotoTab(),
-            const ReviewTab(),
-            const ClubInfoTab(),
+            PhotoTab(),
+            ReviewTab(),
+            ClubInfoTab(),
           ],
         ),
       ),
