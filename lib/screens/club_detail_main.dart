@@ -11,7 +11,8 @@ class ClubDetailMain extends StatefulWidget {
   State<ClubDetailMain> createState() => _ClubDetailMainState();
 }
 
-class _ClubDetailMainState extends State<ClubDetailMain> with TickerProviderStateMixin {
+class _ClubDetailMainState extends State<ClubDetailMain>
+    with TickerProviderStateMixin {
   final Map<String, GlobalKey> _categoryKeys = {};
   String _selectedCategory = menuCategories.first;
   late final TabController _tabController;
@@ -53,11 +54,17 @@ class _ClubDetailMainState extends State<ClubDetailMain> with TickerProviderStat
       body: NestedScrollView(
         controller: _scrollController,
         headerSliverBuilder:
-            (context, _) => [const ClubHeader(), ClubDetailSliverTabBar(controller: _tabController)],
+            (context, _) => [
+              const ClubHeader(),
+              ClubDetailSliverTabBar(controller: _tabController),
+            ],
         body: TabBarView(
           controller: _tabController,
           children: [
-            HomeTab(tabController: _tabController, scrollController: _scrollController),
+            HomeTab(
+              tabController: _tabController,
+              scrollController: _scrollController,
+            ),
             MenuTab(
               categoryKeys: _categoryKeys,
               selectedCategory: _selectedCategory,
