@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:vybe/constants/app_textstyles.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
 import 'package:vybe/screens/photo_viewer_screen.dart';
+
 import 'package:vybe/widgets/club_detail/common.dart';
 import 'package:vybe/widgets/club_detail/components.dart';
 
@@ -360,13 +361,15 @@ class _ClubInfoTabState extends State<ClubInfoTab>
   }
 
   void _loadMarker(NLatLng position) async {
-    final icon = NOverlayImage.fromAssetImage('assets/images/test_image.png');
+    final icon = NOverlayImage.fromAssetImage(
+      'assets/images/map_location_pin.png',
+    );
 
     _marker = NMarker(
       id: 'my-marker',
       position: position,
       icon: icon,
-      size: NSize(48.w, 48.w),
+      size: NSize(20.w, 22.w),
     );
 
     if (_mapController != null) {
@@ -380,172 +383,28 @@ class _ClubInfoTabState extends State<ClubInfoTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final subwayInfo = clubData['subwayInfo'] as Map<String, dynamic>;
+    final line = subwayInfo['line'] as String;
+
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('위치', style: AppTextStyles.sectionTitle),
-                SizedBox(height: 24.h),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: 172.h,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: NaverMap(
-                      options: NaverMapViewOptions(
-                        initialCameraPosition: _initialCameraPosition,
-                      ),
-                      onMapReady: (controller) {
-                        _mapController = controller;
-                        if (_marker != null) {
-                          _mapController!.addOverlay(_marker!);
-                        }
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 24.h),
-                InfoRow(
-                  icon: 'assets/icons/club_detail_main/location_pin.svg',
-                  widget: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              clubData['address']! as String,
-                              style: AppTextStyles.body.copyWith(
-                                color: const Color(0xFFD1C9C9),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          GestureDetector(
-                            onTap: () {
-                              Clipboard.setData(
-                                ClipboardData(
-                                  text: clubData['address']! as String,
-                                ),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('주소가 복사되었습니다.')),
-                              );
-                            },
-                            child: Icon(
-                              Icons.copy_outlined,
-                              color: const Color(0xFF9F9FA1),
-                              size: 14.sp,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                      Row(
-                        children: [
-                          Container(
-                            width: 18.w,
-                            height: 18.w,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFBD941C),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                "9",
-                                style: AppTextStyles.stationNumber,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          LocationSection(
+            initialCameraPosition: _initialCameraPosition,
+            marker: _marker,
+            onMapReady: (controller) {
+              _mapController = controller;
+              if (_marker != null) {
+                _mapController!.addOverlay(_marker!);
+              }
+            },
+            subwayInfo: subwayInfo,
+            line: line,
           ),
           const CustomDivider(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('상세 정보', style: AppTextStyles.sectionTitle),
-                SizedBox(height: 24.h),
-                Text(
-                  '전화번호',
-                  style: AppTextStyles.body.copyWith(
-                    color: const Color(0xFFCACACB),
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/club_detail_main/phone.svg',
-                      width: 16.w,
-                      height: 16.w,
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      clubData['phoneNumber']! as String,
-                      style: AppTextStyles.body.copyWith(
-                        color: const Color(0xFFCACACB),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 24.h),
-                Text(
-                  '안내 및 유의사항',
-                  style: AppTextStyles.body.copyWith(
-                    color: const Color(0xFFCACACB),
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                Text(
-                  clubData['guidelines']! as String,
-                  style: AppTextStyles.body.copyWith(
-                    color: const Color(0xFFCACACB),
-                  ),
-                ),
-                SizedBox(height: 24.h),
-                Text(
-                  '영업 시간',
-                  style: AppTextStyles.body.copyWith(
-                    color: const Color(0xFFCACACB),
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                Text(
-                  clubData['businessHoursSummary']! as String,
-                  style: AppTextStyles.body.copyWith(
-                    color: const Color(0xFFD1C9C9),
-                  ),
-                ),
-                SizedBox(height: 24.h),
-                Text(
-                  '오픈 채팅',
-                  style: AppTextStyles.body.copyWith(
-                    color: const Color(0xFFCACACB),
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                Text(
-                  clubData['openChatLink']! as String,
-                  style: AppTextStyles.link,
-                ),
-              ],
-            ),
-          ),
+          const DetailInfoSection(),
         ],
       ),
     );

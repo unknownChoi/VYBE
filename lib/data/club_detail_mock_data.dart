@@ -32,7 +32,10 @@ final clubData = {
       "* 성인만 입장 가능합니다.\n* 프로모션 기간에는 운영 시간과 가격이 변동될 수 있습니다.\n* 예약 변경 및 취소는 방문일 전 3일 까지 앱을 통해 가능하며, 2일 ~ 하루 전 취소 시 50% 환불, 당일 취소 및 노쇼 환불 불가",
   'businessHoursSummary': "매일 11:00 ~ 02:00 (일요일 정기 휴무)",
   'openChatLink': "open.kakao.com/o/gYnkW0yf",
-  'coverImage': 'assets/images/test_image.png',
+  'coverImage': [
+    'assets/images/test_image.png',
+    'assets/images/backgroundImage.png',
+  ],
   'images': [
     'assets/images/test_image_3.png',
     'assets/images/test_image_4.png',

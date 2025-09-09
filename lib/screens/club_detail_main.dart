@@ -3,6 +3,7 @@ import 'package:vybe/constants/appcolors.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
 import 'package:vybe/widgets/club_detail/club_layout.dart';
 import 'package:vybe/widgets/club_detail/tabs.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ClubDetailMain extends StatefulWidget {
   const ClubDetailMain({super.key});

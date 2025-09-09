@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
@@ -50,11 +52,11 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                           clubData['address'],
                           style: TextStyle(
                             color: const Color(0xFFD1C9C9),
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w400,
-                            height: 1.12,
-                            letterSpacing: -0.80,
+                            height: 1.12.h,
+                            letterSpacing: -0.80.w,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -76,24 +78,24 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                             shape: BoxShape.circle,
                           ),
                           padding: EdgeInsets.symmetric(
-                            horizontal: 6.0,
-                            vertical: 2.0,
+                            horizontal: 6.0.w,
+                            vertical: 2.0.h,
                           ),
                           child: Text(
                             subwayInfo['line']! as String,
                             style: AppTextStyles.stationNumber,
                           ),
                         ),
-                      SizedBox(width: 8.0),
+                      SizedBox(width: 8.0.w),
                       Text(
                         "${subwayInfo!['station']} 1번 출구에서 ${subwayInfo['distance']}",
                         style: TextStyle(
                           color: const Color(0xFFD1C9C9),
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w400,
-                          height: 1.12,
-                          letterSpacing: -0.80,
+                          height: 1.12.h,
+                          letterSpacing: -0.80.w,
                         ),
                       ),
                     ],
@@ -132,7 +134,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                             fontSize: 16.sp,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w400,
-                            height: 1.12,
+                            height: 1.12.h,
                             letterSpacing: -0.80,
                           ),
                         ),
@@ -148,7 +150,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                             fontSize: 16.sp,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w400,
-                            height: 1.12,
+                            height: 1.12.h,
                             letterSpacing: -0.80,
                           ),
                         ),
@@ -181,7 +183,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                                           fontSize: 14.sp,
                                           fontFamily: 'Pretendard',
                                           fontWeight: FontWeight.w400,
-                                          height: 1.14,
+                                          height: 1.14.h,
                                           letterSpacing: -0.70,
                                         ),
                                       ),
@@ -199,7 +201,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                                         fontSize: 14.sp,
                                         fontFamily: 'Pretendard',
                                         fontWeight: FontWeight.w400,
-                                        height: 1.14,
+                                        height: 1.14.h,
                                         letterSpacing: -0.70,
                                       ),
                                     ),
@@ -223,10 +225,10 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
               clubData['entryFee'],
               style: TextStyle(
                 color: const Color(0xFFECECEC),
-                fontSize: 16,
+                fontSize: 16.sp,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w400,
-                height: 1.12,
+                height: 1.12.h,
                 letterSpacing: -0.80,
               ),
             ),
@@ -241,10 +243,10 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
               clubData['instagramUrl'],
               style: TextStyle(
                 color: const Color(0xFF2B6AFF),
-                fontSize: 16,
+                fontSize: 16.sp,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w400,
-                height: 1.12,
+                height: 1.12.h,
                 letterSpacing: -0.80,
               ),
             ),
@@ -306,7 +308,7 @@ class _ClubSignatureSectionState extends State<ClubSignatureSection> {
             fontSize: 12.sp,
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w400,
-            height: 1.17,
+            height: 1.17.h,
             letterSpacing: -0.30.w,
           ),
         ),
@@ -480,12 +482,12 @@ class ReviewCard extends StatelessWidget {
             children: [
               Text(
                 author,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w700,
-                  height: 1.14,
+                  height: 1.14.h,
                   letterSpacing: -0.35,
                 ),
               ),
@@ -494,24 +496,24 @@ class ReviewCard extends StatelessWidget {
               SizedBox(width: 4.w),
               Text(
                 rating,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(0xFFECECEC),
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w400,
-                  height: 1.12,
+                  height: 1.12.h,
                   letterSpacing: -0.80,
                 ),
               ),
               const Spacer(),
               Text(
                 date,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(0xFFCACACB),
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w400,
-                  height: 1.17,
+                  height: 1.17.h,
                   letterSpacing: -0.30,
                 ),
               ),
@@ -534,12 +536,12 @@ class ReviewCard extends StatelessWidget {
                   children: [
                     Text(
                       displayContent,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFFECECEC),
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
-                        height: 1.12,
+                        height: 1.12.h,
                         letterSpacing: -0.80,
                       ),
                     ),
@@ -556,7 +558,7 @@ class ReviewCard extends StatelessWidget {
                                 fontSize: 12.sp,
                                 fontFamily: 'Pretendard',
                                 fontWeight: FontWeight.w400,
-                                height: 1.17,
+                                height: 1.17.h,
                                 letterSpacing: -0.30,
                               ),
                             ),
@@ -617,6 +619,199 @@ class ReviewCard extends StatelessWidget {
                 ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class LocationSection extends StatelessWidget {
+  final NCameraPosition initialCameraPosition;
+  final NMarker? marker;
+  final ValueChanged<NaverMapController> onMapReady;
+  final Map<String, dynamic> subwayInfo;
+  final String line;
+
+  const LocationSection({
+    super.key,
+    required this.initialCameraPosition,
+    required this.marker,
+    required this.onMapReady,
+    required this.subwayInfo,
+    required this.line,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('위치', style: AppTextStyles.sectionTitle),
+          SizedBox(height: 24.h),
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: 172.h,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12.r),
+              child: NaverMap(
+                options: NaverMapViewOptions(
+                  initialCameraPosition: initialCameraPosition,
+                ),
+                onMapReady: onMapReady,
+              ),
+            ),
+          ),
+          SizedBox(height: 24.h),
+          InfoRow(
+            icon: 'assets/icons/club_detail_main/location_pin.svg',
+            widget: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        clubData['address']! as String,
+                        style: TextStyle(
+                          color: const Color(0xFFD1C9C9),
+                          fontSize: 16.sp,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w700,
+                          height: 1.12.h,
+                          letterSpacing: -0.80,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: clubData['address']! as String),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('주소가 복사되었습니다.')),
+                        );
+                      },
+                      child: Icon(
+                        Icons.copy_outlined,
+                        color: const Color(0xFF9F9FA1),
+                        size: 14.sp,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8.h),
+                Row(
+                  children: [
+                    Container(
+                      width: 18.w,
+                      height: 18.w,
+                      decoration: BoxDecoration(
+                        color: subwayLineColors[subwayInfo['line']],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(line, style: AppTextStyles.stationNumber),
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      '${subwayInfo['station']}에서 ${subwayInfo['distance']}',
+                      style: TextStyle(
+                        color: const Color(0xFFD1C9C9),
+                        fontSize: 16.sp,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        height: 1.12.h,
+                        letterSpacing: -0.80,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DetailInfoSection extends StatelessWidget {
+  const DetailInfoSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('상세 정보', style: AppTextStyles.sectionTitle),
+          SizedBox(height: 24.h),
+          _buildInfoItem(
+            '전화번호',
+            Row(
+              children: [
+                SvgPicture.asset(
+                  'assets/icons/club_detail_main/phone.svg',
+                  width: 16.w,
+                  height: 16.w,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  clubData['phoneNumber']! as String,
+                  style: AppTextStyles.body.copyWith(
+                    color: const Color(0xFFCACACB),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildInfoItem(
+            '안내 및 유의사항',
+            Text(
+              clubData['guidelines']! as String,
+              style: AppTextStyles.body.copyWith(
+                color: const Color(0xFFCACACB),
+              ),
+            ),
+          ),
+          _buildInfoItem(
+            '영업 시간',
+            Text(
+              clubData['businessHoursSummary']! as String,
+              style: AppTextStyles.body.copyWith(
+                color: const Color(0xFFD1C9C9),
+              ),
+            ),
+          ),
+          _buildInfoItem(
+            '오픈 채팅',
+            Text(
+              clubData['openChatLink']! as String,
+              style: AppTextStyles.link,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(String title, Widget content) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 24.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTextStyles.body.copyWith(color: const Color(0xFFCACACB)),
+          ),
+          SizedBox(height: 12.h),
+          content,
         ],
       ),
     );

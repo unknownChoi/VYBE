@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,19 +8,43 @@ import 'package:vybe/data/club_detail_mock_data.dart';
 import '../../constants/appcolors.dart';
 import 'common.dart';
 
-class ClubHeader extends StatelessWidget {
+class ClubHeader extends StatefulWidget {
   const ClubHeader({super.key});
+
+  @override
+  State<ClubHeader> createState() => _ClubHeaderState();
+}
+
+class _ClubHeaderState extends State<ClubHeader> {
+  int currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: Column(
         children: [
-          Image.asset(
-            clubData['coverImage']! as String,
-            width: double.infinity,
-            height: 186.h,
-            fit: BoxFit.cover,
+          Stack(
+            children: [
+              CarouselSlider(
+                items:
+                    (clubData['coverImage'] as List<String>)
+                        .map(
+                          (item) => Image.asset(
+                            item,
+                            width: double.infinity,
+                            height: 186.h,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                        .toList(),
+                options: CarouselOptions(
+                  autoPlay: true,
+                  height: 186.h,
+                  viewportFraction: 1.0,
+                  enlargeCenterPage: false,
+                ),
+              ),
+            ],
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
@@ -44,14 +69,14 @@ class ClubHeader extends StatelessWidget {
                 SizedBox(height: 8.h),
                 Row(
                   children:
-                  (clubData['tags'] as List<String>)
-                      .map(
-                        (tag) => Padding(
-                      padding: EdgeInsets.only(right: 8.w),
-                      child: Tag(text: tag),
-                    ),
-                  )
-                      .toList(),
+                      (clubData['tags'] as List<String>)
+                          .map(
+                            (tag) => Padding(
+                              padding: EdgeInsets.only(right: 8.w),
+                              child: Tag(text: tag),
+                            ),
+                          )
+                          .toList(),
                 ),
                 SizedBox(height: 16.h),
                 Row(
@@ -167,10 +192,10 @@ class SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context,
-      double shrinkOffset,
-      bool overlapsContent,
-      ) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.appBackgroundColor,
