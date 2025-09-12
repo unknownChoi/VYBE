@@ -42,10 +42,37 @@ class _ClubHeaderState extends State<ClubHeader> {
                   height: 186.h,
                   viewportFraction: 1.0,
                   enlargeCenterPage: false,
+                  onPageChanged: (index, reason) {
+                    setState(() => currentIndex = index);
+                  },
+                ),
+              ),
+              Positioned(
+                right: 12.w,
+                bottom: 12.h,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 9.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xCC191919),
+                    borderRadius: BorderRadius.circular(999.r),
+                  ),
+                  child: Text(
+                    '${currentIndex + 1} / ${(clubData["coverImage"] as List).length}',
+                    style: AppTextStyles.body.copyWith(
+                      color: Colors.white,
+                      fontSize: 12.sp,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
+
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
             child: Column(

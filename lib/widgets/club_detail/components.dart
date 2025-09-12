@@ -88,7 +88,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                         ),
                       SizedBox(width: 8.0.w),
                       Text(
-                        "${subwayInfo!['station']} 1번 출구에서 ${subwayInfo['distance']}",
+                        "${subwayInfo!['station']} ${subwayInfo['exitNum']}번 출구에서 ${subwayInfo['distance']}",
                         style: TextStyle(
                           color: const Color(0xFFD1C9C9),
                           fontSize: 16.sp,
@@ -258,20 +258,29 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
 }
 
 class ClubSignatureSection extends StatefulWidget {
-  const ClubSignatureSection({super.key});
+  final VoidCallback? onSeeAll;
+
+  const ClubSignatureSection({super.key, this.onSeeAll});
 
   @override
   State<ClubSignatureSection> createState() => _ClubSignatureSectionState();
 }
 
 class _ClubSignatureSectionState extends State<ClubSignatureSection> {
+  late final List<Map<String, dynamic>> _mainMenuItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _mainMenuItems = menuItemsData.values
+        .expand((menuList) => menuList)
+        .where((item) => item['isMain'] as bool)
+        .toList(growable: false);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final mainMenuItems =
-        menuItemsData.values
-            .expand((menuList) => menuList)
-            .where((item) => item['isMain'] as bool)
-            .toList();
+    final mainMenuItems = _mainMenuItems;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,10 +288,19 @@ class _ClubSignatureSectionState extends State<ClubSignatureSection> {
         Row(
           children: [
             Text("메뉴", style: AppTextStyles.sectionTitle),
-            Spacer(),
-            Text("전체보기", style: AppTextStyles.seeAll),
-            SizedBox(width: 4.w),
-            SvgPicture.asset('assets/icons/club_detail_main/arrow_right.svg'),
+            const Spacer(),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onSeeAll,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("전체보기", style: AppTextStyles.seeAll),
+                  SizedBox(width: 4.w),
+                  SvgPicture.asset('assets/icons/club_detail_main/arrow_right.svg'),
+                ],
+              ),
+            ),
           ],
         ),
         SizedBox(height: 12.h),
@@ -319,7 +337,8 @@ class _ClubSignatureSectionState extends State<ClubSignatureSection> {
 
 class ClubImageArea extends StatelessWidget {
   final List<String> images;
-  const ClubImageArea({super.key, required this.images});
+  final VoidCallback? onSeeAll;
+  const ClubImageArea({super.key, required this.images, this.onSeeAll});
 
   @override
   Widget build(BuildContext context) {
@@ -330,10 +349,19 @@ class ClubImageArea extends StatelessWidget {
           children: [
             Text("사진", style: AppTextStyles.sectionTitle),
             SizedBox(width: 8.w),
-            Spacer(),
-            Text('전체보기', style: AppTextStyles.seeAll),
-            SizedBox(width: 4.w),
-            SvgPicture.asset('assets/icons/club_detail_main/arrow_right.svg'),
+            const Spacer(),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onSeeAll,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('전체보기', style: AppTextStyles.seeAll),
+                  SizedBox(width: 4.w),
+                  SvgPicture.asset('assets/icons/club_detail_main/arrow_right.svg'),
+                ],
+              ),
+            ),
           ],
         ),
         SizedBox(height: 24.h),
@@ -671,17 +699,15 @@ class LocationSection extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Text(
-                        clubData['address']! as String,
-                        style: TextStyle(
-                          color: const Color(0xFFD1C9C9),
-                          fontSize: 16.sp,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w700,
-                          height: 1.12.h,
-                          letterSpacing: -0.80,
-                        ),
+                    Text(
+                      clubData['address']! as String,
+                      style: TextStyle(
+                        color: const Color(0xFFD1C9C9),
+                        fontSize: 16.sp,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        height: 1.12.h,
+                        letterSpacing: -0.80,
                       ),
                     ),
                     SizedBox(width: 8.w),
@@ -718,7 +744,7 @@ class LocationSection extends StatelessWidget {
                     ),
                     SizedBox(width: 4.w),
                     Text(
-                      '${subwayInfo['station']}에서 ${subwayInfo['distance']}',
+                      '${subwayInfo['station']} ${subwayInfo['exitNum']}번 출구에서 ${subwayInfo['distance']}',
                       style: TextStyle(
                         color: const Color(0xFFD1C9C9),
                         fontSize: 16.sp,

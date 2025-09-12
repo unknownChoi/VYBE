@@ -15,10 +15,14 @@ import 'package:vybe/widgets/club_detail/components.dart';
 class HomeTab extends StatelessWidget {
   final TabController tabController;
   final ScrollController scrollController;
+  final VoidCallback onSeeAllMenu;
+  final VoidCallback onSeeAllPhoto;
 
   const HomeTab({
     required this.tabController,
     required this.scrollController,
+    required this.onSeeAllMenu,
+    required this.onSeeAllPhoto,
     super.key,
   });
 
@@ -36,12 +40,15 @@ class HomeTab extends StatelessWidget {
           const CustomDivider(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-            child: const ClubSignatureSection(),
+            child: ClubSignatureSection(onSeeAll: onSeeAllMenu),
           ),
           const CustomDivider(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-            child: ClubImageArea(images: clubData['images']! as List<String>),
+            child: ClubImageArea(
+              images: clubData['images']! as List<String>,
+              onSeeAll: onSeeAllPhoto,
+            ),
           ),
           const CustomDivider(),
           Padding(
@@ -60,11 +67,13 @@ class MenuTab extends StatelessWidget {
   final Map<String, GlobalKey> categoryKeys;
   final String selectedCategory;
   final ValueChanged<String> onCategorySelected;
+  final GlobalKey? topKey;
 
   const MenuTab({
     required this.categoryKeys,
     required this.selectedCategory,
     required this.onCategorySelected,
+    this.topKey,
     super.key,
   });
 
@@ -74,6 +83,7 @@ class MenuTab extends StatelessWidget {
       physics: const ClampingScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
+          key: topKey,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
             child: ClubImageArea(
@@ -172,18 +182,24 @@ class MenuTab extends StatelessWidget {
 
 /// 사진 탭
 class PhotoTab extends StatefulWidget {
-  const PhotoTab({super.key});
+  final GlobalKey? topKey;
+  const PhotoTab({super.key, this.topKey});
 
   @override
   State<PhotoTab> createState() => _PhotoTabState();
 }
 
-class _PhotoTabState extends State<PhotoTab> {
+class _PhotoTabState extends State<PhotoTab>
+    with AutomaticKeepAliveClientMixin<PhotoTab> {
   bool _isExpanded = false;
   final int _initialPhotoCount = 6;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final photosToShow =
         _isExpanded
             ? photoTabImageList
@@ -193,6 +209,7 @@ class _PhotoTabState extends State<PhotoTab> {
       physics: const ClampingScrollPhysics(),
       child: Column(
         children: [
+          if (widget.topKey != null) SizedBox.shrink(key: widget.topKey),
           MasonryGridView.count(
             crossAxisCount: 2,
             mainAxisSpacing: 8.h,

@@ -21,7 +21,8 @@ class MenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final priceFormat = NumberFormat('###,###원');
+    // Reuse NumberFormat to avoid allocating each build.
+    final NumberFormat priceFormat = _priceFormatWon;
     return Row(
       children: [
         Expanded(
@@ -69,3 +70,6 @@ class MenuCard extends StatelessWidget {
     );
   }
 }
+
+// Top-level reusable formatter to avoid rebuild overhead.
+final NumberFormat _priceFormatWon = NumberFormat('###,###원');

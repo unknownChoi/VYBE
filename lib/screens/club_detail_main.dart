@@ -18,6 +18,8 @@ class _ClubDetailMainState extends State<ClubDetailMain>
   String _selectedCategory = menuCategories.first;
   late final TabController _tabController;
   late final ScrollController _scrollController;
+  final GlobalKey _menuTopKey = GlobalKey();
+  final GlobalKey _photoTopKey = GlobalKey();
 
   @override
   void initState() {
@@ -47,6 +49,36 @@ class _ClubDetailMainState extends State<ClubDetailMain>
     }
   }
 
+  void _goToMenuTop() {
+    _tabController.animateTo(1);
+    Future.delayed(const Duration(milliseconds: 250), () {
+      final ctx = _menuTopKey.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          alignment: 0.0,
+        );
+      }
+    });
+  }
+
+  void _goToPhotoTop() {
+    _tabController.animateTo(2);
+    Future.delayed(const Duration(milliseconds: 250), () {
+      final ctx = _photoTopKey.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          alignment: 0.0,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +97,8 @@ class _ClubDetailMainState extends State<ClubDetailMain>
             HomeTab(
               tabController: _tabController,
               scrollController: _scrollController,
+              onSeeAllMenu: _goToMenuTop,
+              onSeeAllPhoto: _goToPhotoTop,
             ),
             MenuTab(
               categoryKeys: _categoryKeys,
@@ -73,8 +107,9 @@ class _ClubDetailMainState extends State<ClubDetailMain>
                 setState(() => _selectedCategory = category);
                 _scrollToCategory(category);
               },
+              topKey: _menuTopKey,
             ),
-            PhotoTab(),
+            PhotoTab(topKey: _photoTopKey),
             ReviewTab(),
             ClubInfoTab(),
           ],

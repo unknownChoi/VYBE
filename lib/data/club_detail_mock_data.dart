@@ -23,7 +23,12 @@ final clubData = {
   'reviews': "13",
   'description': "홍대역 인근 입문자에 좋은 힙합 클럽",
   'address': "서울 마포구 잔다리로 12 지하 1층",
-  'subwayInfo': {'line': '5', 'station': '상수역', 'distance': '422m'},
+  'subwayInfo': {
+    'line': '5',
+    'exitNum': '2',
+    'station': '상수역',
+    'distance': '422m',
+  },
   'addressCoords': {'x': 37.550947012, 'y': 126.921849684},
   'instagramUrl': "https://www.instagram.com/awesomered_omg",
   'entryFee': "입장료 0 ~ 10,000원",
