@@ -48,6 +48,64 @@ class _ClubHeaderState extends State<ClubHeader> {
                 ),
               ),
               Positioned(
+                left: 12.w,
+                top: 50.h,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 9.h,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      size: 20.sp,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 12.w,
+                top: 45.h,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 9.h,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icons/club_detail_main/share.svg',
+                    ),
+                  ),
+                ),
+              ),
+
+              Positioned(
+                right: 50.w,
+                top: 50.h,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 9.h,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icons/club_detail_main/heart.svg',
+                    ),
+                  ),
+                ),
+              ),
+
+              Positioned(
                 right: 12.w,
                 bottom: 12.h,
                 child: Container(

@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false, // 디버그 배너 숨김
           home:
               isNetworkAvailable
-                  ? ClubDetailMain()
+                  ? Home05Main()
                   : Scaffold(
                     body: Center(
                       child: Text(

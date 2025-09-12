@@ -306,7 +306,7 @@ class NearClubCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset('assets/images/near_club/test_1.png'),
+        Image.asset(clubImageSrc),
         SizedBox(height: 8.h),
         Text(
           clubName,

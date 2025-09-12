@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/constants/appcolors.dart';
 import 'package:vybe/screens/auth/login_1_main.dart';
+import 'package:vybe/screens/club_detail_main.dart';
 import 'package:vybe/services/firebase/firebase_service.dart';
+import 'package:vybe/widgets/club_detail/common.dart';
 
 // 스타일 상수 분리
 const TextStyle bottomNavSelectedLabelStyle = TextStyle(
@@ -535,51 +537,62 @@ class _MainPageState extends State<MainPage> {
                 //     ),
                 //   ],
                 // ),
-                SizedBox(
-                  height: 300,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.zero,
-                    itemCount: nearClubImageUrls.length,
-                    separatorBuilder: (_, __) => SizedBox(width: 16),
-                    itemBuilder: (context, index) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: Image.network(
-                              nearClubImageUrls[index],
-                              width: 112.w,
-                              height: 112.w,
-                              fit: BoxFit.cover,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ClubDetailMain(),
                             ),
-                          ),
-                          SizedBox(height: 8.h),
-                          Text(
-                            nearClubName[index][0],
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.70,
-                            ),
-                          ),
-                          Text(
-                            nearClubName[index][1],
-                            style: TextStyle(
-                              color: Color(0xFF9F9FA1),
-                              fontSize: 12,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w400,
-                              height: 1.17,
-                              letterSpacing: -0.30,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                          );
+                        },
+                        child: NearClubCard(
+                          clubName: "클럽 레이저",
+                          clubType: "힙합",
+                          clubCity: "홍대",
+                          clubImageSrc: "assets/images/near_club/test_1.png",
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/near_club/test_2.png",
+                      ),
+                      SizedBox(width: 12.w),
+                      NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/near_club/test_3.png",
+                      ),
+                      SizedBox(width: 12.w),
+                      NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/near_club/test_1.png",
+                      ),
+                      SizedBox(width: 12.w),
+                      NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/near_club/test_2.png",
+                      ),
+                      SizedBox(width: 12.w),
+                      NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/near_club/test_3.png",
+                      ),
+                    ],
                   ),
                 ),
               ],
