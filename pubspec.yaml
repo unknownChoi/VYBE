@@ -1,0 +1,83 @@
+# -------------------------------
+# 프로젝트 기본 정보
+# -------------------------------
+name: vybe
+description: "A new Flutter project."
+publish_to: 'none'   # pub.dev에 배포하지 않음
+
+version: 1.0.0+1     # 버전 관리 (버전명+빌드번호)
+
+# -------------------------------
+# 환경 설정
+# -------------------------------
+environment:
+  sdk: ^3.7.2        # Flutter/Dart SDK 버전 명시
+
+# -------------------------------
+# 프로젝트 의존성 (Dependencies)
+# -------------------------------
+dependencies:
+  flutter:
+    sdk: flutter     # Flutter SDK 필수 의존성
+
+  # UI 및 아이콘
+  cupertino_icons: ^1.0.8
+  flutter_screenutil: ^5.9.3   # 반응형 UI 지원
+  flutter_svg: ^2.2.0          # SVG 이미지 렌더링
+  flutter_spinkit: ^5.2.1      # 로딩 애니메이션
+  flutter_staggered_grid_view: ^0.7.0 # 비정형 그리드 뷰
+  carousel_slider: ^5.1.1      # 캐러셀 슬라이더
+  url_launcher: ^6.3.2         # 외부 URL 실행 (전화, 브라우저 등)
+  video_player: ^2.10.0        # 동영상 플레이어
+  flutter_naver_map: ^1.4.1+1  # 네이버 지도 SDK
+
+  # Firebase 관련
+  firebase_core: ^3.14.0
+  firebase_auth: ^5.6.2
+  cloud_firestore: ^5.6.11
+  firebase_storage: ^12.4.10
+
+  # 네트워크 관련
+  connectivity_plus: ^6.1.4    # 네트워크 연결 상태 체크
+
+  # 기타
+  intl: ^0.19.0                # 날짜/시간/언어 국제화
+
+# -------------------------------
+# 개발용 의존성 (테스트/린트)
+# -------------------------------
+dev_dependencies:
+  flutter_test:
+    sdk: flutter               # Flutter 테스트 패키지
+
+  flutter_lints: ^5.0.0        # 코드 스타일 린트 규칙
+
+# -------------------------------
+# Flutter 프로젝트 설정
+# -------------------------------
+flutter:
+  # 앱에서 사용하는 정적 리소스 (assets)
+  assets:
+    - assets/images/common/
+    - assets/images/bottom_nav_home/
+    # - assets/videos/
+    # - assets/icons/
+    # - assets/images/
+    # - assets/images/near_club/
+    # - assets/images/test_image/
+    
+
+    # 세부 아이콘 경로
+    - assets/icons/auth/login_01/
+    - assets/icons/auth/login_02/
+    - assets/icons/auth/login_03/
+    - assets/icons/bottom_nav_home/
+    - assets/icons/bottom_nav/
+    # - assets/icons/sso_login/
+    # - assets/icons/others/
+    # - assets/icons/mainpage/
+    # - assets/icons/bottom_navigator/
+    # - assets/icons/club_detail_main/
+    # - assets/icons/near_page/
+
+  uses-material-design: true   # Material 디자인 아이콘 사용
