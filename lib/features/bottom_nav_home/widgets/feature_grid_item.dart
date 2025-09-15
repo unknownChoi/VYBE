@@ -19,7 +19,7 @@ class FeatureGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12.r),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -32,7 +32,7 @@ class FeatureGridItem extends StatelessWidget {
               fontSize: 12.sp,
               fontFamily: 'Pretendard',
               fontWeight: FontWeight.w600,
-              letterSpacing: -0.60,
+              letterSpacing: -0.60.sp,
             ),
             textAlign: TextAlign.center,
           ),
@@ -57,13 +57,13 @@ class FeatureGridItem extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Container(
-        margin: const EdgeInsets.all(2),
+        margin: EdgeInsets.all(2.w),
         decoration: BoxDecoration(
           color: const Color(0xFF2F2F33),
-          borderRadius: BorderRadius.circular(9),
+          borderRadius: BorderRadius.circular(9.r),
         ),
         child: Center(
           child: SizedBox(
@@ -82,7 +82,7 @@ class FeatureGridItem extends StatelessWidget {
       height: 60.w,
       decoration: BoxDecoration(
         color: const Color(0xFF2F2F33),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Center(
         child: SizedBox(

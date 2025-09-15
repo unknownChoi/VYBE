@@ -5,11 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/features/auth/utils/login_02_constants.dart';
 
-class Login02Carrierdield extends StatefulWidget {
+class Login02CarrierField extends StatefulWidget {
   final TextEditingController controller;
   final TextInputType keyboardType;
   final Function(String)? onCarrierSelected;
-  const Login02Carrierdield({
+  const Login02CarrierField({
     super.key,
     required this.controller,
     required this.keyboardType,
@@ -74,10 +74,10 @@ class Login02Carrierdield extends StatefulWidget {
   }
 
   @override
-  State<Login02Carrierdield> createState() => _Ui02CarrierFieldState();
+  State<Login02CarrierField> createState() => _Ui02CarrierFieldState();
 }
 
-class _Ui02CarrierFieldState extends State<Login02Carrierdield> {
+class _Ui02CarrierFieldState extends State<Login02CarrierField> {
   @override
   void initState() {
     super.initState();

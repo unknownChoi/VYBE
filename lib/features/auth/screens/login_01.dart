@@ -4,23 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/features/auth/screens/login_02.dart';
+import 'package:vybe/core/app_colors.dart';
 
 class Login01 extends StatelessWidget {
   const Login01({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(393, 852),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: const VybeLoginScreen(),
-        );
-      },
-    );
+    // 중첩 MaterialApp 제거: 상위(MaterialApp/ScreenUtilInit) 컨텍스트를 사용
+    return const VybeLoginScreen();
   }
 }
 
@@ -30,7 +22,7 @@ class VybeLoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF101013),
+      backgroundColor: AppColors.appBackgroundColor,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Column(

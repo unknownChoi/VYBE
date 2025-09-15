@@ -128,11 +128,11 @@ class _Login03State extends State<Login03> {
 
             style: TextStyle(
               color: const Color(0xFFECECEC),
-              fontSize: 24,
+              fontSize: 24.sp,
               fontFamily: 'Pretendard',
               fontWeight: FontWeight.w500,
               height: 1.08,
-              letterSpacing: -0.60,
+              letterSpacing: -0.60.sp,
             ),
             decoration: InputDecoration(
               border: isTimerOver ? OutlineInputBorder() : InputBorder.none,
@@ -200,22 +200,22 @@ class _Login03State extends State<Login03> {
                         text: "인증번호",
                         style: TextStyle(
                           color: AppColors.appGreenColor,
-                          fontSize: 24,
+                          fontSize: 24.sp,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w700,
                           height: 1,
-                          letterSpacing: -0.60,
+                          letterSpacing: -0.60.sp,
                         ),
                       ),
                       TextSpan(
                         text: "를 입력해주세요.",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 24,
+                          fontSize: 24.sp,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w700,
                           height: 1,
-                          letterSpacing: -0.60,
+                          letterSpacing: -0.60.sp,
                         ),
                       ),
                     ],
@@ -239,7 +239,7 @@ class _Login03State extends State<Login03> {
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
                         height: 1.17,
-                        letterSpacing: -0.30,
+                        letterSpacing: -0.30.sp,
                       ),
                     ),
                   ],
@@ -257,11 +257,11 @@ class _Login03State extends State<Login03> {
                   "남은시간",
                   style: TextStyle(
                     color: const Color(0xFFCACACB),
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w400,
                     height: 1.17,
-                    letterSpacing: -0.30,
+                    letterSpacing: -0.30.sp,
                   ),
                 ),
                 SizedBox(width: 4.w),
@@ -269,7 +269,7 @@ class _Login03State extends State<Login03> {
                   _formatTime(_remainingSeconds),
                   style: TextStyle(
                     color: isTimerOver ? Colors.red : AppColors.appPurpleColor,
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w400,
                   ),
@@ -286,15 +286,15 @@ class _Login03State extends State<Login03> {
                           "다시 요청하기",
                           style: TextStyle(
                             color: const Color(0xFFCACACB),
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w500,
-                            letterSpacing: -0.30,
+                            letterSpacing: -0.30.sp,
                           ),
                         ),
                       ),
                       SizedBox(height: 0.5.h),
-                      Container(height: 0.8, color: const Color(0xFFCACACB)),
+                      Container(height: 0.8.h, color: const Color(0xFFCACACB)),
                     ],
                   ),
                 ),
@@ -319,7 +319,7 @@ class _Login03State extends State<Login03> {
                           ? AppColors.appPurpleColor
                           : Color(0xFF2F1A5A),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
                 child: Center(
@@ -330,10 +330,10 @@ class _Login03State extends State<Login03> {
                           buttonEnabled
                               ? Colors.white
                               : Colors.white.withValues(alpha: 0.80),
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w500,
-                      letterSpacing: -0.45,
+                      letterSpacing: -0.45.sp,
                     ),
                   ),
                 ),

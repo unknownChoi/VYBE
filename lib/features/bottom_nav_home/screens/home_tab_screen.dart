@@ -33,6 +33,7 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
 
   Future<void> _loadImages() async {
     final urls = await FirebaseService.fetchNearClubImages();
+    if (!mounted) return;
     setState(() {
       nearClubImageUrls = urls;
       isLoadingNearClub = false;
@@ -48,7 +49,7 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
         children: [
           SizedBox(height: 13.h),
           SizedBox(
-            width: MediaQuery.of(context).size.width,
+            width: 1.sw,
             height: 18.h,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -58,15 +59,15 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                     'assets/icons/bottom_nav_home/location_pin.svg',
                   ),
                   SizedBox(width: 4.w),
-                  const Text(
+                  Text(
                     "내 주변 검색",
                     style: TextStyle(
                       color: Color(0xFFECECEC),
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w400,
                       height: 1.12,
-                      letterSpacing: -0.80,
+                      letterSpacing: -0.80.sp,
                     ),
                   ),
                 ],
@@ -118,7 +119,7 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
           ),
           SizedBox(height: 32.h),
           Container(
-            width: MediaQuery.of(context).size.width,
+            width: 1.sw,
             height: 8.h,
             color: const Color(0xFF2F2F33),
           ),
@@ -129,16 +130,16 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         "주변 클럽",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: 20.sp,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w600,
                           height: 1.10,
-                          letterSpacing: -0.50,
+                          letterSpacing: -0.50.sp,
                         ),
                       ),
                     ),
@@ -150,16 +151,16 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                           style: TextStyle(
                             color: const Color(0xFFCACACB),
                             fontSize: 12.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            height: 1.17,
-                            letterSpacing: -0.30,
-                          ),
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                          height: 1.17,
+                          letterSpacing: -0.30.sp,
                         ),
+                      ),
                         SizedBox(width: 8.w),
                         SvgPicture.asset(
-                          width: 4.sp,
                           'assets/icons/bottom_nav_home/showinfo_icon.svg',
+                          width: 4.sp,
                         ),
                       ],
                     ),
@@ -186,9 +187,9 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                         //   clubImageSrc: "assets/images/near_club/test_1.png",
                         // ),
                         child: Container(
-                          width: 150,
-                          height: 150,
-                          decoration: BoxDecoration(color: Colors.white),
+                          width: 150.w,
+                          height: 150.h,
+                          decoration: const BoxDecoration(color: Colors.white),
                         ),
                       ),
                       // SizedBox(width: 12.w),

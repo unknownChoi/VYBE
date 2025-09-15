@@ -150,7 +150,7 @@ class _Ui02MainState extends State<Login02> {
             _step += 1;
           });
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Login02Carrierdield.showCarrierModal(
+            Login02CarrierField.showCarrierModal(
               context: context,
               controller: _carrierController,
               onCarrierSelected: (carrier) {},
@@ -341,11 +341,11 @@ class _Ui02MainState extends State<Login02> {
                                     ),
                           ),
                           SizedBox(width: 12.w),
-                          const Text(
+                          Text(
                             "전체 동의하기",
                             style: TextStyle(
                               color: Color(0xFFECECEC),
-                              fontSize: 20,
+                              fontSize: 20.sp,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.w600,
                             ),
@@ -535,21 +535,15 @@ class _Ui02MainState extends State<Login02> {
     } else {
       _goToNextStep();
     }
-    final name = _nameController.text.trim();
-    final rrnFront = _rrnFrontController.text.trim();
-    final rrnBack = _rrnBackController.text.trim();
-    final phoneNumber = _phoneController.text.trim();
-    final carrier = _carrierController.text.trim();
-
-    print('입력값: $name, $rrnFront-$rrnBack, $phoneNumber, $carrier');
+    // 입력값 디버그 로그 제거
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF101013),
+      backgroundColor: AppColors.appBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF101013),
+        backgroundColor: AppColors.appBackgroundColor,
         leading: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: IconButton(
@@ -576,14 +570,13 @@ class _Ui02MainState extends State<Login02> {
             SizedBox(height: 38.h),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
-              transitionBuilder:
-                  (child, animation) => SlideTransition(
-                    position: Tween<Offset>(
-                      begin: Offset(0, 0.3.h),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: FadeTransition(opacity: animation, child: child),
-                  ),
+              transitionBuilder: (child, animation) => SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.3),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: FadeTransition(opacity: animation, child: child),
+              ),
               child: _buildPromptText(),
             ),
             SizedBox(height: 30.h),
@@ -592,7 +585,7 @@ class _Ui02MainState extends State<Login02> {
                 case 3:
                   return Ui02LabeledInputField(
                     label: "통신사",
-                    child: Login02Carrierdield(
+                    child: Login02CarrierField(
                       controller: _carrierController,
                       keyboardType: TextInputType.text,
                     ),

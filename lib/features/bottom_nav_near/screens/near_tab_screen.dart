@@ -164,12 +164,12 @@ class _NearTabScreenState extends State<NearTabScreen> {
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Color(0xFFECECEC),
-          fontSize: 12,
+        style: TextStyle(
+          color: const Color(0xFFECECEC),
+          fontSize: 12.sp,
           fontFamily: 'Roboto',
           fontWeight: FontWeight.w400,
-          letterSpacing: -0.24,
+          letterSpacing: -0.24.sp,
         ),
       ),
     );
@@ -188,12 +188,12 @@ class _NearTabScreenState extends State<NearTabScreen> {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFFECECEC),
-              fontSize: 12,
+            style: TextStyle(
+              color: const Color(0xFFECECEC),
+              fontSize: 12.sp,
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w400,
-              letterSpacing: -0.24,
+              letterSpacing: -0.24.sp,
             ),
           ),
           SizedBox(width: 4.w),
@@ -214,32 +214,32 @@ class _NearTabScreenState extends State<NearTabScreen> {
     required String description,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: const Color(0xFF2A2A2D),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             name,
-            style: const TextStyle(
-              fontSize: 18,
+            style: TextStyle(
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Text(
             "$rating ★   $location",
-            style: const TextStyle(color: Colors.greenAccent, fontSize: 14),
+            style: TextStyle(color: Colors.greenAccent, fontSize: 14.sp),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             description,
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
+            style: TextStyle(color: Colors.white70, fontSize: 12.sp),
           ),
         ],
       ),

@@ -20,7 +20,6 @@ class _ConsentDetailPageState extends State<ConsentDetailPage> {
         leading: IconButton(
           padding: EdgeInsets.symmetric(horizontal: 16.w), // 여기로 옮김
           onPressed: () {
-            print("goof");
             Navigator.of(context).pop();
           },
           icon: Icon(Icons.arrow_back_ios, color: Colors.white, size: 24.w),
