@@ -1,4 +1,4 @@
-// lib/utils/ui02_validators.dart
+// TODO: 생년월일 성인 판별 함수
 
 bool isInvalidBirthYearUi02(String frontText, String genderDigit) {
   if (frontText.length != 6 || genderDigit.isEmpty) return false;

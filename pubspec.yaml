@@ -59,13 +59,7 @@ flutter:
   # 앱에서 사용하는 정적 리소스 (assets)
   assets:
     - assets/images/common/
-    - assets/images/bottom_nav_home/
-    # - assets/videos/
-    # - assets/icons/
-    # - assets/images/
-    # - assets/images/near_club/
-    # - assets/images/test_image/
-    
+    - assets/images/bottom_nav_home/    
 
     # 세부 아이콘 경로
     - assets/icons/auth/login_01/
@@ -73,11 +67,6 @@ flutter:
     - assets/icons/auth/login_03/
     - assets/icons/bottom_nav_home/
     - assets/icons/bottom_nav/
-    # - assets/icons/sso_login/
-    # - assets/icons/others/
-    # - assets/icons/mainpage/
-    # - assets/icons/bottom_navigator/
-    # - assets/icons/club_detail_main/
-    # - assets/icons/near_page/
+    - assets/icons/club_detail/
 
   uses-material-design: true   # Material 디자인 아이콘 사용

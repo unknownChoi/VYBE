@@ -1,4 +1,4 @@
-// TODO: 상세정보 ㅇ
+// TODO: 상세정보 입력 페이지
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

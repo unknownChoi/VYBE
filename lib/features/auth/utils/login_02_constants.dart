@@ -1,4 +1,4 @@
-// lib/constants/ui02_constants.dart
+// TODO: 통신사, 부가적인 데이터
 
 const List<String> kCarriers = [
   'SKT',

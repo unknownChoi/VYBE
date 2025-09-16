@@ -1,3 +1,5 @@
+// TODO: 약관 상세보기 페이지
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_colors.dart';
