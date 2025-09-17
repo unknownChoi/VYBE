@@ -59,7 +59,8 @@ flutter:
   # 앱에서 사용하는 정적 리소스 (assets)
   assets:
     - assets/images/common/
-    - assets/images/bottom_nav_home/    
+    - assets/images/bottom_nav_home/   
+    - assets/images/test_image/    
 
     # 세부 아이콘 경로
     - assets/icons/auth/login_01/
@@ -68,5 +69,5 @@ flutter:
     - assets/icons/bottom_nav_home/
     - assets/icons/bottom_nav/
     - assets/icons/club_detail/
-
+    - assets/icons/common/
   uses-material-design: true   # Material 디자인 아이콘 사용

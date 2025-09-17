@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vybe/core/widgets/near_club_card.dart';
 import 'package:vybe/services/firebase/firebase_service.dart';
 
 import '../models/feature_item.dart';
@@ -57,9 +58,7 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Row(
                 children: [
-                  SvgPicture.asset(
-                    'assets/icons/bottom_nav_home/location_pin.svg',
-                  ),
+                  SvgPicture.asset('assets/icons/common/location_pin.svg'),
                   SizedBox(width: 4.w),
                   Text(
                     "내 주변 검색",
@@ -120,11 +119,7 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
             ),
           ),
           SizedBox(height: 32.h),
-          Container(
-            width: 1.sw,
-            height: 8.h,
-            color: const Color(0xFF2F2F33),
-          ),
+          Container(width: 1.sw, height: 8.h, color: const Color(0xFF2F2F33)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
             child: Column(
@@ -153,12 +148,12 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                           style: TextStyle(
                             color: const Color(0xFFCACACB),
                             fontSize: 12.sp,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w400,
-                          height: 1.17,
-                          letterSpacing: -0.30.sp,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w400,
+                            height: 1.17,
+                            letterSpacing: -0.30.sp,
+                          ),
                         ),
-                      ),
                         SizedBox(width: 8.w),
                         SvgPicture.asset(
                           'assets/icons/bottom_nav_home/showinfo_icon.svg',
@@ -173,62 +168,40 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => ClubDetailMain(),
-                          //   ),
-                          // );
-                        },
-                        // child: const NearClubCard(
-                        //   clubName: "클럽 레이저",
-                        //   clubType: "힙합",
-                        //   clubCity: "홍대",
-                        //   clubImageSrc: "assets/images/near_club/test_1.png",
-                        // ),
-                        child: Container(
-                          width: 150.w,
-                          height: 150.h,
-                          decoration: const BoxDecoration(color: Colors.white),
-                        ),
+                      const NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/test_image/test_2.png",
                       ),
-                      // SizedBox(width: 12.w),
-                      // const NearClubCard(
-                      //   clubName: "클럽 레이저",
-                      //   clubType: "힙합",
-                      //   clubCity: "홍대",
-                      //   clubImageSrc: "assets/images/near_club/test_2.png",
-                      // ),
-                      // SizedBox(width: 12.w),
-                      // const NearClubCard(
-                      //   clubName: "클럽 레이저",
-                      //   clubType: "힙합",
-                      //   clubCity: "홍대",
-                      //   clubImageSrc: "assets/images/near_club/test_3.png",
-                      // ),
-                      // SizedBox(width: 12.w),
-                      // const NearClubCard(
-                      //   clubName: "클럽 레이저",
-                      //   clubType: "힙합",
-                      //   clubCity: "홍대",
-                      //   clubImageSrc: "assets/images/near_club/test_1.png",
-                      // ),
-                      // SizedBox(width: 12.w),
-                      // const NearClubCard(
-                      //   clubName: "클럽 레이저",
-                      //   clubType: "힙합",
-                      //   clubCity: "홍대",
-                      //   clubImageSrc: "assets/images/near_club/test_2.png",
-                      // ),
-                      // SizedBox(width: 12.w),
-                      // const NearClubCard(
-                      //   clubName: "클럽 레이저",
-                      //   clubType: "힙합",
-                      //   clubCity: "홍대",
-                      //   clubImageSrc: "assets/images/near_club/test_3.png",
-                      // ),
+                      SizedBox(width: 12.w),
+                      const NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/test_image/test_3.png",
+                      ),
+                      SizedBox(width: 12.w),
+                      const NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/test_image/test_1.png",
+                      ),
+                      SizedBox(width: 12.w),
+                      const NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/test_image/test_2.png",
+                      ),
+                      SizedBox(width: 12.w),
+                      const NearClubCard(
+                        clubName: "클럽 레이저",
+                        clubType: "힙합",
+                        clubCity: "홍대",
+                        clubImageSrc: "assets/images/test_image/test_3.png",
+                      ),
                     ],
                   ),
                 ),
