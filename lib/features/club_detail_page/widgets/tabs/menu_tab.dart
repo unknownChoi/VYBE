@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
-import 'package:vybe/features/club_detail_page/widgets/category_chip.dart';
-import 'package:vybe/features/club_detail_page/widgets/custom_divider.dart';
-import 'package:vybe/features/club_detail_page/widgets/menu_item_card.dart';
+import 'package:vybe/features/club_detail_page/widgets/atoms/category_chip.dart';
+import 'package:vybe/features/club_detail_page/widgets/atoms/custom_divider.dart';
+import 'package:vybe/features/club_detail_page/widgets/items/menu_item_card.dart';
+
 import 'package:vybe/features/club_detail_page/widgets/sections/club_image_area.dart';
 
 class MenuTab extends StatelessWidget {

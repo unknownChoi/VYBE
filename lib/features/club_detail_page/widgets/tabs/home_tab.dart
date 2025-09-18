@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
 import 'package:vybe/features/club_detail_page/widgets/atoms/custom_divider.dart';
-import 'package:vybe/features/club_detail_page/widgets/club_image_area.dart';
-import 'package:vybe/features/club_detail_page/widgets/club_overview_section.dart';
+import 'package:vybe/features/club_detail_page/widgets/sections/club_image_area.dart';
+import 'package:vybe/features/club_detail_page/widgets/sections/club_overview_section.dart';
+
 import 'package:vybe/features/club_detail_page/widgets/sections/club_signature_section.dart';
 import 'package:vybe/features/club_detail_page/widgets/sections/near_club_section.dart';
 

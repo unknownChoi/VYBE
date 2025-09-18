@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vybe/features/club_detail_page/widgets/layout/club_detail_bottom_bar.dart';
+import 'package:vybe/features/club_detail_page/widgets/layout/club_header.dart';
+import 'package:vybe/features/club_detail_page/widgets/tabs/club_info_tab.dart';
+import 'package:vybe/features/club_detail_page/widgets/tabs/home_tab.dart';
+import 'package:vybe/features/club_detail_page/widgets/tabs/menu_tab.dart';
+import 'package:vybe/features/club_detail_page/widgets/tabs/photo_tab.dart';
 
-import '../widgets/club_header.dart';
-import '../widgets/sliver_tab_bar_delegate.dart';
-import '../widgets/club_detail_bottom_bar.dart';
-import '../widgets/home_tab.dart';
-import '../widgets/menu_tab.dart';
-import '../widgets/photo_tab.dart';
+import '../widgets/layout/sliver_tab_bar_delegate.dart';
+
 import '../widgets/review_tab.dart';
-import '../widgets/club_info_tab.dart';
 
 class ClubDetailMain extends StatefulWidget {
   const ClubDetailMain({super.key});

@@ -4,9 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
+import 'package:vybe/features/club_detail_page/widgets/atoms/call_button.dart';
 import 'package:vybe/features/club_detail_page/widgets/atoms/custom_divider.dart';
-import 'package:vybe/features/club_detail_page/widgets/call_button.dart';
-import 'package:vybe/features/club_detail_page/widgets/tag.dart';
+import 'package:vybe/features/club_detail_page/widgets/atoms/tag.dart';
 
 class ClubHeader extends StatefulWidget {
   const ClubHeader({super.key});
@@ -48,7 +48,7 @@ class _ClubHeaderState extends State<ClubHeader> {
                 ),
               ),
               Positioned(
-                left: 12.w,
+                left: 24.w,
                 top: 50.h,
                 child: GestureDetector(
                   onTap: () => Navigator.pop(context),
@@ -60,12 +60,12 @@ class _ClubHeaderState extends State<ClubHeader> {
                 ),
               ),
               Positioned(
-                right: 12.w,
+                right: 24.w,
                 top: 45.h,
                 child: SvgPicture.asset('assets/icons/club_detail/share.svg'),
               ),
               Positioned(
-                right: 50.w,
+                right: 60.w,
                 top: 50.h,
                 child: SvgPicture.asset('assets/icons/club_detail/heart.svg'),
               ),

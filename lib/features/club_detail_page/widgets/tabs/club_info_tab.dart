@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
-import 'package:vybe/features/club_detail_page/widgets/custom_divider.dart';
-import 'package:vybe/features/club_detail_page/widgets/detail_info_section.dart';
+import 'package:vybe/features/club_detail_page/widgets/atoms/custom_divider.dart';
+import 'package:vybe/features/club_detail_page/widgets/sections/detail_info_section.dart';
+
 import 'package:vybe/features/club_detail_page/widgets/sections/location_section.dart';
 
 class ClubInfoTab extends StatefulWidget {

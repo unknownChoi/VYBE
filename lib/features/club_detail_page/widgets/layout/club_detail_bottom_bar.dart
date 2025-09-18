@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_text_style.dart';
-import 'package:vybe/core/app_colors.dart';
-import 'package:vybe/features/club_detail_page/widgets/action_button.dart';
+import 'package:vybe/features/club_detail_page/widgets/atoms/action_button.dart';
 
 class ClubDetailBottomBar extends StatelessWidget {
   const ClubDetailBottomBar({super.key});
