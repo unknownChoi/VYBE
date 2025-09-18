@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/features/auth/screens/login_01.dart';
-import 'package:vybe/features/club_detail_page/screens/main_.dart';
+import 'package:vybe/features/club_detail_page/screens/club_detail_main.dart';
 import 'package:vybe/features/main_shell/screens/main_shell.dart';
 import 'package:vybe/firebase_options.dart';
 
