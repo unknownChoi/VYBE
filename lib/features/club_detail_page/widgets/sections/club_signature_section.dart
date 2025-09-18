@@ -4,8 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
 
-import 'menu_item_card.dart';
-
 class ClubSignatureSection extends StatefulWidget {
   final VoidCallback? onSeeAll;
   const ClubSignatureSection({super.key, this.onSeeAll});

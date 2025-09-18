@@ -4,10 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
-
-import 'custom_divider.dart';
-import 'call_button.dart';
-import 'tag.dart';
+import 'package:vybe/features/club_detail_page/widgets/atoms/custom_divider.dart';
+import 'package:vybe/features/club_detail_page/widgets/call_button.dart';
+import 'package:vybe/features/club_detail_page/widgets/tag.dart';
 
 class ClubHeader extends StatefulWidget {
   const ClubHeader({super.key});

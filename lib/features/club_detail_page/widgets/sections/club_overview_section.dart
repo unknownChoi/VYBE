@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
-import '../utils/subway_utils.dart';
+import 'package:vybe/features/club_detail_page/utils/subway_utils.dart';
 
 class ClubOverviewSection extends StatefulWidget {
   final Map<String, dynamic> clubData;
