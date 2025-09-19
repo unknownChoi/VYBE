@@ -3,12 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vybe/features/bottom_nav_near/screens/near_tab_screen.dart';
 
-import 'package:vybe/features/club_detail_page/screens/club_detail_main.dart';
 import 'package:vybe/features/main_shell/screens/main_shell.dart';
 
 import 'package:vybe/firebase_options.dart';
+import 'package:vybe/services/api/naver_map_service.dart';
 
 void main() async {
   // Flutter 바인딩 초기화
@@ -23,18 +22,7 @@ void main() async {
   // Firebase 초기화
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await FlutterNaverMap().init(
-    clientId: '6jetyz32jo',
-    onAuthFailed:
-        (ex) => switch (ex) {
-          NQuotaExceededException(:final message) => print(
-            "사용량 초과 (message: $message)",
-          ),
-          NUnauthorizedClientException() ||
-          NClientUnspecifiedException() ||
-          NAnotherAuthFailedException() => print("인증 실패: $ex"),
-        },
-  );
+  await NaverMapService.init();
   runApp(MyApp(isNetworkAvailable: isNetworkAvailable));
 }
 

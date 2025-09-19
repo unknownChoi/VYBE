@@ -229,4 +229,48 @@ class AppTextStyles {
     height: 1.12,
     letterSpacing: -0.80.w,
   );
+
+  static final TextStyle chip = TextStyle(
+    color: const Color(0xFFECECEC),
+    fontSize: 12.sp,
+    fontFamily: 'Roboto',
+    fontWeight: FontWeight.w400,
+    letterSpacing: (-0.24).w, // 원래 .sp였던 값을 유지해도 무방합니다. 일관 위해 .w 사용
+  );
+
+  static final TextStyle clubName = TextStyle(
+    color: Colors.white,
+    fontSize: 20.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w600,
+    height: 1.10,
+    letterSpacing: (-0.50).w,
+  );
+
+  static final TextStyle rating = TextStyle(
+    color: Colors.white,
+    fontSize: 12.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w600,
+    height: 1.17,
+    letterSpacing: (-0.60).w,
+  );
+
+  static final TextStyle location = TextStyle(
+    color: const Color(0xFF9F9FA1), // AppColors.gray500
+    fontSize: 12.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w400,
+    height: 1.17,
+    letterSpacing: (-0.30).w,
+  );
+
+  static final TextStyle meta = TextStyle(
+    color: const Color(0xFFCACACB), // AppColors.gray400
+    fontSize: 12.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w400,
+    height: 1.17,
+    letterSpacing: (-0.30).w,
+  );
 }

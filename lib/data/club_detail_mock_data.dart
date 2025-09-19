@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Review {
   final String author;
   final double rating;

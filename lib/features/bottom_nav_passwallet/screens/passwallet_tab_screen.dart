@@ -6,11 +6,6 @@ class PasswalletTabScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        "패스월렛 페이지",
-        style: TextStyle(color: Colors.white, fontSize: 18.sp),
-      ),
-    );
+    return Column(children: [Text("ghood")]);
   }
 }
