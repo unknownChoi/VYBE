@@ -105,7 +105,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 2.h),
-              child: SvgPicture.asset('assets/icons/club_detail/time.svg'),
+              child: SvgPicture.asset('assets/icons/common/time.svg'),
             ),
             SizedBox(width: 12.w),
             Expanded(
@@ -130,7 +130,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                           ),
                         ),
                         SizedBox(width: 4.w),
-                        SvgPicture.asset('assets/icons/club_detail/dot.svg'),
+                        SvgPicture.asset('assets/icons/common/dot.svg'),
                         SizedBox(width: 4.w),
                         Text(
                           "02:00에 영업종료",
@@ -170,7 +170,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
                                         ),
                                         SizedBox(width: 4.w),
                                         SvgPicture.asset(
-                                          'assets/icons/club_detail/dot.svg',
+                                          'assets/icons/common/dot.svg',
                                         ),
                                         SizedBox(width: 4.w),
                                         Text(
@@ -196,7 +196,7 @@ class _ClubOverviewSectionState extends State<ClubOverviewSection> {
         // 입장료
         Row(
           children: [
-            SvgPicture.asset('assets/icons/club_detail/entry_fee.svg'),
+            SvgPicture.asset('assets/icons/common/entry_fee.svg'),
             SizedBox(width: 12.w),
             Text(
               clubData['entryFee'],

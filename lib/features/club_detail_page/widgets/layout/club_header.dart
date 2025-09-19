@@ -125,7 +125,7 @@ class _ClubHeaderState extends State<ClubHeader> {
                 Row(
                   children: [
                     SvgPicture.asset(
-                      'assets/icons/club_detail/star.svg',
+                      'assets/icons/common/star.svg',
                       width: 16.w,
                     ),
                     SizedBox(width: 4.w),
@@ -134,10 +134,7 @@ class _ClubHeaderState extends State<ClubHeader> {
                       style: AppTextStyles.body,
                     ),
                     SizedBox(width: 8.w),
-                    SvgPicture.asset(
-                      'assets/icons/club_detail/dot.svg',
-                      width: 4.w,
-                    ),
+                    SvgPicture.asset('assets/icons/common/dot.svg', width: 4.w),
                     SizedBox(width: 8.w),
                     Text(
                       "리뷰 ${clubData['reviews']! as String}",

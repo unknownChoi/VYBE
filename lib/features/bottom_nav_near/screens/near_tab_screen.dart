@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 
 class NearTabScreen extends StatefulWidget {
   const NearTabScreen({super.key});
@@ -13,6 +13,41 @@ class NearTabScreen extends StatefulWidget {
 }
 
 class _NearTabScreenState extends State<NearTabScreen> {
+  NaverMapController? _mapController;
+  NMarker? _marker;
+  late final NCameraPosition _initialCameraPosition;
+
+  void _loadMarker(NLatLng position) async {
+    final icon = NOverlayImage.fromAssetImage(
+      'assets/images/common/map_location_pin.png',
+    );
+
+    _marker = NMarker(
+      id: 'my-marker',
+      position: position,
+      icon: icon,
+      size: NSize(20.w, 22.w),
+    );
+
+    if (_mapController != null) {
+      _mapController!.addOverlay(_marker!);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _initialCameraPosition = NCameraPosition(
+      target: NLatLng(37.550947012, 126.921849684),
+      zoom: 16,
+      bearing: 0,
+      tilt: 0,
+    );
+
+    _loadMarker(NLatLng(37.550947012, 126.921849684));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +58,17 @@ class _NearTabScreenState extends State<NearTabScreen> {
             color: Colors.red,
             width: double.infinity,
             height: double.infinity,
+            child: NaverMap(
+              options: NaverMapViewOptions(
+                initialCameraPosition: _initialCameraPosition,
+              ),
+              onMapReady: (controller) {
+                _mapController = controller;
+                if (_marker != null) {
+                  _mapController!.addOverlay(_marker!);
+                }
+              },
+            ),
           ),
           SafeArea(
             child: Column(
@@ -30,22 +76,24 @@ class _NearTabScreenState extends State<NearTabScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 36.w,
-                      height: 36.w,
-                      padding: EdgeInsets.symmetric(
-                        vertical: 5.h,
-                        horizontal: 11.w,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF404042),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          size: 20.sp,
-                          color: Color(0XFFCACACB),
+                    GestureDetector(
+                      child: Container(
+                        width: 36.w,
+                        height: 36.w,
+                        padding: EdgeInsets.symmetric(
+                          vertical: 5.h,
+                          horizontal: 11.w,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF404042),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.arrow_back_ios,
+                            size: 20.sp,
+                            color: Color(0XFFCACACB),
+                          ),
                         ),
                       ),
                     ),
@@ -120,24 +168,17 @@ class _NearTabScreenState extends State<NearTabScreen> {
             builder: (context, scrollController) {
               return Container(
                 height: 600.h,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Color.fromARGB(255, 44, 44, 49),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(24.r),
+                  ),
                 ),
                 child: ListView(
+                  padding: EdgeInsets.zero,
                   controller: scrollController,
                   children: [
-                    Center(
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 12, bottom: 16),
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[600],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
+                    SizedBox(height: 20.h),
                     _clubCard(
                       name: "어썸레드",
                       rating: 4.76,
@@ -152,7 +193,6 @@ class _NearTabScreenState extends State<NearTabScreen> {
                       description: "서울 마포구 홍익로 12",
                       isVybeClub: false,
                     ),
-                    const SizedBox(height: 200),
                   ],
                 ),
               );
@@ -303,8 +343,98 @@ class _NearTabScreenState extends State<NearTabScreen> {
             ],
           ),
           SizedBox(height: 8.h),
-
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12.r),
+            child: Image.asset(
+              width: 345.w,
+              height: 152.h,
+              fit: BoxFit.cover,
+              'assets/images/test_image/test_image.png',
+            ),
+          ),
           SizedBox(height: 8.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/icons/common/location_pin.svg',
+                width: 14.w,
+                color: Color(0XFF535355),
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                description,
+                style: TextStyle(
+                  color: const Color(0xFFCACACB) /* Gray400 */,
+                  fontSize: 12,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                  height: 1.17,
+                  letterSpacing: -0.30,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(width: 2.w),
+              SvgPicture.asset(
+                'assets/icons/common/time.svg',
+                width: 12.w,
+                color: Color(0XFF535355),
+              ),
+              SizedBox(width: 8.w),
+              Row(
+                children: [
+                  Text(
+                    "영업중",
+                    style: TextStyle(
+                      color: const Color(0xFFCACACB) /* Gray400 */,
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w400,
+                      height: 1.17,
+                      letterSpacing: -0.30,
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  SvgPicture.asset('assets/icons/common/dot.svg'),
+                  SizedBox(width: 4.w),
+                  Text(
+                    "02:00에 영업 종료",
+                    style: TextStyle(
+                      color: const Color(0xFFCACACB) /* Gray400 */,
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w400,
+                      height: 1.17,
+                      letterSpacing: -0.30,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 20.w),
+              SvgPicture.asset(
+                'assets/icons/common/entry_fee.svg',
+                width: 15.w,
+                color: Color(0XFF535355),
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                "10,000원",
+                style: TextStyle(
+                  color: const Color(0xFFCACACB) /* Gray400 */,
+                  fontSize: 12,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                  height: 1.17,
+                  letterSpacing: -0.30,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

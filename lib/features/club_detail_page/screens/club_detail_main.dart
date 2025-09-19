@@ -7,10 +7,9 @@ import 'package:vybe/features/club_detail_page/widgets/tabs/club_info_tab.dart';
 import 'package:vybe/features/club_detail_page/widgets/tabs/home_tab.dart';
 import 'package:vybe/features/club_detail_page/widgets/tabs/menu_tab.dart';
 import 'package:vybe/features/club_detail_page/widgets/tabs/photo_tab.dart';
+import 'package:vybe/features/club_detail_page/widgets/tabs/review_tab.dart';
 
 import '../widgets/layout/sliver_tab_bar_delegate.dart';
-
-import '../widgets/review_tab.dart';
 
 class ClubDetailMain extends StatefulWidget {
   const ClubDetailMain({super.key});
