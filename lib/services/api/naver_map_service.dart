@@ -22,8 +22,6 @@ class NaverMapService {
             case NClientUnspecifiedException():
             case NAnotherAuthFailedException():
               debugPrint('인증 실패: $ex');
-            default:
-              debugPrint('초기화 중 알 수 없는 오류: $ex');
           }
         },
       );
