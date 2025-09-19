@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vybe/features/bottom_nav_near/screens/near_tab_screen.dart';
 
 import 'package:vybe/features/club_detail_page/screens/club_detail_main.dart';
 
@@ -50,12 +51,12 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false, // 디버그 배너 숨김
           home:
               isNetworkAvailable
-                  ? ClubDetailMain()
+                  ? NearTabScreen()
                   : Scaffold(
                     body: Center(
                       child: Text(
                         '네트워크에 연결되어 있지 않습니다.',
-                        style: TextStyle(fontSize: 18),
+                        style: TextStyle(fontSize: 18.sp),
                       ),
                     ),
                   ),
