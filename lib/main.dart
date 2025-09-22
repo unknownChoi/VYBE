@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:vybe/features/main_shell/screens/main_shell.dart';
 
-import 'package:vybe/services/firebase_options.dart';
+import 'package:vybe/services/firebase/firebase_options.dart';
 import 'package:vybe/services/api/naver_map_service.dart';
 
 void main() async {
