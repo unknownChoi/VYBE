@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
+import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 
 class PasswalletTabScreen extends StatelessWidget {
   const PasswalletTabScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const double kHoleRadius = 6;
-
     return Column(
       children: [
         SizedBox(height: 22.h),
@@ -18,132 +19,417 @@ class PasswalletTabScreen extends StatelessWidget {
               width: 345.w,
               height: 36.h,
               child: PillSegmentedNav(
-                items: ["입장권", "예약", "이용 안내"],
+                items: const ["입장권", "예약", "이용 안내"],
                 onChanged: (i) {
-                  print("good");
+                  // TODO: 탭 전환
                 },
               ),
             ),
           ),
         ),
         SizedBox(height: 12.h),
-        Divider(height: 1.h, thickness: 1.h, color: Color(0xFF2F2F33)),
-        SizedBox(height: 36.h),
-        Container(
+        Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+        SizedBox(height: 24.h),
+
+        PasswalletTicket(isWaitting: false),
+        Spacer(),
+        SizedBox(
           width: 345.w,
-          height: 98.h,
-          decoration: BoxDecoration(
-            color: AppColors.appPurpleColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.r),
-              topRight: Radius.circular(20.r),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              BottomButton(buttonText: "순서 미루기"),
+              Spacer(),
+              BottomButton(buttonText: "웨이팅 취소하기"),
+            ],
           ),
         ),
-        Container(
-          width: 345.w,
-          height: 200.h,
-          decoration: BoxDecoration(color: Color(0Xff2f2f33)),
-        ),
-        SizedBox(height: 4.h),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // 배경(사용자 지정 child)
-            Container(
-              width: 345.w,
-              height: 200.h,
-              decoration: const BoxDecoration(color: Color(0xFF2F2F33)),
-            ),
-
-            // 중앙 텍스트
-
-            // 하단 천공(퍼포레이션) - 배경 투명처리 레이어 제외
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: -kHoleRadius + (-5.h),
-              height: 14.h,
-              child: const _Perforation(), // 별도 정의 필요
-            ),
-          ],
-        ),
+        Spacer(),
       ],
     );
   }
 }
 
-/// 하단 퍼포레이션(톱니)만 구현한 위젯
-// 투명 처리(BlendMode.clear) 제거 + "원 개수"로 배치하는 버전
+//====================버튼====================
+class BottomButton extends StatelessWidget {
+  const BottomButton({super.key, this.buttonText});
 
-class _Perforation extends StatelessWidget {
-  const _Perforation({
-    this.holeRadius = 12.0,
-    this.count = 12, // 그릴 원의 개수
-    this.edgePadding = 8.0, // 좌우 여백
-    this.color, // 점 색 (미지정 시 앱 배경색)
-  });
-
-  final double holeRadius;
-  final int count;
-  final double edgePadding;
-  final Color? color;
-
+  final String? buttonText;
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _PerforationPainter(
-        holeRadius: holeRadius,
-        count: count,
-        edgePadding: edgePadding,
-        color: color ?? AppColors.appBackgroundColor,
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        width: 165.w,
+        height: 40.h,
+        decoration: BoxDecoration(
+          color: AppColors.appPurpleColor,
+          borderRadius: BorderRadius.circular(6.r),
+        ),
+        child: Center(
+          child: Text(
+            buttonText!,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ),
-      child: const SizedBox.expand(),
     );
   }
 }
+//====================버튼====================
 
-class _PerforationPainter extends CustomPainter {
-  _PerforationPainter({
-    required this.holeRadius,
-    required this.count,
-    required this.edgePadding,
-    required this.color,
-  });
+//====================티켓 도형====================
+class PasswalletTicket extends StatefulWidget {
+  PasswalletTicket({super.key, this.isWaitting});
 
-  final double holeRadius;
-  final int count;
-  final double edgePadding;
-  final Color color;
+  bool? isWaitting = false;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final cy = size.height / 2;
-    final paint = Paint()..color = color;
-
-    // 안전 처리: count가 1 이하이면 가운데 하나만 그린다.
-    if (count <= 1) {
-      canvas.drawCircle(Offset(size.width / 2, cy), holeRadius, paint);
-      return;
-    }
-
-    final usableW = (size.width - edgePadding * 2).clamp(0.0, double.infinity);
-    final step = usableW / (count - 1);
-
-    for (int i = 0; i < count; i++) {
-      final x = edgePadding + step * i;
-      canvas.drawCircle(Offset(x, cy), holeRadius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _PerforationPainter old) =>
-      old.holeRadius != holeRadius ||
-      old.count != count ||
-      old.edgePadding != edgePadding ||
-      old.color != color;
+  State<PasswalletTicket> createState() => _PasswalletTicketState();
 }
 
+class _PasswalletTicketState extends State<PasswalletTicket> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: Column(
+        children: [
+          // 상단 컨테이너
+          Container(
+            width: 345.w,
+            height: 98.h,
+            decoration: BoxDecoration(
+              color: AppColors.appPurpleColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.r),
+                topRight: Radius.circular(20.r),
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "어썸레드",
+                  style: TextStyle(
+                    color: Colors.white /* White */,
+                    fontSize: 24.sp,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w600,
+                    height: 1.08.h,
+                    letterSpacing: -0.60.w,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '07월 04일 금요일',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 14.sp,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        height: 1.14.h,
+                        letterSpacing: -0.70.w,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    SvgPicture.asset(
+                      'assets/icons/common/dot.svg',
+                      color: Color(0xFFECECEC),
+                      width: 2.sp,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      '오후 8:12',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 14.sp,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        height: 1.14.h,
+                        letterSpacing: -0.70.w,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    SvgPicture.asset(
+                      'assets/icons/common/dot.svg',
+                      color: Color(0xFFECECEC),
+                      width: 2.sp,
+                    ),
+                    SizedBox(width: 8.w),
+
+                    Text(
+                      widget.isWaitting! ? '입장 대기 중' : '입장완료',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 14.sp,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        height: 1.14.h,
+                        letterSpacing: -0.70.w,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // 본문 컨테이너
+          Container(
+            width: 345.w,
+            height: 200.h,
+            decoration: const BoxDecoration(color: Color(0Xff2f2f33)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 현재 대기 번호
+                Container(
+                  child: Column(
+                    children: [
+                      Text(
+                        '현재 대기 번호',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                          height: 1.12,
+                          letterSpacing: -0.80,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        '5번',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: const Color(0xFFB5FF60) /* Main-Lime500 */,
+                          fontSize: 44,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w700,
+                          height: 1.18,
+                          letterSpacing: -1.10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            '남은 시간',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC) /* Gray200 */,
+                              fontSize: 14,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: -0.70,
+                            ),
+                          ),
+                          Text(
+                            '99:99',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC) /* Gray200 */,
+                              fontSize: 20,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: -0.50,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(width: 25.w),
+                      Container(
+                        width: (1.5).w,
+                        height: 40.h,
+                        decoration: BoxDecoration(color: Color(0xFF707071)),
+                      ),
+                      SizedBox(width: 25.w),
+                      Column(
+                        children: [
+                          Text(
+                            '남은 거리',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC) /* Gray200 */,
+                              fontSize: 14,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: -0.70,
+                            ),
+                          ),
+                          Text(
+                            '999m',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC) /* Gray200 */,
+                              fontSize: 20,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: -0.50,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(width: 25.w),
+                      Container(
+                        width: (1.5).w,
+                        height: 40.h,
+                        decoration: BoxDecoration(color: Color(0xFF707071)),
+                      ),
+                      SizedBox(width: 25.w),
+                      Column(
+                        children: [
+                          Text(
+                            '인원',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC) /* Gray200 */,
+                              fontSize: 14,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: -0.70,
+                            ),
+                          ),
+                          Text(
+                            '99명',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC) /* Gray200 */,
+                              fontSize: 20,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: -0.50,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 4.h),
+
+          // 티켓 형태(하단 천공이 겹치도록)
+          Stack(
+            clipBehavior: Clip.none, // 겹치기 허용
+            children: [
+              // 배경
+              Container(
+                width: 345.w,
+                height: 227.h,
+                decoration: const BoxDecoration(color: Color(0xFF2F2F33)),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 120.w,
+                      height: 120.h,
+                      decoration: BoxDecoration(color: Colors.white),
+                    ),
+
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      child: SizedBox(
+                        width: 120.w,
+                        height: 120.w,
+                        child: Image.asset(
+                          width: 120.w,
+                          height: 120.w,
+                          fit: BoxFit.contain,
+                          'assets/images/bottom_nav_passwallet/test_qr.png',
+                        ),
+                      ),
+                    ),
+
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        width: 345.w,
+                        height: 227.h,
+                        decoration: BoxDecoration(color: Color(0xFF2F2F33)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 하단 천공(별도 클래스 없이 이 클래스 안에서 직접 배치)
+              Positioned(
+                left: 0,
+                right: 0,
+                // 컨테이너 하단에 반쯤 걸치도록 음수 오프셋
+                bottom: -12.w,
+                height: 14.h, // 스트립 높이
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final double stripH = 14.h;
+                    final double cy = stripH / 2;
+                    final double usableW = (constraints.maxWidth - 12.w * 2)
+                        .clamp(0.0, double.infinity);
+                    final double step = (12 <= 1) ? 0 : usableW / (12 - 1);
+
+                    // 점들을 개수 기반으로 균등 배치
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: List.generate(12, (i) {
+                        final double x = 12.w + step * i;
+                        return Positioned(
+                          left: x - 12,
+                          top: cy - 12,
+                          width: 12 * 2,
+                          height: 12 * 2,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: AppColors.appBackgroundColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        );
+                      }),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+//====================티켓 도형====================
+
+//====================상단 네비게이터바====================
 class PillSegmentedNav extends StatefulWidget {
   const PillSegmentedNav({
     super.key,
@@ -251,3 +537,4 @@ class _PillSegmentedNavState extends State<PillSegmentedNav> {
     );
   }
 }
+//====================상단 네비게이터바====================

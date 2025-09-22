@@ -61,6 +61,7 @@ flutter:
     - assets/images/common/
     - assets/images/bottom_nav_home/   
     - assets/images/test_image/    
+    - assets/images/bottom_nav_passwallet/    
 
     # 세부 아이콘 경로
     - assets/icons/auth/login_01/
