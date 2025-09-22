@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -373,10 +375,32 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                     Positioned(
                       left: 0,
                       right: 0,
-                      child: Container(
+                      child: SizedBox(
                         width: 345.w,
                         height: 227.h,
-                        decoration: BoxDecoration(color: Color(0xFF2F2F33)),
+                        child: ClipRect(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Color(0xFF2F2F33).withOpacity(0.6),
+                              ),
+                              child: Text(
+                                "입장시\nQR이 활성화 됩니다.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.10,
+                                  letterSpacing: -0.50,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
