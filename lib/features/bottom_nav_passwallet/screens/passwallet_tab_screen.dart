@@ -7,8 +7,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 
-class PasswalletTabScreen extends StatelessWidget {
+enum PassStatus { waiting, entering, entered, reservation }
+
+class PasswalletTabScreen extends StatefulWidget {
   const PasswalletTabScreen({super.key});
+
+  @override
+  State<PasswalletTabScreen> createState() => _PasswalletTabScreenState();
+}
+
+class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
+  PassStatus _status = PassStatus.waiting;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +32,15 @@ class PasswalletTabScreen extends StatelessWidget {
               child: PillSegmentedNav(
                 items: const ["입장권", "예약", "이용 안내"],
                 onChanged: (i) {
-                  // TODO: 탭 전환
+                  setState(() {
+                    _status =
+                        [
+                          PassStatus.waiting,
+                          PassStatus.entering,
+                          PassStatus.entered,
+                        ][i];
+                  });
+                  print(_status);
                 },
               ),
             ),
@@ -33,7 +50,7 @@ class PasswalletTabScreen extends StatelessWidget {
         Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
         SizedBox(height: 24.h),
 
-        PasswalletTicket(isWaitting: false),
+        PasswalletTicket(status: _status),
         Spacer(),
         SizedBox(
           width: 345.w,
@@ -87,18 +104,38 @@ class BottomButton extends StatelessWidget {
 //====================버튼====================
 
 //====================티켓 도형====================
-class PasswalletTicket extends StatefulWidget {
-  PasswalletTicket({super.key, this.isWaitting});
 
-  bool? isWaitting = false;
+class PasswalletTicket extends StatefulWidget {
+  const PasswalletTicket({super.key, required this.status});
+
+  final PassStatus status;
 
   @override
   State<PasswalletTicket> createState() => _PasswalletTicketState();
 }
 
 class _PasswalletTicketState extends State<PasswalletTicket> {
+  String _statusLabel(PassStatus s) {
+    switch (s) {
+      case PassStatus.waiting:
+        return '입장 대기 중';
+      case PassStatus.entering:
+        return '입장 중';
+      case PassStatus.entered:
+        return '입장완료';
+      case PassStatus.reservation:
+        return '예약완료';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final status = widget.status;
+    final bool showOverlayBlur = status == PassStatus.waiting;
+    final bool showQR = status != PassStatus.waiting;
+    final bool showCountdownRow = status == PassStatus.entering;
+    final bool showCompletedText = status == PassStatus.entered;
+
     return SizedBox(
       child: Column(
         children: [
@@ -120,12 +157,12 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                 Text(
                   "어썸레드",
                   style: TextStyle(
-                    color: Colors.white /* White */,
+                    color: Colors.white,
                     fontSize: 24.sp,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w600,
-                    height: 1.08.h,
-                    letterSpacing: -0.60.w,
+                    height: 1.08,
+                    letterSpacing: (-0.60).w,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -136,51 +173,52 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                       '07월 04일 금요일',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        color: const Color(0xFFECECEC),
                         fontSize: 14.sp,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
-                        height: 1.14.h,
-                        letterSpacing: -0.70.w,
+                        height: 1.14,
+                        letterSpacing: (-0.70).w,
                       ),
                     ),
                     SizedBox(width: 8.w),
                     SvgPicture.asset(
                       'assets/icons/common/dot.svg',
-                      color: Color(0xFFECECEC),
-                      width: 2.sp,
+                      color: const Color(0xFFECECEC),
+                      width: 2.w,
+                      height: 2.w,
                     ),
                     SizedBox(width: 8.w),
                     Text(
                       '오후 8:12',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        color: const Color(0xFFECECEC),
                         fontSize: 14.sp,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
-                        height: 1.14.h,
-                        letterSpacing: -0.70.w,
+                        height: 1.14,
+                        letterSpacing: (-0.70).w,
                       ),
                     ),
                     SizedBox(width: 8.w),
                     SvgPicture.asset(
                       'assets/icons/common/dot.svg',
-                      color: Color(0xFFECECEC),
-                      width: 2.sp,
+                      color: const Color(0xFFECECEC),
+                      width: 2.w,
+                      height: 2.w,
                     ),
                     SizedBox(width: 8.w),
-
                     Text(
-                      widget.isWaitting! ? '입장 대기 중' : '입장완료',
+                      _statusLabel(status),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        color: const Color(0xFFECECEC),
                         fontSize: 14.sp,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
-                        height: 1.14.h,
-                        letterSpacing: -0.70.w,
+                        height: 1.14,
+                        letterSpacing: (-0.70).w,
                       ),
                     ),
                   ],
@@ -193,245 +231,304 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
           Container(
             width: 345.w,
             height: 200.h,
-            decoration: const BoxDecoration(color: Color(0Xff2f2f33)),
+            color: const Color(0xFF2F2F33),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 현재 대기 번호
-                Container(
-                  child: Column(
-                    children: [
-                      Text(
-                        '현재 대기 번호',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w400,
-                          height: 1.12,
-                          letterSpacing: -0.80,
-                        ),
+                Column(
+                  children: [
+                    Text(
+                      '현재 대기 번호',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        height: 1.12,
+                        letterSpacing: (-0.80).w,
                       ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        '5번',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: const Color(0xFFB5FF60) /* Main-Lime500 */,
-                          fontSize: 44,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w700,
-                          height: 1.18,
-                          letterSpacing: -1.10,
-                        ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      '5번',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFFB5FF60),
+                        fontSize: 44.sp,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        height: 1.18,
+                        letterSpacing: (-1.10).w,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 24.h),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            '남은 시간',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 14,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w400,
-                              height: 1.14,
-                              letterSpacing: -0.70,
-                            ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // 남은 시간
+                    Column(
+                      children: [
+                        Text(
+                          '남은 시간',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFFECECEC),
+                            fontSize: 14.sp,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w400,
+                            height: 1.14,
+                            letterSpacing: (-0.70).w,
                           ),
-                          Text(
-                            '99:99',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 20,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w600,
-                              height: 1.10,
-                              letterSpacing: -0.50,
-                            ),
+                        ),
+                        Text(
+                          '09:21',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFFECECEC),
+                            fontSize: 20.sp,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                            height: 1.10,
+                            letterSpacing: (-0.50).w,
                           ),
-                        ],
-                      ),
-                      SizedBox(width: 25.w),
-                      Container(
-                        width: (1.5).w,
-                        height: 40.h,
-                        decoration: BoxDecoration(color: Color(0xFF707071)),
-                      ),
-                      SizedBox(width: 25.w),
-                      Column(
-                        children: [
-                          Text(
-                            '남은 거리',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 14,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w400,
-                              height: 1.14,
-                              letterSpacing: -0.70,
-                            ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: 25.w),
+                    Container(
+                      width: 1.5.w,
+                      height: 40.h,
+                      color: const Color(0xFF707071),
+                    ),
+                    SizedBox(width: 25.w),
+
+                    // 남은 거리
+                    Column(
+                      children: [
+                        Text(
+                          '남은 거리',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFFECECEC),
+                            fontSize: 14.sp,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w400,
+                            height: 1.14,
+                            letterSpacing: (-0.70).w,
                           ),
-                          Text(
-                            '999m',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 20,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w600,
-                              height: 1.10,
-                              letterSpacing: -0.50,
-                            ),
+                        ),
+                        Text(
+                          '999m',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFFECECEC),
+                            fontSize: 20.sp,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                            height: 1.10,
+                            letterSpacing: (-0.50).w,
                           ),
-                        ],
-                      ),
-                      SizedBox(width: 25.w),
-                      Container(
-                        width: (1.5).w,
-                        height: 40.h,
-                        decoration: BoxDecoration(color: Color(0xFF707071)),
-                      ),
-                      SizedBox(width: 25.w),
-                      Column(
-                        children: [
-                          Text(
-                            '인원',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 14,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w400,
-                              height: 1.14,
-                              letterSpacing: -0.70,
-                            ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: 25.w),
+                    Container(
+                      width: 1.5.w,
+                      height: 40.h,
+                      color: const Color(0xFF707071),
+                    ),
+                    SizedBox(width: 25.w),
+
+                    // 인원
+                    Column(
+                      children: [
+                        Text(
+                          '인원',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFFECECEC),
+                            fontSize: 14.sp,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w400,
+                            height: 1.14,
+                            letterSpacing: (-0.70).w,
                           ),
-                          Text(
-                            '99명',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 20,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w600,
-                              height: 1.10,
-                              letterSpacing: -0.50,
-                            ),
+                        ),
+                        Text(
+                          '99명',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFFECECEC),
+                            fontSize: 20.sp,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                            height: 1.10,
+                            letterSpacing: (-0.50).w,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           SizedBox(height: 4.h),
 
-          // 티켓 형태(하단 천공이 겹치도록)
+          // 티켓(QR 영역)
           Stack(
-            clipBehavior: Clip.none, // 겹치기 허용
+            clipBehavior: Clip.none,
             children: [
-              // 배경
               Container(
                 width: 345.w,
                 height: 227.h,
-                decoration: const BoxDecoration(color: Color(0xFF2F2F33)),
-                child: Stack(
-                  alignment: Alignment.center,
+                color: const Color(0xFF2F2F33),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 120.w,
-                      height: 120.h,
-                      decoration: BoxDecoration(color: Colors.white),
-                    ),
-
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      child: SizedBox(
-                        width: 120.w,
-                        height: 120.w,
-                        child: Image.asset(
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
                           width: 120.w,
                           height: 120.w,
-                          fit: BoxFit.contain,
-                          'assets/images/bottom_nav_passwallet/test_qr.png',
+                          color: Colors.white,
                         ),
-                      ),
-                    ),
-
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      child: SizedBox(
-                        width: 345.w,
-                        height: 227.h,
-                        child: ClipRect(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                            child: Container(
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Color(0xFF2F2F33).withOpacity(0.6),
+                        if (showQR)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            child: SizedBox(
+                              width: 120.w,
+                              height: 120.w,
+                              child: Image.asset(
+                                'assets/images/bottom_nav_passwallet/test_qr.png',
+                                width: 110.w,
+                                height: 114.w,
+                                fit: BoxFit.contain,
                               ),
-                              child: Text(
-                                "입장시\nQR이 활성화 됩니다.",
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+
+                    // 입장 중: 카운트다운 문구
+                    if (showCountdownRow || showCompletedText)
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '남은 시간',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: 14.sp,
                                   fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.10,
-                                  letterSpacing: -0.50,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.14,
+                                  letterSpacing: (-0.70).w,
                                 ),
                               ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                '09:21',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: const Color(0xFFB5FF60),
+                                  fontSize: 14.sp,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.14,
+                                  letterSpacing: (-0.35).w,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          Text(
+                            '입장 시 직원에게 QR을 보여주세요.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.11,
+                              letterSpacing: (-0.90).w,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                    // 입장완료: 완료 문구
+                  ],
+                ),
+              ),
+
+              // 대기중: 흐림 오버레이
+              if (showOverlayBlur)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  child: SizedBox(
+                    width: 345.w,
+                    height: 227.h,
+                    child: ClipRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                        child: Container(
+                          alignment: Alignment.center,
+                          color: const Color(0xFF2F2F33).withOpacity(0.6),
+                          child: Text(
+                            "입장시\nQR이 활성화 됩니다.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: (-0.50).w,
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
 
-              // 하단 천공(별도 클래스 없이 이 클래스 안에서 직접 배치)
+              // 하단 천공
               Positioned(
                 left: 0,
                 right: 0,
-                // 컨테이너 하단에 반쯤 걸치도록 음수 오프셋
-                bottom: -12.w,
-                height: 14.h, // 스트립 높이
+                bottom: (-12).w,
+                height: 14.h,
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final double stripH = 14.h;
                     final double cy = stripH / 2;
-                    final double usableW = (constraints.maxWidth - 12.w * 2)
+                    final double margin = 12.w;
+                    final double usableW = (constraints.maxWidth - margin * 2)
                         .clamp(0.0, double.infinity);
-                    final double step = (12 <= 1) ? 0 : usableW / (12 - 1);
+                    const int count = 12;
+                    final double step =
+                        (count <= 1) ? 0 : usableW / (count - 1);
 
-                    // 점들을 개수 기반으로 균등 배치
                     return Stack(
                       clipBehavior: Clip.none,
-                      children: List.generate(12, (i) {
-                        final double x = 12.w + step * i;
+                      children: List.generate(count, (i) {
+                        final double x = margin + step * i;
                         return Positioned(
-                          left: x - 12,
-                          top: cy - 12,
-                          width: 12 * 2,
-                          height: 12 * 2,
+                          left: x - 12.w,
+                          top: cy - 12.w,
+                          width: 24.w,
+                          height: 24.w,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
                               color: AppColors.appBackgroundColor,
