@@ -49,7 +49,7 @@ class NearClubCard extends StatelessWidget {
               ),
             ),
             SizedBox(width: 4.w),
-            SvgPicture.asset('assets/icons/club_detail/dot.svg'),
+            SvgPicture.asset('assets/icons/common/dot.svg'),
             SizedBox(width: 4.w),
             Text(
               clubType,
