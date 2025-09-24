@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -115,6 +116,100 @@ class PasswalletTicket extends StatefulWidget {
 }
 
 class _PasswalletTicketState extends State<PasswalletTicket> {
+  Timer? _qrDisplayTimer; // 1분: QR 보여주기 시간
+  Timer? _entryWindowTimer; // 15분: 입장시간
+
+  int _qrDisplaySeconds = 60; // 01:00 → 00:00
+  int _entryWindowSeconds = 15 * 60; // 15:00 → 00:00
+
+  bool get _isQrExpired => _qrDisplaySeconds <= 0;
+
+  String get _qrTimeText {
+    final m = (_qrDisplaySeconds ~/ 60).toString().padLeft(2, '0');
+    final s = (_qrDisplaySeconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
+  String get _entryTimeText {
+    final m = (_entryWindowSeconds ~/ 60).toString().padLeft(2, '0');
+    final s = (_entryWindowSeconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
+  void _startQrDisplayTimer() {
+    _qrDisplayTimer?.cancel();
+    _qrDisplayTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      if (_qrDisplaySeconds <= 0) {
+        t.cancel();
+        setState(() {});
+        return;
+      }
+      setState(() => _qrDisplaySeconds--);
+    });
+  }
+
+  void _startEntryWindowTimer() {
+    _entryWindowTimer?.cancel();
+    _entryWindowTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      if (_entryWindowSeconds <= 0) {
+        t.cancel();
+        setState(() {});
+        return;
+      }
+      setState(() => _entryWindowSeconds--);
+    });
+  }
+
+  void _stopAllTimers() {
+    _qrDisplayTimer?.cancel();
+    _entryWindowTimer?.cancel();
+  }
+
+  // 상태 전환 시 타이머 제어
+  void _handleStatus(PassStatus s) {
+    if (s == PassStatus.entering) {
+      // 입장 중 전환 시 두 타이머 시작/리셋
+      _qrDisplaySeconds = 60;
+      _entryWindowSeconds = 15 * 60;
+      _startQrDisplayTimer();
+      _startEntryWindowTimer();
+    } else {
+      // 그 외에는 모두 정지 및 표기 초기화(원하면 초기화 생략 가능)
+      _stopAllTimers();
+      _qrDisplaySeconds = 60;
+      _entryWindowSeconds = 15 * 60;
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _handleStatus(widget.status);
+  }
+
+  @override
+  void didUpdateWidget(covariant PasswalletTicket oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.status != widget.status) {
+      _handleStatus(widget.status);
+    }
+  }
+
+  @override
+  void dispose() {
+    _stopAllTimers();
+    super.dispose();
+  }
+
   String _statusLabel(PassStatus s) {
     switch (s) {
       case PassStatus.waiting:
@@ -284,7 +379,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                           ),
                         ),
                         Text(
-                          '09:21',
+                          _entryTimeText, // '09:21' -> _timeText
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: const Color(0xFFECECEC),
@@ -424,7 +519,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                '남은 시간',
+                                _isQrExpired ? "요청 시간 만료" : '남은 시간',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
@@ -437,7 +532,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                               ),
                               SizedBox(width: 4.w),
                               Text(
-                                '09:21',
+                                _isQrExpired ? "" : _qrTimeText,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: const Color(0xFFB5FF60),
