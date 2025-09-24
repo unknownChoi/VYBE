@@ -226,10 +226,10 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
   @override
   Widget build(BuildContext context) {
     final status = widget.status;
-    final bool showOverlayBlur = status == PassStatus.waiting;
-    final bool showQR = status != PassStatus.waiting;
-    final bool showCountdownRow = status == PassStatus.entering;
-    final bool showCompletedText = status == PassStatus.entered;
+    // final bool showOverlayBlur = status == PassStatus.waiting;
+    // final bool showQR = status != PassStatus.waiting;
+    // final bool showCountdownRow = status == PassStatus.entering;
+    // final bool showCompletedText = status == PassStatus.entered;
 
     return SizedBox(
       child: Column(
@@ -492,7 +492,8 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                           height: 120.w,
                           color: Colors.white,
                         ),
-                        if (showQR)
+
+                        if (status != PassStatus.waiting)
                           Positioned(
                             left: 0,
                             right: 0,
@@ -512,7 +513,8 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                     SizedBox(height: 12.h),
 
                     // 입장 중: 카운트다운 문구
-                    if (showCountdownRow || showCompletedText)
+                    if (status == PassStatus.entering ||
+                        status == PassStatus.entered)
                       Column(
                         children: [
                           Row(
@@ -567,7 +569,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
               ),
 
               // 대기중: 흐림 오버레이
-              if (showOverlayBlur)
+              if (status == PassStatus.waiting)
                 Positioned(
                   left: 0,
                   right: 0,
