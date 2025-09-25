@@ -13,8 +13,8 @@ void main() async {
   // Flutter 바인딩 초기화
   WidgetsFlutterBinding.ensureInitialized();
 
-  final List<ConnectivityResult> connectivityResults =
-      await Connectivity().checkConnectivity();
+  final List<ConnectivityResult> connectivityResults = await Connectivity()
+      .checkConnectivity();
   final bool isNetworkAvailable = connectivityResults.any(
     (result) => result != ConnectivityResult.none,
   );
@@ -22,7 +22,7 @@ void main() async {
   // Firebase 초기화
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // await NaverMapService.init();
+  await NaverMapService.init();
   runApp(MyApp(isNetworkAvailable: isNetworkAvailable));
 }
 
@@ -38,17 +38,16 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false, // 디버그 배너 숨김
-          home:
-              isNetworkAvailable
-                  ? MainShell()
-                  : Scaffold(
-                    body: Center(
-                      child: Text(
-                        '네트워크에 연결되어 있지 않습니다.',
-                        style: TextStyle(fontSize: 18.sp),
-                      ),
+          home: isNetworkAvailable
+              ? MainShell()
+              : Scaffold(
+                  body: Center(
+                    child: Text(
+                      '네트워크에 연결되어 있지 않습니다.',
+                      style: TextStyle(fontSize: 18.sp),
                     ),
                   ),
+                ),
         );
       },
     );

@@ -6,7 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
-import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
+// import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 
 enum PassStatus { waiting, entering, entered, reservation }
 
@@ -31,15 +31,14 @@ class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
               width: 345.w,
               height: 36.h,
               child: PillSegmentedNav(
-                items: const ["입장권", "예약", "이용 안내"],
+                items: const ["입장권", "예약", "이용 내역"],
                 onChanged: (i) {
                   setState(() {
-                    _status =
-                        [
-                          PassStatus.waiting,
-                          PassStatus.entering,
-                          PassStatus.entered,
-                        ][i];
+                    _status = [
+                      PassStatus.waiting,
+                      PassStatus.entered,
+                      PassStatus.reservation,
+                    ][i];
                   });
                   print(_status);
                 },
@@ -116,10 +115,12 @@ class PasswalletTicket extends StatefulWidget {
 }
 
 class _PasswalletTicketState extends State<PasswalletTicket> {
+  static const int _kQrSeconds = 10; // TODO: 릴리스 시 60으로 변경
+
   Timer? _qrDisplayTimer; // 1분: QR 보여주기 시간
   Timer? _entryWindowTimer; // 15분: 입장시간
 
-  int _qrDisplaySeconds = 60; // 01:00 → 00:00
+  int _qrDisplaySeconds = _kQrSeconds; // 01:00 → 00:00
   int _entryWindowSeconds = 15 * 60; // 15:00 → 00:00
 
   bool get _isQrExpired => _qrDisplaySeconds <= 0;
@@ -134,6 +135,14 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
     final m = (_entryWindowSeconds ~/ 60).toString().padLeft(2, '0');
     final s = (_entryWindowSeconds % 60).toString().padLeft(2, '0');
     return '$m:$s';
+  }
+
+  void _restartQrTimer() {
+    _qrDisplayTimer?.cancel();
+    setState(() {
+      _qrDisplaySeconds = _kQrSeconds;
+    });
+    _startQrDisplayTimer();
   }
 
   void _startQrDisplayTimer() {
@@ -332,142 +341,437 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
               children: [
                 Column(
                   children: [
-                    Text(
-                      '현재 대기 번호',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.sp,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w400,
-                        height: 1.12,
-                        letterSpacing: (-0.80).w,
+                    if (status == PassStatus.waiting) ...[
+                      // 대기중
+                      Text(
+                        '현재 대기 번호',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                          height: 1.12,
+                          letterSpacing: (-0.80).w,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      '5번',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: const Color(0xFFB5FF60),
-                        fontSize: 44.sp,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700,
-                        height: 1.18,
-                        letterSpacing: (-1.10).w,
+                      SizedBox(height: 8.h),
+                      Text(
+                        '5번',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: const Color(0xFFB5FF60),
+                          fontSize: 44.sp,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w700,
+                          height: 1.18,
+                          letterSpacing: (-1.10).w,
+                        ),
                       ),
-                    ),
+                      SizedBox(height: 18.h),
+                    ] else if (status == PassStatus.entered) ...[
+                      // 입장 완료
+                      Text(
+                        '입장완료',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: const Color(0xFFB5FF60),
+                          fontSize: 32.sp,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w700,
+                          height: 1.18,
+                          letterSpacing: (-1.10).w,
+                        ),
+                      ),
+                      SizedBox(height: 18.h),
+                    ] else if (status == PassStatus.entering) ...[
+                      // 입장중
+                      Text(
+                        '현재 대기 번호',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                          height: 1.12,
+                          letterSpacing: (-0.80).w,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        '입장',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: const Color(0xFFB5FF60),
+                          fontSize: 44.sp,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w700,
+                          height: 1.18,
+                          letterSpacing: (-1.10).w,
+                        ),
+                      ),
+                      SizedBox(height: 18.h),
+                    ] else if (status == PassStatus.reservation) ...[
+                      // 예약
+                      Text(
+                        '예약 상태',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                          height: 1.12,
+                          letterSpacing: (-0.80).w,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        '예약완료',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: const Color(0xFFB5FF60),
+                          fontSize: 28.sp,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w700,
+                          height: 1.18,
+                          letterSpacing: (-1.10).w,
+                        ),
+                      ),
+                      SizedBox(height: 18.h),
+                    ],
                   ],
                 ),
-                SizedBox(height: 24.h),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // 남은 시간
-                    Column(
-                      children: [
-                        Text(
-                          '남은 시간',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: const Color(0xFFECECEC),
-                            fontSize: 14.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            height: 1.14,
-                            letterSpacing: (-0.70).w,
-                          ),
+                if (status == PassStatus.entered) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // 남은 시간
+                      SizedBox(
+                        width: 118.w,
+                        child: Column(
+                          children: [
+                            Text(
+                              '대기 시간',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: const Color(0xFFECECEC),
+                                fontSize: 14.sp,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                                height: 1.14,
+                                letterSpacing: (-0.70).w,
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Text(
+                              status == PassStatus.entering
+                                  ? _entryTimeText
+                                  : "-", // '09:21' -> _timeText
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: const Color(0xFFECECEC),
+                                fontSize: 20.sp,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w600,
+                                height: 1.10,
+                                letterSpacing: (-0.50).w,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          _entryTimeText, // '09:21' -> _timeText
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: const Color(0xFFECECEC),
-                            fontSize: 20.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w600,
-                            height: 1.10,
-                            letterSpacing: (-0.50).w,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(width: 25.w),
-                    Container(
-                      width: 1.5.w,
-                      height: 40.h,
-                      color: const Color(0xFF707071),
-                    ),
-                    SizedBox(width: 25.w),
+                      ),
+                      SizedBox(width: 25.w),
+                      Container(
+                        width: 1.5.w,
+                        height: 40.h,
+                        color: const Color(0xFF707071),
+                      ),
+                      SizedBox(width: 25.w),
 
-                    // 남은 거리
-                    Column(
-                      children: [
-                        Text(
-                          '남은 거리',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: const Color(0xFFECECEC),
-                            fontSize: 14.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            height: 1.14,
-                            letterSpacing: (-0.70).w,
-                          ),
+                      // 인원
+                      SizedBox(
+                        width: 118.w,
+                        child: Column(
+                          children: [
+                            Text(
+                              '인원',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: const Color(0xFFECECEC),
+                                fontSize: 14.sp,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                                height: 1.14,
+                                letterSpacing: (-0.70).w,
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Text(
+                              '99명',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: const Color(0xFFECECEC),
+                                fontSize: 20.sp,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w600,
+                                height: 1.10,
+                                letterSpacing: (-0.50).w,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '999m',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: const Color(0xFFECECEC),
-                            fontSize: 20.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w600,
-                            height: 1.10,
-                            letterSpacing: (-0.50).w,
-                          ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 24.h),
+                  Container(
+                    width: 286.w,
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF535355),
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "후기 작성하러 가기",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white /* White */,
+                          fontSize: 15,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
+                      ),
                     ),
-                    SizedBox(width: 25.w),
-                    Container(
-                      width: 1.5.w,
-                      height: 40.h,
-                      color: const Color(0xFF707071),
-                    ),
-                    SizedBox(width: 25.w),
+                  ),
+                ] else if (status == PassStatus.reservation) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // 남은 시간
+                      Column(
+                        children: [
+                          Text(
+                            '좌석 정보',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 14.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: (-0.70).w,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Text(
+                            "A-3",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: (-0.50).w,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(width: 25.w),
+                      Container(
+                        width: 1.5.w,
+                        height: 40.h,
+                        color: const Color(0xFF707071),
+                      ),
+                      SizedBox(width: 25.w),
 
-                    // 인원
-                    Column(
-                      children: [
-                        Text(
-                          '인원',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: const Color(0xFFECECEC),
-                            fontSize: 14.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            height: 1.14,
-                            letterSpacing: (-0.70).w,
+                      // 남은 거리
+                      Column(
+                        children: [
+                          Text(
+                            '결제 정보',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 14.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: (-0.70).w,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '99명',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: const Color(0xFFECECEC),
-                            fontSize: 20.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w600,
-                            height: 1.10,
-                            letterSpacing: (-0.50).w,
+                          SizedBox(height: 10.h),
+                          Text(
+                            '완료',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: (-0.50).w,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                        ],
+                      ),
+                      SizedBox(width: 25.w),
+                      Container(
+                        width: 1.5.w,
+                        height: 40.h,
+                        color: const Color(0xFF707071),
+                      ),
+                      SizedBox(width: 25.w),
+
+                      // 인원
+                      Column(
+                        children: [
+                          Text(
+                            '인원',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 14.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: (-0.70).w,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Text(
+                            '99명',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: (-0.50).w,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 24.h),
+                ] else ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // 남은 시간
+                      Column(
+                        children: [
+                          Text(
+                            '남은 시간',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 14.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: (-0.70).w,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Text(
+                            status == PassStatus.entering
+                                ? _entryTimeText
+                                : "-", // '09:21' -> _timeText
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: (-0.50).w,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(width: 25.w),
+                      Container(
+                        width: 1.5.w,
+                        height: 40.h,
+                        color: const Color(0xFF707071),
+                      ),
+                      SizedBox(width: 25.w),
+
+                      // 남은 거리
+                      Column(
+                        children: [
+                          Text(
+                            '남은 거리',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 14.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: (-0.70).w,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Text(
+                            '999m',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: (-0.50).w,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(width: 25.w),
+                      Container(
+                        width: 1.5.w,
+                        height: 40.h,
+                        color: const Color(0xFF707071),
+                      ),
+                      SizedBox(width: 25.w),
+
+                      // 인원
+                      Column(
+                        children: [
+                          Text(
+                            '인원',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 14.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              height: 1.14,
+                              letterSpacing: (-0.70).w,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Text(
+                            '99명',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: const Color(0xFFECECEC),
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: (-0.50).w,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -505,6 +809,37 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                                 width: 110.w,
                                 height: 114.w,
                                 fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                        if (_isQrExpired)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                _restartQrTimer();
+                              },
+                              child: ClipRect(
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                    sigmaX: 12,
+                                    sigmaY: 12,
+                                  ),
+                                  child: Container(
+                                    width: 120.w,
+                                    height: 120.w,
+                                    alignment: Alignment.center,
+                                    color: const Color(
+                                      0xFF2F2F33,
+                                    ).withOpacity(0.1),
+                                    child: Icon(
+                                      size: 50.sp,
+                                      Icons.refresh,
+                                      color: AppColors.appPurpleColor,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -569,7 +904,8 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
               ),
 
               // 대기중: 흐림 오버레이
-              if (status == PassStatus.waiting)
+              if (status == PassStatus.waiting ||
+                  status == PassStatus.reservation)
                 Positioned(
                   left: 0,
                   right: 0,
@@ -614,8 +950,9 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                     final double usableW = (constraints.maxWidth - margin * 2)
                         .clamp(0.0, double.infinity);
                     const int count = 12;
-                    final double step =
-                        (count <= 1) ? 0 : usableW / (count - 1);
+                    final double step = (count <= 1)
+                        ? 0
+                        : usableW / (count - 1);
 
                     return Stack(
                       clipBehavior: Clip.none,
