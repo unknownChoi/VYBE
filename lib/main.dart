@@ -22,7 +22,7 @@ void main() async {
   // Firebase 초기화
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await NaverMapService.init();
+  // await NaverMapService.init();
   runApp(MyApp(isNetworkAvailable: isNetworkAvailable));
 }
 

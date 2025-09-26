@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
+import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 // import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 
 enum PassStatus { waiting, entering, entered, reservation }
@@ -18,7 +19,8 @@ class PasswalletTabScreen extends StatefulWidget {
 }
 
 class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
-  PassStatus _status = PassStatus.waiting;
+  final PassStatus _status = PassStatus.reservation;
+  int _selectIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +36,8 @@ class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
                 items: const ["입장권", "예약", "이용 내역"],
                 onChanged: (i) {
                   setState(() {
-                    _status = [
-                      PassStatus.waiting,
-                      PassStatus.entered,
-                      PassStatus.reservation,
-                    ][i];
+                    _selectIndex = i;
                   });
-                  print(_status);
                 },
               ),
             ),
@@ -50,20 +47,18 @@ class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
         Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
         SizedBox(height: 24.h),
 
-        PasswalletTicket(status: _status),
-        Spacer(),
-        SizedBox(
-          width: 345.w,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              BottomButton(buttonText: "순서 미루기"),
-              Spacer(),
-              BottomButton(buttonText: "웨이팅 취소하기"),
-            ],
+        Expanded(
+          child: Center(
+            child: IndexedStack(
+              index: _selectIndex,
+              children: [
+                PasswalletTicket(status: _status),
+                ReservationSection(),
+                HistorySection(),
+              ],
+            ),
           ),
         ),
-        Spacer(),
       ],
     );
   }
@@ -71,30 +66,37 @@ class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
 
 //====================버튼====================
 class BottomButton extends StatelessWidget {
-  const BottomButton({super.key, this.buttonText});
+  const BottomButton({
+    super.key,
+    required this.label,
+    required this.bgColor,
+    required this.onTap,
+  });
 
-  final String? buttonText;
+  final String label;
+  final Color bgColor;
+  final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
         width: 165.w,
         height: 40.h,
         decoration: BoxDecoration(
-          color: AppColors.appPurpleColor,
+          color: bgColor,
           borderRadius: BorderRadius.circular(6.r),
         ),
-        child: Center(
-          child: Text(
-            buttonText!,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w600,
-            ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -235,12 +237,8 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
   @override
   Widget build(BuildContext context) {
     final status = widget.status;
-    // final bool showOverlayBlur = status == PassStatus.waiting;
-    // final bool showQR = status != PassStatus.waiting;
-    // final bool showCountdownRow = status == PassStatus.entering;
-    // final bool showCompletedText = status == PassStatus.entered;
 
-    return SizedBox(
+    return Center(
       child: Column(
         children: [
           // 상단 컨테이너
@@ -977,12 +975,113 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
               ),
             ],
           ),
+          Spacer(),
+          SizedBox(
+            width: 345.w,
+            child: Builder(
+              builder: (context) {
+                final specs = _buttonSpecsFor(widget.status, context);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    BottomButton(
+                      label: specs[0].label,
+                      bgColor: specs[0].color,
+                      onTap: specs[0].onTap,
+                    ),
+                    const Spacer(),
+                    BottomButton(
+                      label: specs[1].label,
+                      bgColor: specs[1].color,
+                      onTap: specs[1].onTap,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          Spacer(),
         ],
       ),
     );
   }
 }
+
 //====================티켓 도형====================
+class _BtnSpec {
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  _BtnSpec({required this.label, required this.color, required this.onTap});
+}
+
+// ✅ 상황별 라벨·색상 매핑
+List<_BtnSpec> _buttonSpecsFor(PassStatus s, BuildContext context) {
+  // 색상은 필요하면 AppColors에 정의해서 교체하세요.
+  final Color primary = AppColors.appPurpleColor; // 주요 액션
+
+  final Color danger = const Color(0xFF3A3A3E); // 삭제/취소 등
+
+  switch (s) {
+    // 입장 전/입장 중 -> [순서 미루기, 웨이팅 취소하기]
+    case PassStatus.waiting:
+    case PassStatus.entering:
+      return [
+        _BtnSpec(
+          label: '순서 미루기',
+          color: primary,
+          onTap: () {
+            /* TODO: 순서 미루기 액션 */
+          },
+        ),
+        _BtnSpec(
+          label: '웨이팅 취소하기',
+          color: danger,
+          onTap: () {
+            /* TODO: 웨이팅 취소 액션 */
+          },
+        ),
+      ];
+
+    // 입장 완료 -> [음료 주문하기, 입장권 삭제하기]
+    case PassStatus.entered:
+      return [
+        _BtnSpec(
+          label: '음료 주문하기',
+          color: primary, // 필요시 브랜드 Green 등으로 변경
+          onTap: () {
+            /* TODO: 주문 화면 이동 */
+          },
+        ),
+        _BtnSpec(
+          label: '입장권 삭제하기',
+          color: danger,
+          onTap: () {
+            /* TODO: 삭제 확인 다이얼로그 */
+          },
+        ),
+      ];
+
+    // 예약 완료 -> [예약 취소하기, 예약 변경하기]
+    case PassStatus.reservation:
+      return [
+        _BtnSpec(
+          label: '예약 취소하기',
+          color: danger,
+          onTap: () {
+            /* TODO: 취소 플로우 */
+          },
+        ),
+        _BtnSpec(
+          label: '예약 변경하기',
+          color: primary, // 변경은 보조 톤 권장
+          onTap: () {
+            /* TODO: 변경 플로우 */
+          },
+        ),
+      ];
+  }
+}
 
 //====================상단 네비게이터바====================
 class PillSegmentedNav extends StatefulWidget {
@@ -1093,3 +1192,30 @@ class _PillSegmentedNavState extends State<PillSegmentedNav> {
   }
 }
 //====================상단 네비게이터바====================
+
+class ReservationSection extends StatelessWidget {
+  const ReservationSection({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        "THIS IS RESERVATION SECTION",
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+}
+
+class HistorySection extends StatelessWidget {
+  const HistorySection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        "THIS IS HISROTY SECTION",
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+}
