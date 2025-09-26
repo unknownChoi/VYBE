@@ -11,6 +11,8 @@ import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 
 enum PassStatus { waiting, entering, entered, reservation }
 
+enum ReservationStatus { pendingApproval, confirmed, canceled }
+
 class PasswalletTabScreen extends StatefulWidget {
   const PasswalletTabScreen({super.key});
 
@@ -20,7 +22,7 @@ class PasswalletTabScreen extends StatefulWidget {
 
 class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
   final PassStatus _status = PassStatus.reservation;
-  int _selectIndex = 0;
+  int _selectIndex = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +47,6 @@ class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
         ),
         SizedBox(height: 12.h),
         Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
-        SizedBox(height: 24.h),
-
         Expanded(
           child: Center(
             child: IndexedStack(
@@ -242,6 +242,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
       child: Column(
         children: [
           // 상단 컨테이너
+          SizedBox(height: 24.h),
           Container(
             width: 345.w,
             height: 98.h,
@@ -1193,19 +1194,280 @@ class _PillSegmentedNavState extends State<PillSegmentedNav> {
 }
 //====================상단 네비게이터바====================
 
+//====================예약 내역 섹션====================
 class ReservationSection extends StatelessWidget {
   const ReservationSection({super.key});
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        "THIS IS RESERVATION SECTION",
-        style: TextStyle(color: Colors.white),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          ReservationClubCard(status: ReservationStatus.canceled),
+          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+
+          ReservationClubCard(status: ReservationStatus.pendingApproval),
+          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+
+          ReservationClubCard(status: ReservationStatus.confirmed),
+          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+
+          // ReservationClubCard(),
+          // Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+
+          // ReservationClubCard(),
+          // Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+
+          // ReservationClubCard(),
+          // Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+
+          // ReservationClubCard(),
+          // Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+        ],
       ),
     );
   }
 }
 
+//====================예약 내역 섹션====================
+//
+
+//====================예약 내력 카드 섹션====================
+//
+
+class ReservationClubCard extends StatelessWidget {
+  const ReservationClubCard({super.key, required this.status});
+
+  final ReservationStatus status;
+
+  String _statusLabel(ReservationStatus status) {
+    switch (status) {
+      case ReservationStatus.pendingApproval:
+        return "수락 대기중";
+      case ReservationStatus.canceled:
+        return "예약 취소";
+      case ReservationStatus.confirmed:
+        return "예약 완료";
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: status == ReservationStatus.canceled
+                        ? Color(0xFF535355)
+                        : AppColors.appGreenColor,
+                    borderRadius: BorderRadius.circular(999.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      _statusLabel(status),
+                      style: TextStyle(
+                        color: status == ReservationStatus.canceled
+                            ? Colors.white
+                            : Color(0xFF2F2F33),
+                        fontSize: 11,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.27,
+                        letterSpacing: -0.55,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                if (status == ReservationStatus.confirmed)
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 2.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF404042),
+                      borderRadius: BorderRadius.circular(999.r),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'D-10',
+                        style: TextStyle(
+                          color: const Color(0xFFCACACB) /* Gray400 */,
+                          fontSize: 11,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                          height: 1.27,
+                          letterSpacing: -0.55,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(height: 10.h),
+            Row(
+              children: [
+                Container(
+                  width: 60.w,
+                  height: 60.w,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: Image.asset('assets/images/test_image/test_1.png'),
+                ),
+                SizedBox(width: 12.w),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "어썸레드",
+                      style: TextStyle(
+                        color: Colors.white /* White */,
+                        fontSize: 24,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.08,
+                        letterSpacing: -0.60,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Text(
+                          "07월 04일 금요일",
+                          style: TextStyle(
+                            color: const Color(0xFFCACACB) /* Gray400 */,
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w400,
+                            height: 1.14,
+                            letterSpacing: -0.70,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        SvgPicture.asset('assets/icons/common/dot.svg'),
+                        SizedBox(width: 8.w),
+                        Text(
+                          "오후 8:12",
+                          style: TextStyle(
+                            color: const Color(0xFFCACACB) /* Gray400 */,
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w400,
+                            height: 1.14,
+                            letterSpacing: -0.70,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        SvgPicture.asset('assets/icons/common/dot.svg'),
+                        SizedBox(width: 8.w),
+                        Text(
+                          "3명",
+                          style: TextStyle(
+                            color: const Color(0xFFCACACB) /* Gray400 */,
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w400,
+                            height: 1.14,
+                            letterSpacing: -0.70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 20.h),
+            if (status != ReservationStatus.canceled) ...[
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF535355),
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    width: 166.5.w,
+                    height: 40.h,
+                    child: Center(
+                      child: Text(
+                        "예약 취소하기",
+                        style: TextStyle(
+                          color: Colors.white /* White */,
+                          fontSize: 14,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                          height: 1.14,
+                          letterSpacing: -0.35,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(width: 12.w),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.appPurpleColor,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    width: 166.5.w,
+                    height: 40.h,
+                    child: Center(
+                      child: Text(
+                        "예약 변경하기",
+                        style: TextStyle(
+                          color: Colors.white /* White */,
+                          fontSize: 14,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                          height: 1.14,
+                          letterSpacing: -0.35,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF535355),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                width: MediaQuery.of(context).size.width,
+                height: 40.h,
+                child: Center(
+                  child: Text(
+                    "내역 삭제하기",
+                    style: TextStyle(
+                      color: Colors.white /* White */,
+                      fontSize: 14,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      height: 1.14,
+                      letterSpacing: -0.35,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+//====================예약 내력 카드 섹션====================
+//
+
+//
+//====================이용 내역 섹션====================
 class HistorySection extends StatelessWidget {
   const HistorySection({super.key});
 
@@ -1219,3 +1481,4 @@ class HistorySection extends StatelessWidget {
     );
   }
 }
+//====================이용 내역 섹션====================
