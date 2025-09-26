@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:ui';
 import 'dart:async';
 
@@ -6,8 +7,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
-import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
-// import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 
 enum PassStatus { waiting, entering, entered, reservation }
 
@@ -1233,7 +1232,6 @@ class ReservationSection extends StatelessWidget {
 //
 
 //====================예약 내력 카드 섹션====================
-//
 
 class ReservationClubCard extends StatelessWidget {
   const ReservationClubCard({super.key, required this.status});
@@ -1472,10 +1470,9 @@ class ReservationClubCard extends StatelessWidget {
     );
   }
 }
-//====================예약 내력 카드 섹션====================
-//
 
-//
+//====================예약 내력 카드 섹션====================
+
 //====================이용 내역 섹션====================
 class HistorySection extends StatelessWidget {
   const HistorySection({super.key});
@@ -1485,14 +1482,36 @@ class HistorySection extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          HistoryClubCard(reviewStatus: HistoryClubCardReviewStatus.expired),
-          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
-
-          HistoryClubCard(reviewStatus: HistoryClubCardReviewStatus.reviewed),
+          HistoryClubCard(
+            reviewStatus: HistoryClubCardReviewStatus.expired,
+            clubName: "어썸레드",
+            scheduledDate: "07월 04일 금요일",
+            scheduledTime: "오후 8:12",
+            enteredCount: 3,
+            imageSrc: 'assets/images/test_image/test_1.png',
+            isReservation: true,
+          ),
           Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
 
           HistoryClubCard(
             reviewStatus: HistoryClubCardReviewStatus.notReviewed,
+            clubName: "클럽 레이저",
+            scheduledDate: "11월 19일 일요일",
+            scheduledTime: "오전 5:12",
+            enteredCount: 3,
+            imageSrc: 'assets/images/test_image/test_2.png',
+            isReservation: false,
+          ),
+          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+
+          HistoryClubCard(
+            reviewStatus: HistoryClubCardReviewStatus.reviewed,
+            clubName: "오션",
+            scheduledDate: "11월 19일 일요일",
+            scheduledTime: "오후 11:12",
+            enteredCount: 3,
+            imageSrc: 'assets/images/test_image/test_3.png',
+            isReservation: false,
           ),
           Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
         ],
@@ -1502,9 +1521,24 @@ class HistorySection extends StatelessWidget {
 }
 
 class HistoryClubCard extends StatelessWidget {
-  const HistoryClubCard({super.key, required this.reviewStatus});
+  const HistoryClubCard({
+    super.key,
+    required this.reviewStatus,
+    required this.clubName,
+    required this.scheduledDate,
+    required this.scheduledTime,
+    required this.enteredCount,
+    required this.imageSrc,
+    required this.isReservation,
+  });
 
   final HistoryClubCardReviewStatus reviewStatus;
+  final String clubName;
+  final String scheduledDate;
+  final String scheduledTime;
+  final int enteredCount;
+  final String imageSrc;
+  final bool isReservation;
 
   @override
   Widget build(BuildContext context) {
@@ -1523,7 +1557,7 @@ class HistoryClubCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    "현장 웨이팅",
+                    isReservation ? "예약" : "현장 웨이팅",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 11.sp,
@@ -1546,14 +1580,14 @@ class HistoryClubCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(6.r),
                 ),
-                child: Image.asset('assets/images/test_image/test_1.png'),
+                child: Image.asset(imageSrc),
               ),
               SizedBox(width: 12.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "어썸레드",
+                    clubName,
                     style: TextStyle(
                       color: Colors.white /* White */,
                       fontSize: 24,
@@ -1567,7 +1601,7 @@ class HistoryClubCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        "07월 04일 금요일",
+                        scheduledDate,
                         style: TextStyle(
                           color: const Color(0xFFCACACB) /* Gray400 */,
                           fontSize: 14,
@@ -1585,7 +1619,7 @@ class HistoryClubCard extends StatelessWidget {
                       ),
                       SizedBox(width: 8.w),
                       Text(
-                        "오후 8:12",
+                        scheduledTime,
                         style: TextStyle(
                           color: const Color(0xFFCACACB) /* Gray400 */,
                           fontSize: 14,
@@ -1603,7 +1637,7 @@ class HistoryClubCard extends StatelessWidget {
                       ),
                       SizedBox(width: 8.w),
                       Text(
-                        "3명",
+                        "$enteredCount명",
                         style: TextStyle(
                           color: const Color(0xFFCACACB) /* Gray400 */,
                           fontSize: 14,
@@ -1727,8 +1761,22 @@ class HistoryClubCard extends StatelessWidget {
                       vertical: 11.h,
                     ),
                     decoration: BoxDecoration(
+                      color: const Color(0xFF2F1A5A),
                       borderRadius: BorderRadius.circular(6.r),
                       border: Border.all(color: Color(0xFF7731FE), width: 1.w),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "내가 쓴 리뷰",
+                        style: TextStyle(
+                          color: Colors.white /* White */,
+                          fontSize: 14,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                          height: 1.14,
+                          letterSpacing: -0.35,
+                        ),
+                      ),
                     ),
                   ),
                 ),
