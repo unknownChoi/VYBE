@@ -1,3 +1,5 @@
+import 'package:vybe/features/bottom_nav_passwallet/screens/passwallet_tab_screen.dart';
+
 class Review {
   final String author;
   final double rating;
@@ -191,5 +193,59 @@ final List<Map<String, dynamic>> reviewsData = const [
     'date': '2025.08.01',
     'content': '다양한 음악을 즐길 수 있어서 좋았습니다. 춤추기 좋은 곳이에요.',
     'imageUrls': ['assets/images/test_image/review_test_image.png'],
+  },
+];
+
+final List<Map<String, dynamic>> passWalletReservationData = [
+  // 예약 카드용 목데이터 (ReservationClubCard 파라미터와 동일 키 사용)
+  {
+    'status': ReservationStatus.confirmed,
+    'clubName': "이태원 훌로",
+    'scheduledDate': "2025-09-12M",
+    'scheduledTime': "12:12",
+    'enteredCount': 3,
+    'imageSrc': "assets/images/test_image/test_1.png",
+  },
+  {
+    'status': ReservationStatus.canceled,
+    'clubName': "어썸레드",
+    'scheduledDate': "2025-04-30W",
+    'scheduledTime': "12:12",
+    'enteredCount': 3,
+    'imageSrc': "assets/images/test_image/test_2.png",
+  },
+
+  {
+    'status': ReservationStatus.pendingApproval,
+    'clubName': "이태원 훌로",
+    'scheduledDate': "2025-06-12M",
+    'scheduledTime': "12:12",
+    'enteredCount': 3,
+    'imageSrc': "assets/images/test_image/test_3.png",
+  },
+  {
+    'status': ReservationStatus.confirmed,
+    'clubName': "이태원 훌로",
+    'scheduledDate': "2025-09-12M",
+    'scheduledTime': "12:12",
+    'enteredCount': 3,
+    'imageSrc': "assets/images/test_image/test_1.png",
+  },
+  {
+    'status': ReservationStatus.canceled,
+    'clubName': "어썸레드",
+    'scheduledDate': "2025-04-30W",
+    'scheduledTime': "12:12",
+    'enteredCount': 3,
+    'imageSrc': "assets/images/test_image/test_2.png",
+  },
+
+  {
+    'status': ReservationStatus.pendingApproval,
+    'clubName': "이태원 훌로",
+    'scheduledDate': "2025-06-12M",
+    'scheduledTime': "12:12",
+    'enteredCount': 3,
+    'imageSrc': "assets/images/test_image/test_3.png",
   },
 ];
