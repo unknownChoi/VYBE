@@ -1,13 +1,12 @@
-import 'dart:ffi';
 import 'dart:ui';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
-import 'package:vybe/core/loading_animation.dart';
+
 import 'package:vybe/data/club_detail_mock_data.dart';
 
 enum PassStatus { waiting, entering, entered, reservation }
@@ -15,6 +14,75 @@ enum PassStatus { waiting, entering, entered, reservation }
 enum ReservationStatus { pendingApproval, confirmed, canceled }
 
 enum HistoryClubCardReviewStatus { reviewed, notReviewed, expired }
+
+PasswalletTicket _ticketFrom(Map<String, dynamic> m) {
+  final PassStatus s = m['status'] as PassStatus;
+
+  // ── 공통 원본(raw)
+  final String clubName = (m['clubName'] as String?)?.trim() ?? '-';
+  final String rawDate = (m['scheduledDate'] as String?)?.trim() ?? '';
+  final String rawTime = (m['scheduledTime'] as String?)?.trim() ?? '';
+  final int count = (m['enteredCount'] as int?) ?? 0;
+
+  // ── 표기용 가공
+  final String displayDate = _formatKoreanDate(rawDate); // 예: 10월 03일 금요일
+  final String displayTime = _formatAmPm(rawTime); // 예: 오후 9:25
+
+  // (옵션) D-Day가 필요하면 주석 해제해서 뱃지 등에 활용
+  // final int? dday = _calcDDay(rawDate); // 0: 오늘, >0: D-n, <0: 지난 날짜
+
+  // 예약 테이블 표기 정규화(A-10 형태 유지)
+  String normTable(String? v) {
+    if (v == null || v.isEmpty) return '-';
+    final t = v.toUpperCase();
+    // 필요시 더 엄격한 포맷(영문-숫자)만 허용:
+    // final ok = RegExp(r'^[A-Z]+-\d+$').hasMatch(t);
+    // return ok ? t : t;
+    return t;
+  }
+
+  switch (s) {
+    case PassStatus.entering:
+      // currentNum이 굳이 UI에 없으니 읽되 옵션으로 둠
+      // final int currentNum = m['currentNum'] as int? ?? 0;
+      return PasswalletTicket.entering(
+        clubName: clubName,
+        scheduledDate: displayDate,
+        scheduledTime: displayTime,
+        count: count,
+      );
+
+    case PassStatus.entered:
+      return PasswalletTicket.entered(
+        clubName: clubName,
+        scheduledDate: displayDate,
+        scheduledTime: displayTime,
+        count: count,
+      );
+
+    case PassStatus.reservation:
+      final String reservatiaonTable = normTable(
+        m['reservatiaonTable'] as String?,
+      );
+      return PasswalletTicket.reservation(
+        clubName: clubName,
+        scheduledDate: displayDate,
+        scheduledTime: displayTime,
+        count: count,
+        reservatiaonTable: reservatiaonTable,
+      );
+
+    case PassStatus.waiting:
+      final int currentNum = m['currentNum'] as int? ?? 0;
+      return PasswalletTicket.waiting(
+        clubName: clubName,
+        scheduledDate: displayDate,
+        scheduledTime: displayTime,
+        count: count,
+        currentNum: currentNum,
+      );
+  }
+}
 
 class PasswalletTabScreen extends StatefulWidget {
   const PasswalletTabScreen({super.key});
@@ -24,9 +92,13 @@ class PasswalletTabScreen extends StatefulWidget {
 }
 
 class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
-  final PassStatus _status = PassStatus.reservation;
   int _selectIndex = 0;
-
+  final List<PassStatus> _passwalletCards = [
+    PassStatus.entering, // 입장 중(타이머 동작)
+    PassStatus.waiting, // 대기
+    PassStatus.reservation, // 예약
+    PassStatus.entered, // 입장완료
+  ];
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -50,16 +122,26 @@ class _PasswalletTabScreenState extends State<PasswalletTabScreen> {
         ),
         SizedBox(height: 12.h),
         Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+        // 기존 Expanded(...) 교체
         Expanded(
-          child: Center(
-            child: IndexedStack(
-              index: _selectIndex,
-              children: [
-                PasswalletTicket(status: _status),
-                ReservationSection(),
-                HistorySection(),
-              ],
-            ),
+          child: IndexedStack(
+            index: _selectIndex,
+            children: [
+              // 0) 입장권: 가로 캐러셀
+              PasswalletCarousel(
+                items: passwalletTicketData, // mock 데이터
+                initialIndex: 0,
+                onSelectedIndexChanged: (i) {
+                  // 필요 시 현재 카드 인덱스 상태 갱신 로직
+                },
+              ),
+
+              // 1) 예약
+              const ReservationSection(),
+
+              // 2) 이용 내역
+              const HistorySection(),
+            ],
           ),
         ),
       ],
@@ -111,15 +193,120 @@ class BottomButton extends StatelessWidget {
 //====================티켓 도형====================
 
 class PasswalletTicket extends StatefulWidget {
-  const PasswalletTicket({super.key, required this.status});
-
+  // 공통 + 상태별 선택 필드 (내부 보관용)
   final PassStatus status;
+
+  final String clubName;
+  final String scheduledDate;
+  final String scheduledTime;
+  final int count;
+
+  // 상태별 선택
+  final int? currentNum; // waiting, entering 전용
+  final String? reservatiaonTable; // reservation 전용
+
+  // 내부 공용 생성자
+  const PasswalletTicket._internal({
+    super.key,
+    required this.status,
+    required this.clubName,
+    required this.scheduledDate,
+    required this.scheduledTime,
+    required this.count,
+    this.currentNum,
+    this.reservatiaonTable,
+  });
+
+  // --- 상태별 생성자 ---
+
+  // status == entering:
+  // clubName, scheduledDate, scheduledTime, count, currentNum
+  factory PasswalletTicket.entering({
+    Key? key,
+    required String clubName,
+    required String scheduledDate,
+    required String scheduledTime,
+    required int count,
+  }) {
+    return PasswalletTicket._internal(
+      key: key,
+      status: PassStatus.entering,
+      clubName: clubName,
+      scheduledDate: scheduledDate,
+      scheduledTime: scheduledTime,
+      count: count,
+    );
+  }
+
+  // status == entered:
+  // clubName, scheduledDate, scheduledTime, count
+  factory PasswalletTicket.entered({
+    Key? key,
+    required String clubName,
+    required String scheduledDate,
+    required String scheduledTime,
+    required int count,
+  }) {
+    return PasswalletTicket._internal(
+      key: key,
+      status: PassStatus.entered,
+      clubName: clubName,
+      scheduledDate: scheduledDate,
+      scheduledTime: scheduledTime,
+      count: count,
+    );
+  }
+
+  // status == reservation:
+  // clubName, scheduledDate, scheduledTime, count, reservatiaonTable
+  factory PasswalletTicket.reservation({
+    Key? key,
+    required String clubName,
+    required String scheduledDate,
+    required String scheduledTime,
+    required int count,
+    required String reservatiaonTable,
+  }) {
+    return PasswalletTicket._internal(
+      key: key,
+      status: PassStatus.reservation,
+      clubName: clubName,
+      scheduledDate: scheduledDate,
+      scheduledTime: scheduledTime,
+      count: count,
+      reservatiaonTable: reservatiaonTable,
+    );
+  }
+
+  // status == waiting:
+  // clubName, scheduledDate, scheduledTime, count, currentNum
+  factory PasswalletTicket.waiting({
+    Key? key,
+    required String clubName,
+    required String scheduledDate,
+    required String scheduledTime,
+    required int count,
+    required int currentNum,
+  }) {
+    return PasswalletTicket._internal(
+      key: key,
+      status: PassStatus.waiting,
+      clubName: clubName,
+      scheduledDate: scheduledDate,
+      scheduledTime: scheduledTime,
+      count: count,
+      currentNum: currentNum,
+    );
+  }
 
   @override
   State<PasswalletTicket> createState() => _PasswalletTicketState();
 }
 
-class _PasswalletTicketState extends State<PasswalletTicket> {
+class _PasswalletTicketState extends State<PasswalletTicket>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   static const int _kQrSeconds = 10; // TODO: 릴리스 시 60으로 변경
 
   Timer? _qrDisplayTimer; // 1분: QR 보여주기 시간
@@ -239,6 +426,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final status = widget.status;
 
     return Center(
@@ -261,7 +449,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "어썸레드",
+                  widget.clubName,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24.sp,
@@ -276,7 +464,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '07월 04일 금요일',
+                      widget.scheduledDate,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: const Color(0xFFECECEC),
@@ -296,7 +484,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                     ),
                     SizedBox(width: 8.w),
                     Text(
-                      '오후 8:12',
+                      widget.scheduledTime,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: const Color(0xFFECECEC),
@@ -358,7 +546,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                       ),
                       SizedBox(height: 8.h),
                       Text(
-                        '5번',
+                        "${widget.currentNum}번",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: const Color(0xFFB5FF60),
@@ -509,7 +697,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                             ),
                             SizedBox(height: 10.h),
                             Text(
-                              '99명',
+                              '${widget.count}명',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: const Color(0xFFECECEC),
@@ -567,7 +755,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                           ),
                           SizedBox(height: 10.h),
                           Text(
-                            "A-3",
+                            widget.reservatiaonTable!,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: const Color(0xFFECECEC),
@@ -643,7 +831,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                           ),
                           SizedBox(height: 10.h),
                           Text(
-                            '99명',
+                            '${widget.count}명',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: const Color(0xFFECECEC),
@@ -758,7 +946,7 @@ class _PasswalletTicketState extends State<PasswalletTicket> {
                           ),
                           SizedBox(height: 10.h),
                           Text(
-                            '99명',
+                            '${widget.count}명',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: const Color(0xFFECECEC),
@@ -1086,6 +1274,109 @@ List<_BtnSpec> _buttonSpecsFor(PassStatus s, BuildContext context) {
   }
 }
 
+class PasswalletCarousel extends StatefulWidget {
+  const PasswalletCarousel({
+    super.key,
+    required this.items,
+    this.initialIndex = 0,
+    this.onSelectedIndexChanged,
+  });
+
+  final List<Map<String, dynamic>> items;
+  final int initialIndex;
+  final ValueChanged<int>? onSelectedIndexChanged;
+
+  @override
+  State<PasswalletCarousel> createState() => _PasswalletCarouselState();
+}
+
+class _PasswalletCarouselState extends State<PasswalletCarousel> {
+  late final PageController _pc;
+  double _page = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pc =
+        PageController(
+          initialPage: widget.initialIndex,
+          viewportFraction: 0.86, // 옆 카드가 비치도록
+        )..addListener(() {
+          if (!mounted) return;
+          setState(() {
+            _page = _pc.page ?? _pc.initialPage.toDouble();
+          });
+        });
+  }
+
+  @override
+  void dispose() {
+    _pc.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final total = widget.items.length;
+
+    return Column(
+      children: [
+        // 카드 캐러셀
+        Expanded(
+          child: PageView.builder(
+            controller: _pc,
+            itemCount: total,
+            padEnds: true,
+            physics: const PageScrollPhysics(),
+            onPageChanged: (i) => widget.onSelectedIndexChanged?.call(i),
+            itemBuilder: (context, i) {
+              final diff = (_page - i).abs();
+              // 중앙 카드 강조(살짝 확대 + 그림자)
+              final scale = (1 - (diff * 0.08)).clamp(0.90, 1.0);
+              final elevation = (8 - diff * 6).clamp(0.0, 8.0);
+
+              return Center(
+                child: GestureDetector(
+                  onTap: () {
+                    // 옆 카드 탭 → 중앙으로 스냅
+                    _pc.animateToPage(
+                      i,
+                      duration: const Duration(milliseconds: 260),
+                      curve: Curves.easeOut,
+                    );
+                  },
+                  child: AnimatedScale(
+                    scale: scale,
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
+                    child: Container(
+                      width: 345.w,
+                      // PasswalletTicket 최상단 컨테이너 폭과 동일
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: elevation,
+                            spreadRadius: elevation * 0.1,
+                            offset: Offset(0, elevation),
+                          ),
+                        ],
+                      ),
+                      // 실제 카드 본문: 기존 위젯 그대로 사용
+                      child: _ticketFrom(widget.items[i]),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 //====================상단 네비게이터바====================
 class PillSegmentedNav extends StatefulWidget {
   const PillSegmentedNav({
@@ -1208,97 +1499,6 @@ class _ReservationSectionState extends State<ReservationSection> {
   late final Future<List<Map<String, dynamic>>> _future;
 
   // 3) 날짜/요일/시간 유틸 (질문 코드와 동일 포맷 유지)
-  String _formatKoreanDate(String raw) {
-    final weekdayCode = RegExp(r'[A-Z]$').hasMatch(raw)
-        ? raw.substring(raw.length - 1)
-        : null;
-    final datePart = weekdayCode == null
-        ? raw
-        : raw.substring(0, raw.length - 1);
-
-    DateTime? dt;
-    try {
-      final parts = datePart.split('-');
-      if (parts.length == 3) {
-        dt = DateTime(
-          int.parse(parts[0]),
-          int.parse(parts[1]),
-          int.parse(parts[2]),
-        );
-      }
-    } catch (_) {}
-
-    final weekdayKo = dt == null
-        ? _weekdayFromCode(weekdayCode)
-        : _weekdayKoFromDateTime(dt);
-
-    if (dt == null) return raw;
-    final mm = dt.month.toString().padLeft(2, '0');
-    final dd = dt.day.toString().padLeft(2, '0');
-    return '$mm월 $dd일 $weekdayKo';
-  }
-
-  String _weekdayFromCode(String? code) {
-    switch (code) {
-      case 'M':
-        return '월요일';
-      case 'T':
-        return '화요일';
-      case 'W':
-        return '수요일';
-      case 'R':
-        return '목요일';
-      case 'F':
-        return '금요일';
-      case 'S':
-        return '토요일';
-      case 'U':
-        return '일요일';
-      default:
-        return '';
-    }
-  }
-
-  String _weekdayKoFromDateTime(DateTime dt) {
-    const yoil = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
-    return yoil[dt.weekday - 1];
-  }
-
-  String _formatAmPm(String hhmm) {
-    try {
-      final parts = hhmm.split(':');
-      final h = int.parse(parts[0]);
-      final m = parts[1].padLeft(2, '0');
-      final isPm = h >= 12;
-      final h12 = ((h + 11) % 12) + 1;
-      return '${isPm ? '오후' : '오전'} $h12:$m';
-    } catch (_) {
-      return hhmm;
-    }
-  }
-
-  int? _calcDDay(String raw) {
-    final code = RegExp(r'[A-Z]$').hasMatch(raw)
-        ? raw.substring(raw.length - 1)
-        : null;
-    final datePart = code == null ? raw : raw.substring(0, raw.length - 1);
-
-    try {
-      final parts = datePart.split('-');
-      if (parts.length != 3) return null;
-      final target = DateTime(
-        int.parse(parts[0]),
-        int.parse(parts[1]),
-        int.parse(parts[2]),
-      );
-      final today = DateTime.now();
-      final t0 = DateTime(today.year, today.month, today.day);
-      final t1 = DateTime(target.year, target.month, target.day);
-      return t1.difference(t0).inDays;
-    } catch (_) {
-      return null;
-    }
-  }
 
   @override
   void initState() {
@@ -1315,26 +1515,7 @@ class _ReservationSectionState extends State<ReservationSection> {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _future,
       builder: (context, snapshot) {
-        // 로딩
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: LoadingAnimation());
-        }
-        // 에러
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              '불러오기 실패: ${snapshot.error}',
-              style: const TextStyle(color: Colors.white),
-            ),
-          );
-        }
-
         final items = snapshot.data ?? const [];
-        if (items.isEmpty) {
-          return const Center(
-            child: Text('예약 내역이 없습니다.', style: TextStyle(color: Colors.white)),
-          );
-        }
 
         return ListView.builder(
           padding: EdgeInsets.zero,
@@ -1646,48 +1827,83 @@ class ReservationClubCard extends StatelessWidget {
 //====================예약 내력 카드 섹션====================
 
 //====================이용 내역 섹션====================
-class HistorySection extends StatelessWidget {
+class HistorySection extends StatefulWidget {
   const HistorySection({super.key});
 
   @override
+  State<HistorySection> createState() => _HistorySectionState();
+}
+
+class _HistorySectionState extends State<HistorySection> {
+  late final Future<List<Map<String, dynamic>>> _future;
+
+  Future<List<Map<String, dynamic>>> fetchHistoryData() async {
+    return passwalletHistoryData;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _future = fetchHistoryData();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          HistoryClubCard(
-            reviewStatus: HistoryClubCardReviewStatus.expired,
-            clubName: "어썸레드",
-            scheduledDate: "07월 04일 금요일",
-            scheduledTime: "오후 8:12",
-            enteredCount: 3,
-            imageSrc: 'assets/images/test_image/test_1.png',
-            isReservation: true,
-          ),
-          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _future,
+      builder: (context, snapshot) {
+        final items = snapshot.data ?? const [];
 
-          HistoryClubCard(
-            reviewStatus: HistoryClubCardReviewStatus.notReviewed,
-            clubName: "클럽 레이저",
-            scheduledDate: "11월 19일 일요일",
-            scheduledTime: "오전 5:12",
-            enteredCount: 3,
-            imageSrc: 'assets/images/test_image/test_2.png',
-            isReservation: false,
-          ),
-          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
+        return ListView.builder(
+          padding: EdgeInsets.zero,
+          itemCount: items.length * 2, // 아이템+구분선 번갈아, 마지막에도 구분선
+          physics: const ClampingScrollPhysics(),
+          itemBuilder: (context, index) {
+            // 홀수 index → Divider
+            if (index.isOdd) {
+              return Divider(
+                height: 1.h,
+                thickness: 1.h,
+                color: const Color(0xFF2F2F33),
+              );
+            }
 
-          HistoryClubCard(
-            reviewStatus: HistoryClubCardReviewStatus.reviewed,
-            clubName: "오션",
-            scheduledDate: "11월 19일 일요일",
-            scheduledTime: "오후 11:12",
-            enteredCount: 3,
-            imageSrc: 'assets/images/test_image/test_3.png',
-            isReservation: false,
-          ),
-          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF2F2F33)),
-        ],
-      ),
+            // 짝수 index → 카드
+            final i = index ~/ 2;
+            final m = items[i];
+
+            final HistoryClubCardReviewStatus status =
+                m['reviewStatus'] as HistoryClubCardReviewStatus;
+            final String clubName = m['clubName'] as String;
+            final String rawDate =
+                m['scheduledDate'] as String; // 예: 2025-09-12M
+            final String formattedDate = _formatKoreanDate(
+              rawDate,
+            ); // 09월 12일 금요일
+            final String time = _formatAmPm(
+              m['scheduledTime'] as String,
+            ); // 오전/오후 HH:MM
+            final int enteredCount = m['enteredCount'] as int;
+            final String image = m['imageSrc'] as String;
+            final bool isReservation = m['isReservation'] as bool;
+
+            // 필요 시 D-Day 계산(표시는 위젯에 파라미터 추가 후 사용)
+            final int? _ = status == ReservationStatus.canceled
+                ? null
+                : _calcDDay(rawDate);
+
+            return HistoryClubCard(
+              reviewStatus: status,
+              clubName: clubName,
+              scheduledDate: formattedDate,
+              scheduledTime: time,
+              enteredCount: enteredCount,
+              imageSrc: image,
+              isReservation: isReservation,
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -1962,3 +2178,93 @@ class HistoryClubCard extends StatelessWidget {
 }
 
 //====================이용 내역 섹션====================
+
+String _formatKoreanDate(String raw) {
+  final weekdayCode = RegExp(r'[A-Z]$').hasMatch(raw)
+      ? raw.substring(raw.length - 1)
+      : null;
+  final datePart = weekdayCode == null ? raw : raw.substring(0, raw.length - 1);
+
+  DateTime? dt;
+  try {
+    final parts = datePart.split('-');
+    if (parts.length == 3) {
+      dt = DateTime(
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+        int.parse(parts[2]),
+      );
+    }
+  } catch (_) {}
+
+  final weekdayKo = dt == null
+      ? _weekdayFromCode(weekdayCode)
+      : _weekdayKoFromDateTime(dt);
+
+  if (dt == null) return raw;
+  final mm = dt.month.toString().padLeft(2, '0');
+  final dd = dt.day.toString().padLeft(2, '0');
+  return '$mm월 $dd일 $weekdayKo';
+}
+
+String _weekdayFromCode(String? code) {
+  switch (code) {
+    case 'M':
+      return '월요일';
+    case 'T':
+      return '화요일';
+    case 'W':
+      return '수요일';
+    case 'R':
+      return '목요일';
+    case 'F':
+      return '금요일';
+    case 'S':
+      return '토요일';
+    case 'U':
+      return '일요일';
+    default:
+      return '';
+  }
+}
+
+String _weekdayKoFromDateTime(DateTime dt) {
+  const yoil = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
+  return yoil[dt.weekday - 1];
+}
+
+String _formatAmPm(String hhmm) {
+  try {
+    final parts = hhmm.split(':');
+    final h = int.parse(parts[0]);
+    final m = parts[1].padLeft(2, '0');
+    final isPm = h >= 12;
+    final h12 = ((h + 11) % 12) + 1;
+    return '${isPm ? '오후' : '오전'} $h12:$m';
+  } catch (_) {
+    return hhmm;
+  }
+}
+
+int? _calcDDay(String raw) {
+  final code = RegExp(r'[A-Z]$').hasMatch(raw)
+      ? raw.substring(raw.length - 1)
+      : null;
+  final datePart = code == null ? raw : raw.substring(0, raw.length - 1);
+
+  try {
+    final parts = datePart.split('-');
+    if (parts.length != 3) return null;
+    final target = DateTime(
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+      int.parse(parts[2]),
+    );
+    final today = DateTime.now();
+    final t0 = DateTime(today.year, today.month, today.day);
+    final t1 = DateTime(target.year, target.month, target.day);
+    return t1.difference(t0).inDays;
+  } catch (_) {
+    return null;
+  }
+}
