@@ -1,5 +1,4 @@
 import 'package:vybe/features/bottom_nav_passwallet/models/passwallet_models.dart';
-import 'package:vybe/features/bottom_nav_passwallet/screens/passwallet_tab_screen.dart';
 
 class Review {
   final String author;
@@ -390,3 +389,15 @@ final List<Map<String, dynamic>> passwalletTicketData = [
     'enteredCount': 5,
   },
 ];
+
+final List<String> userRecentSearchKeyword = [
+  "힙합",
+  "레이저",
+  "무료입장",
+  "레이저 클럽",
+  "EDM",
+  "홍대",
+  "어썸레드",
+];
+
+final List<String> hotHashTags = ["힙합", "무료입장", "EDM", "힙합"];

@@ -100,7 +100,7 @@ class _MainShellState extends State<MainShell> {
       HomeTabScreen(banners: banners, featureItems: featureItems),
       const NearTabScreen(),
       const PasswalletTabScreen(),
-      const SearchTabScreen(),
+      SearchTabScreen(),
       const MyPageTabScreen(),
     ];
 

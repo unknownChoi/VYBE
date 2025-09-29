@@ -13,6 +13,6 @@ const List<MainTabMeta> mainTabs = [
     label: '패스월렛',
     iconAsset: 'assets/icons/bottom_nav/passwallet.svg',
   ),
-  MainTabMeta(label: '검색', iconAsset: 'assets/icons/bottom_nav/search.svg'),
+  MainTabMeta(label: '검색', iconAsset: 'assets/icons/common/search.svg'),
   MainTabMeta(label: '내 정보', iconAsset: 'assets/icons/bottom_nav/mypage.svg'),
 ];
