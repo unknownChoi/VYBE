@@ -1,3 +1,4 @@
+import 'package:vybe/features/bottom_nav_passwallet/models/passwallet_models.dart';
 import 'package:vybe/features/bottom_nav_passwallet/screens/passwallet_tab_screen.dart';
 
 class Review {
@@ -346,32 +347,46 @@ final List<Map<String, dynamic>> passwalletHistoryData = [
 final List<Map<String, dynamic>> passwalletTicketData = [
   {
     'status': PassStatus.entering,
-    'clubName': "에코라운지",
-    'scheduledDate': "2025-10-03M",
-    'scheduledTime': "21:25",
-    'enteredCount': 1,
+    'clubName': "바이브라운지",
+    'scheduledDate': "2025-10-04M",
+    'scheduledTime': "22:10",
+    'enteredCount': 2,
   },
   {
     'status': PassStatus.waiting,
-    'clubName': "에코라운지",
-    'scheduledDate': "2025-10-03M",
-    'scheduledTime': "21:25",
-    'enteredCount': 1,
-    'currentNum': 4,
+    'clubName': "네온하버",
+    'scheduledDate': "2025-10-05M",
+    'scheduledTime': "20:45",
+    'enteredCount': 0,
+    'currentNum': 7,
   },
   {
     'status': PassStatus.reservation,
-    'clubName': "에코라운지",
-    'scheduledDate': "2025-10-03M",
-    'scheduledTime': "21:25",
-    'enteredCount': 1,
-    'reservatiaonTable': 'a-10',
+    'clubName': "미드나잇클럽",
+    'scheduledDate': "2025-10-06M",
+    'scheduledTime': "23:30",
+    'enteredCount': 3,
+    'reservatiaonTable': 'B-12',
   },
   {
     'status': PassStatus.entered,
-    'clubName': "에코라운지",
-    'scheduledDate': "2025-10-03M",
-    'scheduledTime': "21:25",
+    'clubName': "에메랄드룸",
+    'scheduledDate': "2025-09-28M",
+    'scheduledTime': "21:05",
+    'enteredCount': 4,
+  },
+  {
+    'status': PassStatus.entered,
+    'clubName': "루프탑나인",
+    'scheduledDate': "2025-09-30M",
+    'scheduledTime': "19:40",
     'enteredCount': 1,
+  },
+  {
+    'status': PassStatus.entered,
+    'clubName': "딥하우스랩",
+    'scheduledDate': "2025-10-01M",
+    'scheduledTime': "00:15",
+    'enteredCount': 5,
   },
 ];

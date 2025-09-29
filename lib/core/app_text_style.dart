@@ -274,3 +274,4 @@ class AppTextStyles {
     letterSpacing: (-0.30).w,
   );
 }
+
