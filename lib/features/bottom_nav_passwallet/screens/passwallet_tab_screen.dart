@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:vybe/data/club_detail_mock_data.dart';
-
-import '../models/passwallet_models.dart';
 import '../widgets/passwallet_carousel.dart';
 import '../widgets/history_section.dart';
 import '../widgets/pill_segmented_nav.dart';
