@@ -401,3 +401,30 @@ final List<String> userRecentSearchKeyword = [
 ];
 
 final List<String> hotHashTags = ["힙합", "무료입장", "EDM", "힙합"];
+
+final searchClubData = [
+  {
+    "clubName": "어썸레드",
+    "clubType": "EDM",
+    "clubCity": "이태원",
+    "clubImageSrc": "assets/images/test_image/test_1.png",
+  },
+  {
+    "clubName": "브릭하우스",
+    "clubType": "K-POP",
+    "clubCity": "강남",
+    "clubImageSrc": "assets/images/test_image/test_2.png",
+  },
+  {
+    "clubName": "네온바운스",
+    "clubType": "하우스",
+    "clubCity": "홍대",
+    "clubImageSrc": "assets/images/test_image/test_3.png",
+  },
+  {
+    "clubName": "하이라이트",
+    "clubType": "올드스쿨 힙합",
+    "clubCity": "건대",
+    "clubImageSrc": "assets/images/test_image/test_1.png",
+  },
+];

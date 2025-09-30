@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
 import 'package:vybe/features/club_detail_page/widgets/atoms/call_button.dart';
-import 'package:vybe/features/club_detail_page/widgets/atoms/custom_divider.dart';
+import 'package:vybe/core/widgets/custom_divider.dart';
 import 'package:vybe/features/club_detail_page/widgets/atoms/tag.dart';
 
 class ClubHeader extends StatefulWidget {
@@ -26,17 +26,16 @@ class _ClubHeaderState extends State<ClubHeader> {
           Stack(
             children: [
               CarouselSlider(
-                items:
-                    (clubData['coverImage'] as List<String>)
-                        .map(
-                          (item) => Image.asset(
-                            item,
-                            width: double.infinity,
-                            height: 186.h,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                        .toList(),
+                items: (clubData['coverImage'] as List<String>)
+                    .map(
+                      (item) => Image.asset(
+                        item,
+                        width: double.infinity,
+                        height: 186.h,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                    .toList(),
                 options: CarouselOptions(
                   autoPlay: true,
                   height: 186.h,
@@ -111,15 +110,14 @@ class _ClubHeaderState extends State<ClubHeader> {
                 ),
                 SizedBox(height: 8.h),
                 Row(
-                  children:
-                      (clubData['tags'] as List<String>)
-                          .map(
-                            (tag) => Padding(
-                              padding: EdgeInsets.only(right: 8.w),
-                              child: Tag(text: tag),
-                            ),
-                          )
-                          .toList(),
+                  children: (clubData['tags'] as List<String>)
+                      .map(
+                        (tag) => Padding(
+                          padding: EdgeInsets.only(right: 8.w),
+                          child: Tag(text: tag),
+                        ),
+                      )
+                      .toList(),
                 ),
                 SizedBox(height: 16.h),
                 Row(

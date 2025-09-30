@@ -79,7 +79,7 @@ class _MainShellState extends State<MainShell> {
       ),
       actions: [
         GestureDetector(
-          onTap: () {},
+          onTap: () => setState(() => _index = 3),
           child: SvgPicture.asset('assets/icons/bottom_nav_home/search.svg'),
         ),
         SizedBox(width: 12.w),
