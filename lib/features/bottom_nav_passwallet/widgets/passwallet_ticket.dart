@@ -8,7 +8,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/features/bottom_nav_passwallet/models/passwallet_models.dart';
 import 'package:vybe/features/bottom_nav_passwallet/utils/passwallet_formatters.dart';
-import 'package:vybe/features/bottom_nav_passwallet/widgets/postpone_waiting_dialog.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/postpone_waiting_dialog.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/postpone_waiting_success_dialog.dart';
 
 PasswalletTicket ticketFromMap(Map<String, dynamic> data) {
   final PassStatus status = data['status'] as PassStatus;
@@ -1122,6 +1123,43 @@ class _BtnSpec {
   _BtnSpec({required this.label, required this.color, required this.onTap});
 }
 
+Future<int?> showPostponeWaitingDialog(
+  BuildContext context, {
+  int initial = 1,
+  int min = 1,
+  int? max = 20,
+}) {
+  return showGeneralDialog<int?>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'postpone_waiting',
+    transitionDuration: const Duration(milliseconds: 180),
+    pageBuilder: (_, __, ___) =>
+        const SizedBox.shrink(), // 내용은 transitionBuilder에서
+    transitionBuilder: (ctx, anim, __, ___) {
+      final curved = CurvedAnimation(
+        parent: anim,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+      return BackdropFilter(
+        // 배경 블러(선택)
+        filter: ImageFilter.blur(
+          sigmaX: 6 * anim.value,
+          sigmaY: 6 * anim.value,
+        ),
+        child: Opacity(
+          opacity: anim.value,
+          child: Transform.scale(
+            scale: 0.97 + 0.03 * curved.value, // 살짝 커지며 등장
+            child: Center(child: PostponeWaitingDialog()),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 List<_BtnSpec> _buttonSpecsFor(PassStatus s, BuildContext context) {
   // 색상은 필요하면 AppColors에 정의해서 교체하세요.
   final Color primary = AppColors.appPurpleColor; // 주요 액션
@@ -1137,11 +1175,7 @@ List<_BtnSpec> _buttonSpecsFor(PassStatus s, BuildContext context) {
           label: '순서 미루기',
           color: primary,
           onTap: () {
-            showDialog<void>(
-              context: context,
-              barrierDismissible: true,
-              builder: (_) => const PostponeWaitingDialog(),
-            );
+            unawaited(_handlePostponeTap(context));
           },
         ),
         _BtnSpec(
@@ -1190,5 +1224,35 @@ List<_BtnSpec> _buttonSpecsFor(PassStatus s, BuildContext context) {
           },
         ),
       ];
+  }
+}
+
+Future<void> _handlePostponeTap(BuildContext context) async {
+  final movedTeams = await showPostponeWaitingDialog(
+    context,
+    initial: 1,
+    min: 1,
+    max: 20,
+  );
+
+  if (movedTeams == null || !context.mounted) {
+    return;
+  }
+
+  await showDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) => _PostponeResultDialog(movedTeams: movedTeams),
+  );
+}
+
+class _PostponeResultDialog extends StatelessWidget {
+  const _PostponeResultDialog({required this.movedTeams});
+
+  final int movedTeams;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: PostponeWaitingSuccessDialog(movedTeams: movedTeams));
   }
 }

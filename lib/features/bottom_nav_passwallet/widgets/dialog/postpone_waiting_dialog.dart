@@ -11,50 +11,50 @@ class PostponeWaitingDialog extends StatefulWidget {
 }
 
 class _PostponeWaitingDialogState extends State<PostponeWaitingDialog> {
+  int _selectedTeam = 1;
+
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = _dialogTitleTextStyle;
     final descriptionTextStyle = _dialogDescriptionTextStyle;
-
-    return Scaffold(
-      backgroundColor: AppColors.appBackgroundColor,
-      body: Center(
-        child: Container(
-          width: 353.w,
-          height: 224.h,
-          padding: EdgeInsets.symmetric(horizontal: 34.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2F2F33),
-            borderRadius: BorderRadius.circular(24.r),
-          ),
-          child: Column(
-            children: [
-              SizedBox(height: 34.h),
-              Text(
-                '웨이팅 순서 변경',
-                textAlign: TextAlign.center,
-                style: titleTextStyle,
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                '얼마나 뒤로 미루시겠어요?',
-                textAlign: TextAlign.center,
-                style: descriptionTextStyle,
-              ),
-              SizedBox(height: 12.h),
-              PostponeTeamStepper(maxTeamCount: 10),
-              SizedBox(height: 24.h),
-              Row(
-                children: [
-                  PostponeWaitingButton(buttonText: "취소"),
-                  SizedBox(width: 12.w),
-                  PostponeWaitingButton(buttonText: "확인"),
-                ],
-              ),
-            ],
-          ),
+    final Widget dialogWidget = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('웨이팅 순서 변경', textAlign: TextAlign.center, style: titleTextStyle),
+        SizedBox(height: 12.h),
+        Text(
+          '얼마나 뒤로 미루시겠어요?',
+          textAlign: TextAlign.center,
+          style: descriptionTextStyle,
         ),
-      ),
+        SizedBox(height: 12.h),
+        PostponeTeamStepper(
+          maxTeamCount: 10,
+          initialTeamCount: _selectedTeam,
+          onChanged: (v) => setState(() => _selectedTeam = v),
+        ),
+        SizedBox(height: 24.h),
+        Row(
+          children: [
+            // 취소: 기본 동작(닫기)
+            PostponeWaitingButton(
+              buttonText: "취소",
+              onTap: () => Navigator.of(context).pop(null),
+            ),
+            SizedBox(width: 12.w),
+            // 확인: 부모에서 연쇄 다이얼로그 로직 주입
+            PostponeWaitingButton(
+              buttonText: "확인",
+              onTap: () => Navigator.of(context).pop(_selectedTeam),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    return DefaultTextStyle(
+      style: const TextStyle(),
+      child: Center(child: PasswalletDialog(dialogWidget: dialogWidget)),
     );
   }
 }
@@ -99,35 +99,21 @@ class _PostponeTeamStepperState extends State<PostponeTeamStepper> {
   }
 
   bool get _canDecrement => _teamCount > widget.minTeamCount;
-
   bool get _canIncrement =>
       widget.maxTeamCount == null || _teamCount < widget.maxTeamCount!;
 
   int _clampTeamCount(int value) {
     final min = widget.minTeamCount;
     final max = widget.maxTeamCount;
-
-    if (value < min) {
-      return min;
-    }
-
-    if (max != null && value > max) {
-      return max;
-    }
-
+    if (value < min) return min;
+    if (max != null && value > max) return max;
     return value;
   }
 
   void _updateTeamCount(int delta) {
     final updated = _clampTeamCount(_teamCount + delta);
-    if (updated == _teamCount) {
-      return;
-    }
-
-    setState(() {
-      _teamCount = updated;
-    });
-
+    if (updated == _teamCount) return;
+    setState(() => _teamCount = updated);
     widget.onChanged?.call(_teamCount);
   }
 
@@ -199,28 +185,37 @@ class _StepperCircleButton extends StatelessWidget {
 }
 
 class PostponeWaitingButton extends StatelessWidget {
-  const PostponeWaitingButton({super.key, required this.buttonText});
+  const PostponeWaitingButton({
+    super.key,
+    required this.buttonText,
+    this.onTap,
+  });
+
   final String buttonText;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final buttonTextStyle = _dialogButtonTextStyle;
 
     return Expanded(
-      child: Container(
-        height: 40.h,
-        padding: EdgeInsets.symmetric(vertical: 11.h, horizontal: 40.w),
-        decoration: BoxDecoration(
-          color: buttonText == "취소"
-              ? const Color(0xFF535355)
-              : AppColors.appPurpleColor,
-          borderRadius: BorderRadius.circular(6.r),
-        ),
-        child: Center(
-          child: Text(
-            buttonText,
-            textAlign: TextAlign.center,
-            style: buttonTextStyle,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 40.h,
+          padding: EdgeInsets.symmetric(vertical: 11.h, horizontal: 40.w),
+          decoration: BoxDecoration(
+            color: buttonText == "취소"
+                ? const Color(0xFF535355)
+                : AppColors.appPurpleColor,
+            borderRadius: BorderRadius.circular(6.r),
+          ),
+          child: Center(
+            child: Text(
+              buttonText,
+              textAlign: TextAlign.center,
+              style: buttonTextStyle,
+            ),
           ),
         ),
       ),
@@ -272,3 +267,33 @@ TextStyle get _dialogButtonTextStyle => TextStyle(
   height: 1.14,
   letterSpacing: (-0.35).sp,
 );
+
+class PasswalletDialog extends StatefulWidget {
+  const PasswalletDialog({super.key, required this.dialogWidget});
+
+  final Widget dialogWidget;
+
+  @override
+  State<PasswalletDialog> createState() => _PasswalletDialogState();
+}
+
+class _PasswalletDialogState extends State<PasswalletDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 353.w,
+      // height: 224.h,
+      padding: EdgeInsets.only(
+        top: 34.h,
+        left: 34.w,
+        right: 34.w,
+        bottom: 18.h,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2F2F33),
+        borderRadius: BorderRadius.circular(24.r),
+      ),
+      child: widget.dialogWidget,
+    );
+  }
+}
