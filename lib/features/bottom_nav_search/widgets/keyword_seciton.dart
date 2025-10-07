@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/features/bottom_nav_search/widgets/keyword_skeleton_chip.dart';
 
 class KeywordSection extends StatelessWidget {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/passwallet_dialog.dart';
 
 class CancelWaitingConfirmDialog extends StatelessWidget {

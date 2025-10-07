@@ -9,7 +9,6 @@ import 'package:vybe/data/club_detail_mock_data.dart';
 import 'package:vybe/features/bottom_nav_search/widgets/hot_hash_tag_section.dart';
 import 'package:vybe/features/bottom_nav_search/widgets/recent_search_keyword_seciton.dart';
 import 'package:vybe/features/bottom_nav_search/widgets/search_section.dart';
-import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 
 class SearchTabScreen extends StatefulWidget {
   const SearchTabScreen({super.key});

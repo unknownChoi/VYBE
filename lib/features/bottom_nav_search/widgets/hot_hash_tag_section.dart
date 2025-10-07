@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/features/bottom_nav_search/widgets/keyword_chip.dart';
 import 'package:vybe/features/bottom_nav_search/widgets/keyword_seciton.dart';
 
