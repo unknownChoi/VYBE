@@ -273,5 +273,49 @@ class AppTextStyles {
     height: 1.17,
     letterSpacing: (-0.30).w,
   );
-}
 
+  static final TextStyle dialogTitleTextStyle = TextStyle(
+    color: Colors.white /* White */,
+    fontSize: 24.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w600,
+    height: 1.08,
+    letterSpacing: (-0.60).sp,
+  );
+
+  static final TextStyle dialogDescriptionTextStyle = TextStyle(
+    color: const Color(0xFFCACACB) /* Gray400 */,
+    fontSize: 16.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w400,
+    height: 1.12,
+    letterSpacing: (-0.80).sp,
+  );
+
+  static final TextStyle teamCountTextStyle = TextStyle(
+    color: const Color(0xFFB5FF60) /* Main-Lime500 */,
+    fontSize: 32.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w700,
+    height: 1.06,
+    letterSpacing: (-0.80).sp,
+  );
+
+  static final TextStyle teamSuffixTextStyle = TextStyle(
+    color: const Color(0xFFECECEC) /* Gray200 */,
+    fontSize: 20.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w500,
+    height: 1.10,
+    letterSpacing: (-0.50).sp,
+  );
+
+  static final TextStyle dialogButtonTextStyle = TextStyle(
+    color: Colors.white /* White */,
+    fontSize: 14.sp,
+    fontFamily: 'Pretendard',
+    fontWeight: FontWeight.w600,
+    height: 1.14,
+    letterSpacing: (-0.35).sp,
+  );
+}

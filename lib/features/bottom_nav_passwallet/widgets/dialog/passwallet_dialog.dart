@@ -15,7 +15,6 @@ class _PasswalletDialogState extends State<PasswalletDialog> {
   Widget build(BuildContext context) {
     return Container(
       width: 353.w,
-      // height: 224.h,
       padding: EdgeInsets.only(
         top: 34.h,
         left: 34.w,

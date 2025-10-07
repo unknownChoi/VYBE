@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'passwallet_ticket.dart';
+import 'ticket/passwallet_ticket.dart';
 
 class PasswalletCarousel extends StatefulWidget {
   const PasswalletCarousel({
@@ -26,15 +26,14 @@ class _PasswalletCarouselState extends State<PasswalletCarousel> {
   @override
   void initState() {
     super.initState();
-    _pc = PageController(
-      initialPage: widget.initialIndex,
-      viewportFraction: 0.86,
-    )..addListener(() {
-        if (!mounted) return;
-        setState(() {
-          _page = _pc.page ?? _pc.initialPage.toDouble();
-        });
-      });
+    _pc =
+        PageController(initialPage: widget.initialIndex, viewportFraction: 0.86)
+          ..addListener(() {
+            if (!mounted) return;
+            setState(() {
+              _page = _pc.page ?? _pc.initialPage.toDouble();
+            });
+          });
   }
 
   @override

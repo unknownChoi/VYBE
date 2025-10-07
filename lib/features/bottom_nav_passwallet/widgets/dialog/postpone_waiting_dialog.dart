@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
+import 'package:vybe/core/app_text_style.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/passwallet_dialog.dart';
 
 class PostponeWaitingDialog extends StatefulWidget {
   const PostponeWaitingDialog({super.key});
@@ -15,8 +17,8 @@ class _PostponeWaitingDialogState extends State<PostponeWaitingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final titleTextStyle = _dialogTitleTextStyle;
-    final descriptionTextStyle = _dialogDescriptionTextStyle;
+    final titleTextStyle = AppTextStyles.dialogTitleTextStyle;
+    final descriptionTextStyle = AppTextStyles.dialogDescriptionTextStyle;
     final Widget dialogWidget = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -119,8 +121,8 @@ class _PostponeTeamStepperState extends State<PostponeTeamStepper> {
 
   @override
   Widget build(BuildContext context) {
-    final teamCountTextStyle = _teamCountTextStyle;
-    final teamSuffixTextStyle = _teamSuffixTextStyle;
+    final teamCountTextStyle = AppTextStyles.teamCountTextStyle;
+    final teamSuffixTextStyle = AppTextStyles.teamSuffixTextStyle;
 
     return Row(
       children: [
@@ -196,7 +198,7 @@ class PostponeWaitingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonTextStyle = _dialogButtonTextStyle;
+    final buttonTextStyle = AppTextStyles.dialogButtonTextStyle;
 
     return Expanded(
       child: GestureDetector(
@@ -219,81 +221,6 @@ class PostponeWaitingButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-TextStyle get _dialogTitleTextStyle => TextStyle(
-  color: Colors.white /* White */,
-  fontSize: 24.sp,
-  fontFamily: 'Pretendard',
-  fontWeight: FontWeight.w600,
-  height: 1.08,
-  letterSpacing: (-0.60).sp,
-);
-
-TextStyle get _dialogDescriptionTextStyle => TextStyle(
-  color: const Color(0xFFCACACB) /* Gray400 */,
-  fontSize: 16.sp,
-  fontFamily: 'Pretendard',
-  fontWeight: FontWeight.w400,
-  height: 1.12,
-  letterSpacing: (-0.80).sp,
-);
-
-TextStyle get _teamCountTextStyle => TextStyle(
-  color: const Color(0xFFB5FF60) /* Main-Lime500 */,
-  fontSize: 32.sp,
-  fontFamily: 'Pretendard',
-  fontWeight: FontWeight.w700,
-  height: 1.06,
-  letterSpacing: (-0.80).sp,
-);
-
-TextStyle get _teamSuffixTextStyle => TextStyle(
-  color: const Color(0xFFECECEC) /* Gray200 */,
-  fontSize: 20.sp,
-  fontFamily: 'Pretendard',
-  fontWeight: FontWeight.w500,
-  height: 1.10,
-  letterSpacing: (-0.50).sp,
-);
-
-TextStyle get _dialogButtonTextStyle => TextStyle(
-  color: Colors.white /* White */,
-  fontSize: 14.sp,
-  fontFamily: 'Pretendard',
-  fontWeight: FontWeight.w600,
-  height: 1.14,
-  letterSpacing: (-0.35).sp,
-);
-
-class PasswalletDialog extends StatefulWidget {
-  const PasswalletDialog({super.key, required this.dialogWidget});
-
-  final Widget dialogWidget;
-
-  @override
-  State<PasswalletDialog> createState() => _PasswalletDialogState();
-}
-
-class _PasswalletDialogState extends State<PasswalletDialog> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 353.w,
-      // height: 224.h,
-      padding: EdgeInsets.only(
-        top: 34.h,
-        left: 34.w,
-        right: 34.w,
-        bottom: 18.h,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2F2F33),
-        borderRadius: BorderRadius.circular(24.r),
-      ),
-      child: widget.dialogWidget,
     );
   }
 }
