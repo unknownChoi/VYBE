@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/features/bottom_nav_passwallet/models/passwallet_models.dart';
 import 'package:vybe/features/bottom_nav_passwallet/utils/passwallet_formatters.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/postpone_waiting_dialog.dart';
 
 PasswalletTicket ticketFromMap(Map<String, dynamic> data) {
   final PassStatus status = data['status'] as PassStatus;
@@ -1136,7 +1137,11 @@ List<_BtnSpec> _buttonSpecsFor(PassStatus s, BuildContext context) {
           label: '순서 미루기',
           color: primary,
           onTap: () {
-            /* TODO: 순서 미루기 액션 */
+            showDialog<void>(
+              context: context,
+              barrierDismissible: true,
+              builder: (_) => const PostponeWaitingDialog(),
+            );
           },
         ),
         _BtnSpec(
