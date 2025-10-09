@@ -9,10 +9,10 @@ import 'package:vybe/features/bottom_nav_passwallet/models/passwallet_models.dar
 import 'package:vybe/features/bottom_nav_passwallet/utils/dialog_launcher.dart';
 import 'package:vybe/features/bottom_nav_passwallet/utils/passwallet_formatters.dart';
 
-import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/cancel_waiting_confirm_dialog.dart';
-import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/cancel_waiting_success_dialog.dart';
-import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/postpone_waiting_dialog.dart';
-import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/postpone_waiting_success_dialog.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/cancle/cancel_waiting_confirm_dialog.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/postpone/postpone_waiting_success_dialog.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/postpone/postpone_waiting_dialog.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/cancle/cancel_waiting_success_dialog.dart';
 
 // Sections (이전 답변에서 제공한 4개 파일)
 import 'package:vybe/features/bottom_nav_passwallet/widgets/ticket/sections/ticket_header.dart';

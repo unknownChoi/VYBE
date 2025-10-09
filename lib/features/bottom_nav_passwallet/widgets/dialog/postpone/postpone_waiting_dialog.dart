@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/app_text_style.dart';
+import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/dialog_button.dart';
 import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/passwallet_dialog.dart';
 
 class PostponeWaitingDialog extends StatefulWidget {
@@ -39,13 +39,13 @@ class _PostponeWaitingDialogState extends State<PostponeWaitingDialog> {
         Row(
           children: [
             // 취소: 기본 동작(닫기)
-            PostponeWaitingButton(
+            DialonButton(
               buttonText: "취소",
               onTap: () => Navigator.of(context).pop(null),
             ),
             SizedBox(width: 12.w),
             // 확인: 부모에서 연쇄 다이얼로그 로직 주입
-            PostponeWaitingButton(
+            DialonButton(
               buttonText: "확인",
               onTap: () => Navigator.of(context).pop(_selectedTeam),
             ),
@@ -180,45 +180,6 @@ class _StepperCircleButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(999.r),
           ),
           child: Center(child: SvgPicture.asset(assetPath, width: 18.w)),
-        ),
-      ),
-    );
-  }
-}
-
-class PostponeWaitingButton extends StatelessWidget {
-  const PostponeWaitingButton({
-    super.key,
-    required this.buttonText,
-    this.onTap,
-  });
-
-  final String buttonText;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final buttonTextStyle = AppTextStyles.dialogButtonTextStyle;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 40.h,
-          padding: EdgeInsets.symmetric(vertical: 11.h, horizontal: 40.w),
-          decoration: BoxDecoration(
-            color: buttonText == "취소"
-                ? const Color(0xFF535355)
-                : AppColors.appPurpleColor,
-            borderRadius: BorderRadius.circular(6.r),
-          ),
-          child: Center(
-            child: Text(
-              buttonText,
-              textAlign: TextAlign.center,
-              style: buttonTextStyle,
-            ),
-          ),
         ),
       ),
     );
