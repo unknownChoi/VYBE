@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/app_text_style.dart';
@@ -13,12 +14,14 @@ class TicketQrSection extends StatelessWidget {
     required this.isQrExpired,
     required this.qrTimeText,
     required this.onRefresh,
+    required this.qrData,
   });
 
   final PassStatus status;
   final bool isQrExpired;
   final String qrTimeText;
   final VoidCallback onRefresh;
+  final String qrData;
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +46,10 @@ class TicketQrSection extends StatelessWidget {
                       child: SizedBox(
                         width: 120.w,
                         height: 120.w,
-                        child: Image.asset(
-                          'assets/images/bottom_nav_passwallet/test_qr.png',
-                          width: 110.w,
-                          height: 114.w,
-                          fit: BoxFit.contain,
+                        child: QrImageView(
+                          data: qrData,
+                          version: QrVersions.auto,
+                          gapless: true,
                         ),
                       ),
                     ),

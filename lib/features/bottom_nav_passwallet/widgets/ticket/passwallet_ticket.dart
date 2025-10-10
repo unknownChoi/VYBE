@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -182,6 +183,59 @@ class _PasswalletTicketState extends State<PasswalletTicket>
   @override
   bool get wantKeepAlive => true;
 
+  final FirebaseFunctions _funcs = FirebaseFunctions.instanceFor(
+    region: 'asia-northeast3',
+  );
+
+  String? _qrData;
+
+  Future<void> _refreshQr() async {
+    await _fetchQrToken();
+    _restartQrTimer();
+  }
+
+  // ✅ Cloud Functions: getTicketQrToken 호출
+  Future<void> _fetchQrToken() async {
+    try {
+      if (widget.status != PassStatus.entering &&
+          widget.status != PassStatus.entered) {
+        // 해당 상태가 아니면 발급 안 함
+        return;
+      }
+
+      // TODO: 실제 ticketId로 교체하세요.
+      // 이 위젯에 ticketId가 없다면, 부모로부터 받아서 보관하거나
+      // repository/riverpod/bloc 등에서 읽어오세요.
+      const ticketId = 'IsjlB2ybGYpo2RpX3lQA';
+
+      final callable = _funcs.httpsCallable('getTicketQrToken');
+      final res = await callable.call({'ticketId': ticketId});
+      final map = (res.data as Map);
+      setState(() {
+        _qrData = (map['qr'] as String?) ?? '';
+      });
+    } on FirebaseFunctionsException catch (e) {
+      // 서버에서 던진 코드들: unauthenticated/window/state 등
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('QR 발급 실패: ${e.code} ${e.message ?? ""}')),
+        );
+      }
+      setState(() {
+        _qrData = null;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+      }
+      setState(() {
+        _qrData = null;
+      });
+    }
+  }
+
   /// QR/입장 타이머 (현재 구조 유지: 다음 단계에서 Controller로 분리 가능)
   static const int _kQrSeconds = 10; // TODO: 릴리스 시 60으로
   Timer? _qrDisplayTimer; // QR 표시 타이머
@@ -252,15 +306,19 @@ class _PasswalletTicketState extends State<PasswalletTicket>
   // 상태 전환 시 타이머 핸들링
   void _handleStatus(PassStatus s) {
     if (s == PassStatus.entering) {
-      _qrDisplaySeconds = 60;
+      _qrDisplaySeconds = 60; // 실제 TTL과 맞춰도 OK (예: 30초)
       _entryWindowSeconds = 15 * 60;
       _startQrDisplayTimer();
       _startEntryWindowTimer();
+      // ✅ 상태가 entering이면 즉시 발급
+      unawaited(_fetchQrToken());
     } else {
       _stopAllTimers();
       _qrDisplaySeconds = 60;
       _entryWindowSeconds = 15 * 60;
-      setState(() {});
+      setState(() {
+        _qrData = null; // 상태 벗어나면 QR 비움
+      });
     }
   }
 
@@ -325,7 +383,8 @@ class _PasswalletTicketState extends State<PasswalletTicket>
             status: status,
             isQrExpired: _isQrExpired,
             qrTimeText: _qrTimeText,
-            onRefresh: _restartQrTimer,
+            onRefresh: _refreshQr,
+            qrData: _qrData ?? '',
           ),
           const Spacer(),
           TicketActionRow(specs: actions),
