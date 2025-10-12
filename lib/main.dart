@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/features/main_shell/screens/main_shell.dart';
+import 'package:vybe/services/api/naver_map_service.dart';
 import 'package:vybe/services/firebase/firebase_options.dart';
 
 void main() async {
@@ -17,7 +18,7 @@ void main() async {
 
   // Firebase 초기화
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // await NaverMapService.init();
+  await NaverMapService.init();
   runApp(MyApp(isNetworkAvailable: isNetworkAvailable));
 }
 

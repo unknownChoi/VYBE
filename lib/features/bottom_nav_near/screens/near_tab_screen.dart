@@ -38,8 +38,9 @@ class _NearTabScreenState extends State<NearTabScreen> {
       width: w,
       height: h,
       fit: fit,
-      colorFilter:
-          color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      colorFilter: color != null
+          ? ColorFilter.mode(color, BlendMode.srcIn)
+          : null,
     );
   }
 
@@ -195,7 +196,7 @@ class _NearTabScreenState extends State<NearTabScreen> {
                             children: [
                               const Spacer(),
                               _svgIcon(
-                                'assets/icons/bottom_nav/search.svg',
+                                'assets/icons/common/search.svg',
                                 w: 22.sp,
                                 color: AppColors.gray400,
                               ),
