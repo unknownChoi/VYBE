@@ -13,14 +13,15 @@ import 'package:vybe/features/bottom_nav_search/screens/search_tab_screen.dart';
 import 'package:vybe/features/bottom_nav_mypage/screens/mypage_tab_screen.dart';
 
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  const MainShell({super.key, this.initialIndex = 0});
+  final int initialIndex;
 
   @override
   State<MainShell> createState() => _MainShellState();
 }
 
 class _MainShellState extends State<MainShell> {
-  int _index = 0;
+  late int _index;
 
   final List<String> banners = const [
     'assets/images/bottom_nav_home/banner_1.png',
@@ -92,6 +93,12 @@ class _MainShellState extends State<MainShell> {
         SizedBox(width: 24.w),
       ],
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.initialIndex;
   }
 
   @override

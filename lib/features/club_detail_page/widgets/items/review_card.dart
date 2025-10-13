@@ -33,8 +33,9 @@ class ReviewCard extends StatelessWidget {
             .toList() ??
         [];
 
-    final String displayContent =
-        (!isLong || isExpandedContent) ? content : _truncate(content);
+    final String displayContent = (!isLong || isExpandedContent)
+        ? content
+        : _truncate(content);
 
     return Container(
       constraints: BoxConstraints(minHeight: 140.h),
@@ -59,7 +60,7 @@ class ReviewCard extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 8.w),
-              SvgPicture.asset('assets/icons/club_detail/star.svg'),
+              SvgPicture.asset('assets/icons/common/star.svg'),
               SizedBox(width: 4.w),
               Text(
                 rating,
@@ -84,10 +85,9 @@ class ReviewCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width:
-                    imageUrls.isNotEmpty && imageUrls.first.isNotEmpty
-                        ? 239.w
-                        : 345.w,
+                width: imageUrls.isNotEmpty && imageUrls.first.isNotEmpty
+                    ? 239.w
+                    : 345.w,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

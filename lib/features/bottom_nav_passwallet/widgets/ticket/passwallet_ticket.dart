@@ -7,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/features/bottom_nav_passwallet/models/passwallet_models.dart';
-import 'package:vybe/features/bottom_nav_passwallet/utils/dialog_launcher.dart';
+import 'package:vybe/core/utils/dialog_launcher.dart';
 import 'package:vybe/features/bottom_nav_passwallet/utils/passwallet_formatters.dart';
 
 import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/cancle/cancel_waiting_confirm_dialog.dart';

@@ -16,10 +16,9 @@ class ActionButton extends StatelessWidget {
       height: 40.h,
       decoration: BoxDecoration(
         color: outlined ? Colors.transparent : AppColors.appPurpleColor,
-        border:
-            outlined
-                ? Border.all(color: AppColors.appPurpleColor, width: 1.w)
-                : null,
+        border: outlined
+            ? Border.all(color: AppColors.appPurpleColor, width: 1.w)
+            : null,
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Center(child: Text(text, style: AppTextStyles.actionButton)),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vybe/core/app_colors.dart';
-import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/passwallet_dialog.dart';
+import 'package:vybe/core/dialong_widget.dart';
 
 class PostponeWaitingSuccessDialog extends StatelessWidget {
   const PostponeWaitingSuccessDialog({super.key, required this.movedTeams});
@@ -43,7 +43,7 @@ class PostponeWaitingSuccessDialog extends StatelessWidget {
       ],
     );
 
-    return PasswalletDialog(dialogWidget: dialogWidget);
+    return DialongWidget(dialogWidget: dialogWidget);
   }
 }
 

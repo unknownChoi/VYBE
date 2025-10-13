@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class PasswalletDialog extends StatefulWidget {
-  const PasswalletDialog({super.key, required this.dialogWidget});
+class DialongWidget extends StatefulWidget {
+  const DialongWidget({super.key, required this.dialogWidget});
 
   final Widget dialogWidget;
 
   @override
-  State<PasswalletDialog> createState() => _PasswalletDialogState();
+  State<DialongWidget> createState() => _DialongWidgetState();
 }
 
-class _PasswalletDialogState extends State<PasswalletDialog> {
+class _DialongWidgetState extends State<DialongWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(

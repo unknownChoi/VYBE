@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/dialog_button.dart';
-import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/passwallet_dialog.dart';
+import 'package:vybe/core/dialong_widget.dart';
 
 class PostponeWaitingDialog extends StatefulWidget {
   const PostponeWaitingDialog({super.key});
@@ -56,7 +56,7 @@ class _PostponeWaitingDialogState extends State<PostponeWaitingDialog> {
 
     return DefaultTextStyle(
       style: const TextStyle(),
-      child: Center(child: PasswalletDialog(dialogWidget: dialogWidget)),
+      child: Center(child: DialongWidget(dialogWidget: dialogWidget)),
     );
   }
 }
