@@ -33,6 +33,135 @@ class ReservationClubCard extends StatelessWidget {
     }
   }
 
+  Color get _statusChipBackgroundColor =>
+      status == ReservationStatus.canceled
+          ? const Color(0xFF535355)
+          : AppColors.appGreenColor;
+
+  Color get _statusChipTextColor => status == ReservationStatus.canceled
+      ? Colors.white
+      : const Color(0xFF2F2F33);
+
+  bool get _showDDay => status == ReservationStatus.confirmed;
+
+  Widget _buildBadgeChip({
+    required String label,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(999.r),
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 11.sp,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w600,
+            height: 1.27,
+            letterSpacing: (-0.55).w,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow() {
+    final infoTextStyle = TextStyle(
+      color: const Color(0xFFCACACB),
+      fontSize: 14.sp,
+      fontFamily: 'Pretendard',
+      fontWeight: FontWeight.w400,
+      height: 1.14,
+      letterSpacing: (-0.70).w,
+    );
+    final infoItems = <String>[
+      scheduledDate,
+      scheduledTime,
+      '$enteredCount명',
+    ];
+
+    return Row(
+      children: [
+        for (int i = 0; i < infoItems.length; i++) ...[
+          Text(infoItems[i], style: infoTextStyle),
+          if (i < infoItems.length - 1) ...[
+            SizedBox(width: 8.w),
+            SvgPicture.asset(
+              'assets/icons/common/dot.svg',
+              width: 3.w,
+              color: const Color(0xFFCACACB),
+            ),
+            SizedBox(width: 8.w),
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required String label,
+    required Color backgroundColor,
+    Color textColor = const Color(0xFFECECEC),
+  }) {
+    return Container(
+      height: 40.h,
+      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 11.h),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(6.r),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 14.sp,
+          fontFamily: 'Pretendard',
+          fontWeight: FontWeight.w600,
+          height: 1.14,
+          letterSpacing: (-0.35).w,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActions() {
+    if (status == ReservationStatus.canceled) {
+      return SizedBox(
+        width: double.infinity,
+        child: _buildActionButton(
+          label: '내역 삭제하기',
+          backgroundColor: const Color(0xFF535355),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: _buildActionButton(
+            label: '예약 취소하기',
+            backgroundColor: const Color(0xFF535355),
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: _buildActionButton(
+            label: '예약 변경하기',
+            backgroundColor: AppColors.appPurpleColor,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -42,55 +171,19 @@ class ReservationClubCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                  decoration: BoxDecoration(
-                    color: status == ReservationStatus.canceled
-                        ? const Color(0xFF535355)
-                        : AppColors.appGreenColor,
-                    borderRadius: BorderRadius.circular(999.r),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _statusLabel(status),
-                      style: TextStyle(
-                        color: status == ReservationStatus.canceled
-                            ? Colors.white
-                            : const Color(0xFF2F2F33),
-                        fontSize: 11.sp,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w600,
-                        height: 1.27,
-                        letterSpacing: (-0.55).w,
-                      ),
-                    ),
-                  ),
+                _buildBadgeChip(
+                  label: _statusLabel(status),
+                  backgroundColor: _statusChipBackgroundColor,
+                  textColor: _statusChipTextColor,
                 ),
-                SizedBox(width: 8.w),
-                if (status == ReservationStatus.confirmed)
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 2.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF404042),
-                      borderRadius: BorderRadius.circular(999.r),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'D-10',
-                        style: TextStyle(
-                          color: const Color(0xFFCACACB),
-                          fontSize: 11.sp,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.27,
-                          letterSpacing: (-0.55).w,
-                        ),
-                      ),
-                    ),
+                if (_showDDay) ...[
+                  SizedBox(width: 8.w),
+                  _buildBadgeChip(
+                    label: 'D-10',
+                    backgroundColor: const Color(0xFF404042),
+                    textColor: const Color(0xFFCACACB),
                   ),
+                ],
               ],
             ),
             SizedBox(height: 10.h),
@@ -120,82 +213,13 @@ class ReservationClubCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8.h),
-                    Row(
-                      children: [
-                        Text(
-                          scheduledDate,
-                          style: TextStyle(
-                            color: const Color(0xFFCACACB),
-                            fontSize: 14.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            height: 1.14,
-                            letterSpacing: (-0.70).w,
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        SvgPicture.asset(
-                          'assets/icons/common/dot.svg',
-                          width: 3.w,
-                          color: const Color(0xFFCACACB),
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          scheduledTime,
-                          style: TextStyle(
-                            color: const Color(0xFFCACACB),
-                            fontSize: 14.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            height: 1.14,
-                            letterSpacing: (-0.70).w,
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        SvgPicture.asset(
-                          'assets/icons/common/dot.svg',
-                          width: 3.w,
-                          color: const Color(0xFFCACACB),
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          '$enteredCount명',
-                          style: TextStyle(
-                            color: const Color(0xFFCACACB),
-                            fontSize: 14.sp,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            height: 1.14,
-                            letterSpacing: (-0.70).w,
-                          ),
-                        ),
-                      ],
-                    ),
+                    _buildInfoRow(),
                   ],
                 ),
               ],
             ),
             SizedBox(height: 12.h),
-            if (status == ReservationStatus.canceled)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 11.h),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF535355)),
-                  borderRadius: BorderRadius.circular(6.r),
-                ),
-                child: Text(
-                  '예약이 취소되었어요',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: const Color(0xFFCACACB),
-                    fontSize: 14.sp,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w600,
-                    height: 1.14,
-                    letterSpacing: (-0.35).w,
-                  ),
-                ),
-              ),
+            _buildActions(),
           ],
         ),
       ),
