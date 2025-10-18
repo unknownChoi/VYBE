@@ -89,14 +89,15 @@ class _ClubDetailMainState extends State<ClubDetailMain>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appBackgroundColor,
-      bottomNavigationBar: const ClubDetailBottomBar(),
+      bottomNavigationBar: ClubDetailBottomBar(
+        clubName: ((clubData['name']) as String?) ?? '',
+      ),
       body: NestedScrollView(
         controller: _scrollController,
-        headerSliverBuilder:
-            (context, _) => [
-              const ClubHeader(),
-              ClubDetailSliverTabBar(controller: _tabController),
-            ],
+        headerSliverBuilder: (context, _) => [
+          const ClubHeader(),
+          ClubDetailSliverTabBar(controller: _tabController),
+        ],
         body: TabBarView(
           controller: _tabController,
           children: [

@@ -8,9 +8,12 @@ import 'package:vybe/features/club_detail_page/widgets/atoms/action_button.dart'
 import 'package:vybe/features/club_detail_page/widgets/layout/components/club_detail_dialog_button.dart';
 import 'package:vybe/features/club_detail_page/widgets/layout/components/waiting_registration_bottom_sheet.dart';
 import 'package:vybe/features/main_shell/screens/main_shell.dart';
+import 'package:vybe/features/table_reservation_page/screens/table_reservation_page.dart';
 
 class ClubDetailBottomBar extends StatelessWidget {
-  const ClubDetailBottomBar({super.key});
+  const ClubDetailBottomBar({super.key, required this.clubName});
+
+  final String clubName;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +41,14 @@ class ClubDetailBottomBar extends StatelessWidget {
           ),
           const Spacer(),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TableReservationPage(clubName: clubName),
+                ),
+              );
+            },
             child: const ActionButton(text: '테이블 예약'),
           ),
         ],
@@ -52,7 +62,7 @@ class ClubDetailBottomBar extends StatelessWidget {
       isScrollControlled: true,
       builder: (sheetContext) {
         return WaitingRegistrationBottomSheet(
-          clubName: '어썸 레드',
+          clubName: clubName,
           waitingTeamCount: '2팀',
           expectedWaitTime: '40분',
           onRegister: (_) {

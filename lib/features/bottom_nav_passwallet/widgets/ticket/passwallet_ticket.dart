@@ -210,6 +210,7 @@ class _PasswalletTicketState extends State<PasswalletTicket>
 
       final callable = _funcs.httpsCallable('getTicketQrToken');
       final res = await callable.call({'ticketId': ticketId});
+      if (!mounted) return;
       final map = (res.data as Map);
       setState(() {
         _qrData = (map['qr'] as String?) ?? '';
@@ -221,6 +222,7 @@ class _PasswalletTicketState extends State<PasswalletTicket>
           SnackBar(content: Text('QR 발급 실패: ${e.code} ${e.message ?? ""}')),
         );
       }
+      if (!mounted) return;
       setState(() {
         _qrData = null;
       });
@@ -230,6 +232,7 @@ class _PasswalletTicketState extends State<PasswalletTicket>
           context,
         ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
       }
+      if (!mounted) return;
       setState(() {
         _qrData = null;
       });
@@ -260,6 +263,7 @@ class _PasswalletTicketState extends State<PasswalletTicket>
 
   void _restartQrTimer() {
     _qrDisplayTimer?.cancel();
+    if (!mounted) return;
     setState(() {
       _qrDisplaySeconds = _kQrSeconds;
     });
@@ -316,6 +320,7 @@ class _PasswalletTicketState extends State<PasswalletTicket>
       _stopAllTimers();
       _qrDisplaySeconds = 60;
       _entryWindowSeconds = 15 * 60;
+      if (!mounted) return;
       setState(() {
         _qrData = null; // 상태 벗어나면 QR 비움
       });
