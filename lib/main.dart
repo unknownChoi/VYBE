@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:vybe/features/main_shell/screens/main_shell.dart';
+import 'package:vybe/features/table_reservation_page/screens/table_reservation_page.dart';
 import 'package:vybe/services/api/naver_map_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:vybe/services/firebase/firebase_options.dart';
@@ -22,7 +23,7 @@ void main() async {
 
   // Firebase 초기화
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // await NaverMapService.init();
+  await NaverMapService.init();
   runApp(MyApp(isNetworkAvailable: isNetworkAvailable));
 }
 
@@ -39,7 +40,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false, // 디버그 배너 숨김
           home: isNetworkAvailable
-              ? MainShell()
+              ? TableReservationPage(clubName: "어썸레드")
               : Scaffold(
                   body: Center(
                     child: Text(
