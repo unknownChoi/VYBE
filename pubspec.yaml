@@ -77,5 +77,6 @@ flutter:
     - assets/icons/bottom_nav_near/
     - assets/icons/search_tab/
     - assets/icons/bottom_nav_passwallet/
+    - assets/icons/table_reservation_page/
 
   uses-material-design: true   # Material 디자인 아이콘 사용
