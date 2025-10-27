@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +8,7 @@ import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/core/dialong_widget.dart';
 import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/dialog_button.dart';
+import 'menu_order_screen.dart';
 
 class TableReservationPage extends StatefulWidget {
   const TableReservationPage({super.key, required this.clubName});
@@ -26,12 +28,23 @@ class _TableReservationPageState extends State<TableReservationPage> {
   String? _selectedTableId;
   final Set<String> _soldTableIds = {'3', '5', '14'};
   String? _selectedTimeSlot;
+  late final TextEditingController _nameController;
+  late final TextEditingController _contactController;
 
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController();
+    _contactController = TextEditingController();
     // 로케일 포맷(상단 월/연도 등) 한국어
     Intl.defaultLocale = 'ko_KR';
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _contactController.dispose();
+    super.dispose();
   }
 
   void _incrementGuestCount() {
@@ -60,6 +73,10 @@ class _TableReservationPageState extends State<TableReservationPage> {
     setState(() => _selectedTimeSlot = time);
   }
 
+  void _handleReservationInfoChanged(String _) {
+    setState(() {});
+  }
+
   Future<void> _showSoldTableDialog() async {
     await showDialog<void>(
       context: context,
@@ -77,11 +94,15 @@ class _TableReservationPageState extends State<TableReservationPage> {
         ? '$_selectedTableId번 테이블'
         : '테이블 선택';
     final timeTitle = _selectedTimeSlot ?? '시간 선택';
+    final bool isNameFilled = _nameController.text.trim().isNotEmpty;
+    final bool isContactFilled = _contactController.text.trim().isNotEmpty;
+    final bool isReservationInfoFilled = isNameFilled && isContactFilled;
     final bool isAllSelected =
         _selectedDay != null &&
         _guestCount > 0 &&
         _selectedTableId != null &&
-        _selectedTimeSlot != null;
+        _selectedTimeSlot != null &&
+        isReservationInfoFilled;
     final Color payButtonColor = isAllSelected
         ? AppColors.appPurpleColor
         : const Color(0xFF2F1A5A);
@@ -136,11 +157,18 @@ class _TableReservationPageState extends State<TableReservationPage> {
                     InformationInput(
                       inputTitle: "예약자명",
                       hintText: "이름을 입력해주세요.",
+                      controller: _nameController,
+                      onChanged: _handleReservationInfoChanged,
+                      isFilled: isNameFilled,
                     ),
                     SizedBox(height: 24.h),
                     InformationInput(
                       inputTitle: "연락처",
                       hintText: "숫자만 입력해주세요.",
+                      controller: _contactController,
+                      onChanged: _handleReservationInfoChanged,
+                      isFilled: isContactFilled,
+                      inputFormatters: const [_HyphenPhoneFormatter()],
                     ),
                   ],
                 ),
@@ -208,11 +236,15 @@ class _TableReservationPageState extends State<TableReservationPage> {
                       title: "주문하기",
                       leading:
                           "assets/icons/table_reservation_page/receipt.svg",
-                      child: TimeSection(
-                        slots: nightSlots,
-                        selectedTime: _selectedTimeSlot,
-                        onTimeSelected: _handleTimeTap,
-                      ),
+                      trailingArrow: true,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const MenuOrderScreen(),
+                          ),
+                        );
+                      },
+                      child: Column(),
                     ),
                     SizedBox(height: 97.h),
                   ],
@@ -917,13 +949,25 @@ class InformationInput extends StatelessWidget {
     super.key,
     required this.inputTitle,
     required this.hintText,
+    required this.controller,
+    required this.onChanged,
+    required this.isFilled,
+    this.inputFormatters,
   });
 
   final String inputTitle;
   final String hintText;
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final bool isFilled;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
+    final Color borderColor = isFilled
+        ? AppColors.appPurpleColor
+        : const Color(0xFF2F2F33);
+
     return Column(
       children: [
         Column(
@@ -945,10 +989,13 @@ class InformationInput extends StatelessWidget {
               width: double.infinity,
               height: 40.h,
               child: TextField(
+                controller: controller,
                 keyboardType: inputTitle == "예약자명"
                     ? TextInputType.name
                     : TextInputType.phone,
                 textInputAction: TextInputAction.next,
+                onChanged: onChanged,
+                inputFormatters: inputFormatters,
                 decoration: InputDecoration(
                   hintText: hintText,
                   hintStyle: TextStyle(
@@ -961,17 +1008,11 @@ class InformationInput extends StatelessWidget {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.r),
-                    borderSide: BorderSide(
-                      color: const Color(0xFF2F2F33),
-                      width: 1,
-                    ),
+                    borderSide: BorderSide(color: borderColor, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.r),
-                    borderSide: BorderSide(
-                      color: const Color(0xFF2F2F33),
-                      width: 1,
-                    ),
+                    borderSide: BorderSide(color: borderColor, width: 1),
                   ),
                 ),
                 style: TextStyle(
@@ -987,6 +1028,53 @@ class InformationInput extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _HyphenPhoneFormatter extends TextInputFormatter {
+  const _HyphenPhoneFormatter();
+
+  static const int _maxDigits = 11;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (digitsOnly.isEmpty) {
+      return newValue.copyWith(
+        text: '',
+        selection: const TextSelection.collapsed(offset: 0),
+        composing: TextRange.empty,
+      );
+    }
+
+    final truncated = digitsOnly.length > _maxDigits
+        ? digitsOnly.substring(0, _maxDigits)
+        : digitsOnly;
+
+    final buffer = StringBuffer();
+    if (truncated.length <= 3) {
+      buffer.write(truncated);
+    } else if (truncated.length <= 7) {
+      buffer.write(truncated.substring(0, 3));
+      buffer.write('-');
+      buffer.write(truncated.substring(3));
+    } else {
+      buffer.write(truncated.substring(0, 3));
+      buffer.write('-');
+      buffer.write(truncated.substring(3, 7));
+      buffer.write('-');
+      buffer.write(truncated.substring(7));
+    }
+
+    final formatted = buffer.toString();
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+      composing: TextRange.empty,
     );
   }
 }
@@ -1157,26 +1245,68 @@ class _CalendarSection extends StatelessWidget {
 class _BookingTileSimple extends StatelessWidget {
   const _BookingTileSimple({
     required this.title,
-    required this.child,
+    this.child,
     this.leading,
     this.trailingArrow = false,
+    this.onTap,
     this.onExpansionChanged,
   });
 
   final String title;
-  final Widget child;
+  final Widget? child;
   final String? leading;
   final bool trailingArrow;
+  final VoidCallback? onTap;
   final ValueChanged<bool>? onExpansionChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Color(0xFF2F2F33), width: 1.w),
-        ),
+    final decoration = BoxDecoration(
+      border: Border(
+        bottom: BorderSide(color: const Color(0xFF2F2F33), width: 1.w),
       ),
+    );
+    final titleText = Text(
+      title,
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w600,
+        fontSize: 16.sp,
+      ),
+    );
+
+    if (onTap != null) {
+      return Container(
+        decoration: decoration,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
+              child: Row(
+                children: [
+                  if (leading != null) ...[
+                    SvgPicture.asset(leading!),
+                    Spacer(),
+                  ],
+                  Expanded(child: titleText),
+                  if (trailingArrow)
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Colors.white,
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      decoration: decoration,
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
       child: Theme(
         data: Theme.of(context).copyWith(
           splashFactory: NoSplash.splashFactory,
@@ -1184,24 +1314,18 @@ class _BookingTileSimple extends StatelessWidget {
           splashColor: Colors.transparent,
         ),
         child: ExpansionTile(
-          tilePadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
           collapsedIconColor: Colors.white,
           iconColor: Colors.white,
           leading: leading != null ? SvgPicture.asset(leading!) : null,
           childrenPadding: EdgeInsets.zero,
-          title: Text(
-            title,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 16.sp,
-            ),
-          ),
+          title: titleText,
           onExpansionChanged: onExpansionChanged,
           trailing: trailingArrow
               ? const Icon(Icons.chevron_right_rounded, color: Colors.white)
               : null,
-          children: [SizedBox(width: double.infinity, child: child)],
+          children: child != null
+              ? [SizedBox(width: double.infinity, child: child)]
+              : const [],
         ),
       ),
     );
