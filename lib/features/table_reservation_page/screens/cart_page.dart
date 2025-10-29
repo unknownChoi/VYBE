@@ -41,6 +41,43 @@ class _CartPageState extends State<CartPage> {
       ),
 
       body: Column(),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        bottom: true,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          height: 40.h,
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 40.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.appPurpleColor,
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    vertical: 11.h,
+                    horizontal: 40.w,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '더 담으러 가기',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

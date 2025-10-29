@@ -7,6 +7,7 @@ import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
 import 'package:vybe/features/club_detail_page/widgets/atoms/category_chip.dart';
+import 'package:vybe/features/table_reservation_page/screens/select_options_page.dart';
 import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 import 'package:vybe/features/table_reservation_page/screens/cart_page.dart';
 
@@ -56,8 +57,28 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
     return [MapEntry(target, _castMenuList(selectedItems))];
   }
 
-  void _addMenuToCart(Map<String, dynamic> item) {
+  Future<void> _addMenuToCart(Map<String, dynamic> item) async {
     final name = item['name'] as String? ?? '이름없는 메뉴';
+    final options = item['options'];
+
+    if (options is List && options.isNotEmpty) {
+      debugPrint('옵션 선택 필요: $name');
+      final shouldAdd = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (_) => SelectOptionsPage(menu: item, options: options),
+        ),
+      );
+
+      if (!mounted) return;
+      if (shouldAdd != true) {
+        debugPrint('옵션 선택 취소: $name');
+        return;
+      }
+      debugPrint('옵션 선택 완료: $name');
+    }
+
+    if (!mounted) return;
+
     setState(() {
       _cartItems.add(name);
     });
@@ -125,7 +146,9 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
             menuImageSrc: item['image'] as String,
             isMainMenu: item['isMain'] as bool,
             menuDescription: description,
-            onAddToCart: () => _addMenuToCart(item),
+            onAddToCart: () {
+              _addMenuToCart(item);
+            },
           ),
         );
 
