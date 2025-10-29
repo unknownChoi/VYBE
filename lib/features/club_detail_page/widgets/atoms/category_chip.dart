@@ -19,12 +19,13 @@ class CategoryChip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       margin: EdgeInsets.symmetric(horizontal: 8.w),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.appPurpleColor : Colors.transparent,
+        color: isSelected ? AppColors.appPurpleColor : Color(0xFF535355),
         borderRadius: BorderRadius.circular(18.r),
         border: Border.all(
           width: 1.w,
-          color:
-              isSelected ? AppColors.appPurpleColor : const Color(0xFF404042),
+          color: isSelected
+              ? AppColors.appPurpleColor
+              : const Color(0xFF535355),
         ),
       ),
       child: Center(child: Text(category, style: AppTextStyles.category)),

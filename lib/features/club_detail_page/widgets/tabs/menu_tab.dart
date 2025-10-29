@@ -97,6 +97,7 @@ class MenuTab extends StatelessWidget {
                         menuPrice: item["price"] as int,
                         menuImageSrc: item["image"] as String,
                         isMainMenu: item["isMain"] as bool,
+                        menuDescription: item['description'] as String,
                       ),
                       Divider(
                         height: 1.h,

@@ -61,6 +61,7 @@ class _ClubSignatureSectionState extends State<ClubSignatureSection> {
                 menuPrice: item['price'] as int,
                 menuImageSrc: item['image'] as String,
                 isMainMenu: item['isMain'] as bool,
+                menuDescription: item['description'] as String,
               ),
             ),
             Divider(thickness: 1.h, color: const Color(0xFF404042)),

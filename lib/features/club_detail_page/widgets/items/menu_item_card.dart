@@ -11,13 +11,15 @@ class MenuItemCard extends StatelessWidget {
   final int menuPrice;
   final String menuImageSrc;
   final bool isMainMenu;
+  final String menuDescription;
 
   const MenuItemCard({
+    super.key,
     required this.menuName,
     required this.menuPrice,
     required this.menuImageSrc,
+    required this.menuDescription,
     required this.isMainMenu,
-    super.key,
   });
 
   @override
@@ -55,6 +57,19 @@ class MenuItemCard extends StatelessWidget {
                     Text(menuName, style: AppTextStyles.body),
                   ],
                 ),
+                SizedBox(height: 8.h),
+                if (menuDescription.isNotEmpty)
+                  Text(
+                    menuDescription,
+                    style: TextStyle(
+                      color: const Color(0xFF9F9FA1) /* Gray500 */,
+                      fontSize: 12.sp,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w400,
+                      height: 1.17,
+                      letterSpacing: -0.30.w,
+                    ),
+                  ),
                 SizedBox(height: 12.h),
                 Text(
                   '${_wonFormat.format(menuPrice)}원',
