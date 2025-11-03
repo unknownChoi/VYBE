@@ -8,8 +8,9 @@ import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
 import 'package:vybe/features/club_detail_page/widgets/atoms/category_chip.dart';
 import 'package:vybe/features/table_reservation_page/screens/select_options_page.dart';
-import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
+
 import 'package:vybe/features/table_reservation_page/screens/cart_page.dart';
+import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 
 class MenuOrderScreen extends StatefulWidget {
   const MenuOrderScreen({super.key});
@@ -23,7 +24,11 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
 
   late final List<String> _categories = List<String>.from(menuCategories);
   String? _selectedCategory;
-  final List<String> _cartItems = [];
+  final Set<CartEntry> _cartItems = <CartEntry>{};
+  final NumberFormat _comma = NumberFormat('#,##0');
+
+  int get _cartQuantityTotal =>
+      _cartItems.fold<int>(0, (sum, entry) => sum + entry.quantity);
 
   bool get _hasCategories => _categories.isNotEmpty;
 
@@ -57,20 +62,32 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
     return [MapEntry(target, _castMenuList(selectedItems))];
   }
 
+  num _parsePrice(dynamic value) {
+    if (value is num) {
+      return value;
+    }
+    if (value is String) {
+      return num.tryParse(value) ?? 0;
+    }
+    return 0;
+  }
+
   Future<void> _addMenuToCart(Map<String, dynamic> item) async {
     final name = item['name'] as String? ?? '이름없는 메뉴';
     final options = item['options'];
 
+    Map<String, dynamic>? selectionResult;
+
     if (options is List && options.isNotEmpty) {
       debugPrint('옵션 선택 필요: $name');
-      final shouldAdd = await Navigator.of(context).push<bool>(
+      selectionResult = await Navigator.of(context).push<Map<String, dynamic>>(
         MaterialPageRoute(
           builder: (_) => SelectOptionsPage(menu: item, options: options),
         ),
       );
 
       if (!mounted) return;
-      if (shouldAdd != true) {
+      if (selectionResult == null) {
         debugPrint('옵션 선택 취소: $name');
         return;
       }
@@ -79,24 +96,68 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
 
     if (!mounted) return;
 
+    final int quantity = selectionResult?['quantity'] as int? ?? 1;
+    final List<Map<String, dynamic>> selectedOptions =
+        (selectionResult?['options'] as List?)
+            ?.whereType<Map<String, dynamic>>()
+            .map((opt) => Map<String, dynamic>.from(opt))
+            .toList() ??
+        <Map<String, dynamic>>[];
+    final num basePrice = _parsePrice(item['price']);
+    final num optionsExtra = selectedOptions.fold<num>(
+      0,
+      (sum, opt) => sum + _parsePrice(opt['price']),
+    );
+    final num totalPrice =
+        selectionResult?['totalPrice'] as num? ??
+        (basePrice * quantity + optionsExtra);
+    final num unitPrice = quantity > 0
+        ? totalPrice / quantity
+        : basePrice + optionsExtra;
+
+    final newEntry = CartEntry(
+      menu: Map<String, dynamic>.from(item),
+      menuName: name,
+      options: selectedOptions,
+      unitPrice: unitPrice,
+      quantity: quantity,
+      menuImagePath: (item['image'] ?? '').toString(),
+    );
+
+    int updatedQuantity = quantity;
     setState(() {
-      _cartItems.add(name);
+      final existing = _cartItems.lookup(newEntry);
+      if (existing != null) {
+        existing.quantity += quantity;
+        updatedQuantity = existing.quantity;
+      } else {
+        _cartItems.add(newEntry);
+        updatedQuantity = newEntry.quantity;
+      }
     });
-    debugPrint('Added to cart: $name');
+
+    final optionsLabel = selectedOptions.isEmpty
+        ? '옵션 없음'
+        : selectedOptions.map((opt) => opt['name']).join(', ');
+    debugPrint('Added to cart: $name x$updatedQuantity ($optionsLabel)');
   }
 
   void _printCartItems() {
-    if (_cartItems.isEmpty) {
-      debugPrint('장바구니가 비어 있습니다.');
-      return;
-    }
-    debugPrint('장바구니 메뉴: ${_cartItems.join(', ')}');
+    final summary = _cartItems
+        .map((entry) {
+          final optionsLabel = entry.options.isEmpty
+              ? ''
+              : ' (${entry.options.map((opt) => opt['name']).join(', ')})';
+          final priceLabel = '${_comma.format(entry.totalPrice)}원';
+          return '${entry.menuName} x${entry.quantity} $priceLabel$optionsLabel';
+        })
+        .join(', ');
+    debugPrint('장바구니 메뉴: $summary');
 
-    // 기본 사용
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const CartPage(), // 이동할 화면 위젯
+        builder: (_) => CartPage(items: Set<CartEntry>.from(_cartItems)),
       ),
     );
   }
@@ -162,6 +223,13 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
       }
     }
     return widgets;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print(_printCartItems);
   }
 
   @override
@@ -298,27 +366,27 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
                           },
                           child: _cartItems.isNotEmpty
                               ? Padding(
-                                  key: ValueKey<int>(_cartItems.length),
-                                  padding: EdgeInsets.only(left: 12.w),
+                                  key: ValueKey<int>(_cartQuantityTotal),
+                                  padding: EdgeInsets.only(left: 8.w),
                                   child: Container(
-                                    width: 30.w,
-                                    height: 30.w,
+                                    width: 24.w,
+                                    height: 24.w,
                                     decoration: const BoxDecoration(
                                       color: Color(0xFF622ACF),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
                                       child: Text(
-                                        '${_cartItems.length}',
+                                        '$_cartQuantityTotal',
                                         style: TextStyle(
                                           color: const Color(
                                             0xFFECECEC,
                                           ) /* Gray200 */,
-                                          fontSize: 12.sp,
+                                          fontSize: 11.sp,
                                           fontFamily: 'Pretendard',
                                           fontWeight: FontWeight.w600,
-                                          height: 1.17,
-                                          letterSpacing: -0.60,
+                                          height: 1.10,
+                                          letterSpacing: -0.55,
                                         ),
                                       ),
                                     ),
