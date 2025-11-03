@@ -42,6 +42,16 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  void _updateQuantity(CartEntry entry, int delta) {
+    final next = entry.quantity + delta;
+    if (next < 1) {
+      return;
+    }
+    setState(() {
+      entry.quantity = next;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final entries = widget.items.toList(growable: false);
@@ -220,10 +230,12 @@ class _CartPageState extends State<CartPage> {
                             width: 20,
                             height: 20,
                             svgPath: 'assets/icons/common/minus.svg',
+                            onTap: () => _updateQuantity(entry, -1),
+                            isEnabled: entry.quantity > 1,
                           ),
                           SizedBox(width: 8.w),
                           Text(
-                            "1",
+                            "${entry.quantity}",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: const Color(0xFFECECEC) /* Gray200 */,
@@ -239,6 +251,7 @@ class _CartPageState extends State<CartPage> {
                             width: 20,
                             height: 20,
                             svgPath: 'assets/icons/common/plus.svg',
+                            onTap: () => _updateQuantity(entry, 1),
                           ),
                         ],
                       ),

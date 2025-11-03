@@ -21,6 +21,27 @@ class CartEntry {
 
   num get totalPrice => unitPrice * quantity;
 
+  CartEntry copyWith({
+    Map<String, dynamic>? menu,
+    String? menuName,
+    List<Map<String, dynamic>>? options,
+    num? unitPrice,
+    int? quantity,
+    String? menuImagePath,
+  }) {
+    final copiedOptions = (options ?? this.options)
+        .map((opt) => Map<String, dynamic>.from(opt))
+        .toList();
+    return CartEntry(
+      menu: Map<String, dynamic>.from(menu ?? this.menu),
+      menuName: menuName ?? this.menuName,
+      options: copiedOptions,
+      unitPrice: unitPrice ?? this.unitPrice,
+      quantity: quantity ?? this.quantity,
+      menuImagePath: menuImagePath ?? this.menuImagePath,
+    );
+  }
+
   static String _buildOptionsKey(List<Map<String, dynamic>> options) {
     if (options.isEmpty) {
       return '';

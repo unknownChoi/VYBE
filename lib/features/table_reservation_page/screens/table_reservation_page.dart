@@ -1331,5 +1331,3 @@ class _BookingTileSimple extends StatelessWidget {
     );
   }
 }
-
-/// 비활성 슬롯 칩(스타일 용)
