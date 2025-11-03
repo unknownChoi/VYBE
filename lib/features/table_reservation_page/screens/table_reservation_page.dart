@@ -1333,16 +1333,3 @@ class _BookingTileSimple extends StatelessWidget {
 }
 
 /// 비활성 슬롯 칩(스타일 용)
-class _SlotChip extends StatelessWidget {
-  const _SlotChip(this.text, {super.key});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      label: Text(text, style: const TextStyle(color: Colors.white)),
-      backgroundColor: const Color(0xFF242427),
-      side: BorderSide(color: const Color(0xFF2C2C2F), width: 1.w),
-    );
-  }
-}

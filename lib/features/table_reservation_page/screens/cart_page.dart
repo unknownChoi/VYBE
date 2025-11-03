@@ -27,9 +27,6 @@ class _CartPageState extends State<CartPage> {
     return 0;
   }
 
-  int get _totalQuantity =>
-      widget.items.fold<int>(0, (sum, entry) => sum + entry.quantity);
-
   num get _totalPrice =>
       widget.items.fold<num>(0, (sum, entry) => sum + entry.totalPrice);
 
@@ -128,64 +125,6 @@ class _CartPageState extends State<CartPage> {
                       bottom: BorderSide(width: 1.w, color: Color(0xFF2F2F33)),
                     ),
                   ),
-                  // child: Row(
-                  //   crossAxisAlignment: CrossAxisAlignment.start,
-                  //   children: [
-                  //     imageWidget,
-                  //     SizedBox(width: 12.w),
-                  //     Expanded(
-                  //       child: Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           Row(
-                  //             children: [
-                  //               Expanded(
-                  //                 child: Text(
-                  //                   entry.menuName,
-                  //                   style: TextStyle(
-                  //                     color: Colors.white,
-                  //                     fontSize: 18.sp,
-                  //                     fontFamily: 'Pretendard',
-                  //                     fontWeight: FontWeight.w600,
-                  //                   ),
-                  //                 ),
-                  //               ),
-                  //               Text(
-                  //                 '${entry.quantity}개',
-                  //                 style: TextStyle(
-                  //                   color: const Color(0xFFECECEC),
-                  //                   fontSize: 16.sp,
-                  //                   fontFamily: 'Pretendard',
-                  //                   fontWeight: FontWeight.w500,
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           ),
-                  //           SizedBox(height: 8.h),
-                  //           Text(
-                  //             optionsText,
-                  //             style: TextStyle(
-                  //               color: const Color(0xFF9F9FA1),
-                  //               fontSize: 14.sp,
-                  //               fontFamily: 'Pretendard',
-                  //               fontWeight: FontWeight.w400,
-                  //             ),
-                  //           ),
-                  //           SizedBox(height: 12.h),
-                  //           Text(
-                  //             '합계 ${_comma.format(entry.totalPrice)}원',
-                  //             style: TextStyle(
-                  //               color: Colors.white,
-                  //               fontSize: 16.sp,
-                  //               fontFamily: 'Pretendard',
-                  //               fontWeight: FontWeight.w600,
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
                   child: Column(
                     children: [
                       Row(
@@ -284,7 +223,7 @@ class _CartPageState extends State<CartPage> {
                           ),
                           SizedBox(width: 8.w),
                           Text(
-                            '1',
+                            "1",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: const Color(0xFFECECEC) /* Gray200 */,
@@ -326,7 +265,7 @@ class _CartPageState extends State<CartPage> {
               ),
               child: Center(
                 child: Text(
-                  '더 담으러 가기',
+                  '${_comma.format(_totalPrice)}원 주문하기',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
