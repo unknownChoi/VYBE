@@ -298,7 +298,6 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
                       CountButton(
                         width: 32,
                         height: 32,
-
                         svgPath: 'assets/icons/common/plus.svg',
                         onTap: _increaseQuantity,
                       ),

@@ -9,6 +9,7 @@ import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/core/dialong_widget.dart';
 import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/dialog_button.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
+import 'package:vybe/features/table_reservation_page/screens/purchase_page.dart';
 import 'menu_order_screen.dart';
 
 class TableReservationPage extends StatefulWidget {
@@ -308,21 +309,49 @@ class _TableReservationPageState extends State<TableReservationPage> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Container(
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                    color: payButtonColor,
-                    borderRadius: BorderRadius.circular(6.r),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '결제하기',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w600,
+                child: GestureDetector(
+                  onTap: () {
+                    if (!isAllSelected) {
+                      return;
+                    }
+
+                    final reservationData = <Map<String, dynamic>>{
+                      {
+                        'clubName': widget.clubName,
+                        'reservationName': _nameController.text.trim(),
+                        'contactNumber': _contactController.text.trim(),
+                        'reservationDate': _selectedDay!,
+                        'guestCount': _guestCount,
+                        'tableId': _selectedTableId!,
+                        'timeSlot': _selectedTimeSlot!,
+                        'cartItems': _cloneCartItems(_cartItems),
+                      },
+                    };
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            PurchasePage(reservationData: reservationData),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                      color: payButtonColor,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '결제하기',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -542,39 +571,39 @@ class TableSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final smallPadding = EdgeInsets.symmetric(vertical: 5.h, horizontal: 6.w);
+    final smallPadding = EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w);
 
     final rows = <List<_TableMeta>>[
       [
         _TableMeta(
           id: '1',
           assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 27.w,
-          height: 23.h,
+          width: 24.w,
+          height: 20.h,
           padding: smallPadding,
           category: _TableCategory.room,
         ),
         _TableMeta(
           id: '2',
           assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 27.w,
-          height: 23.h,
+          width: 24.w,
+          height: 20.h,
           padding: smallPadding,
           category: _TableCategory.room,
         ),
         _TableMeta(
           id: '3',
           assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 27.w,
-          height: 23.h,
+          width: 24.w,
+          height: 20.h,
           padding: smallPadding,
           category: _TableCategory.room,
         ),
         _TableMeta(
           id: '4',
           assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 27.w,
-          height: 23.h,
+          width: 24.w,
+          height: 20.h,
           padding: smallPadding,
           category: _TableCategory.room,
         ),
@@ -583,8 +612,8 @@ class TableSection extends StatelessWidget {
         _TableMeta(
           id: '5',
           assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 27.w,
-          height: 23.h,
+          width: 24.w,
+          height: 20.h,
           padding: smallPadding,
           category: _TableCategory.room,
           quarterTurns: 1,
@@ -592,32 +621,32 @@ class TableSection extends StatelessWidget {
         _TableMeta(
           id: '6',
           assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 42.w,
-          height: 42.h,
+          width: 36.w,
+          height: 36.h,
           padding: smallPadding,
           category: _TableCategory.table,
         ),
         _TableMeta(
           id: '7',
           assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 42.w,
-          height: 42.h,
+          width: 36.w,
+          height: 36.h,
           padding: smallPadding,
           category: _TableCategory.table,
         ),
         _TableMeta(
           id: '8',
           assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 42.w,
-          height: 42.h,
+          width: 36.w,
+          height: 36.h,
           padding: smallPadding,
           category: _TableCategory.table,
         ),
         _TableMeta(
           id: '9',
           assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 27.w,
-          height: 23.h,
+          width: 24.w,
+          height: 20.h,
           padding: smallPadding,
           category: _TableCategory.room,
           quarterTurns: 1,
@@ -627,8 +656,8 @@ class TableSection extends StatelessWidget {
         _TableMeta(
           id: '10',
           assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 27.w,
-          height: 23.h,
+          width: 24.w,
+          height: 20.h,
           padding: smallPadding,
           category: _TableCategory.room,
           quarterTurns: 1,
@@ -636,32 +665,32 @@ class TableSection extends StatelessWidget {
         _TableMeta(
           id: '11',
           assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 42.w,
-          height: 42.h,
+          width: 36.w,
+          height: 36.h,
           padding: smallPadding,
           category: _TableCategory.table,
         ),
         _TableMeta(
           id: '12',
           assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 42.w,
-          height: 42.h,
+          width: 36.w,
+          height: 36.h,
           padding: smallPadding,
           category: _TableCategory.table,
         ),
         _TableMeta(
           id: '13',
           assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 42.w,
-          height: 42.h,
+          width: 36.w,
+          height: 36.h,
           padding: smallPadding,
           category: _TableCategory.table,
         ),
         _TableMeta(
           id: '14',
           assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 27.w,
-          height: 23.h,
+          width: 24.w,
+          height: 20.h,
           padding: smallPadding,
           category: _TableCategory.room,
           quarterTurns: 1,
@@ -670,17 +699,19 @@ class TableSection extends StatelessWidget {
     ];
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               for (
                 var columnIndex = 0;
                 columnIndex < rows[rowIndex].length;
                 columnIndex++
               ) ...[
-                if (columnIndex > 0) SizedBox(width: 14.w),
+                if (columnIndex > 0) SizedBox(width: 10.w),
                 _TableButton(
                   meta: rows[rowIndex][columnIndex],
                   isSelected: selectedTableId == rows[rowIndex][columnIndex].id,
@@ -690,7 +721,7 @@ class TableSection extends StatelessWidget {
               ],
             ],
           ),
-          if (rowIndex < rows.length - 1) SizedBox(height: 8.h),
+          if (rowIndex < rows.length - 1) SizedBox(height: 6.h),
         ],
       ],
     );
@@ -857,18 +888,25 @@ class PeopleCountSection extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: onIncrement,
             child: Container(
+              width: double.infinity,
               height: 40.h,
-              padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 108.w),
+              padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 24.w),
               decoration: BoxDecoration(
                 color: const Color(0xFF2F1A5A),
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(width: 1.w, color: const Color(0xFF7731FE)),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Wrap(
+                spacing: 10.w,
+                runSpacing: 4.h,
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
                     '친구 추가',
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                     style: TextStyle(
                       color: const Color(0xFFD9C5FF),
                       fontSize: 14,
@@ -878,7 +916,6 @@ class PeopleCountSection extends StatelessWidget {
                       letterSpacing: -0.35,
                     ),
                   ),
-                  SizedBox(width: 10.w),
                   SvgPicture.asset(width: 11.w, 'assets/icons/common/plus.svg'),
                 ],
               ),
@@ -1265,7 +1302,7 @@ class _CalendarSection extends StatelessWidget {
 }
 
 /// 공용 아코디언 타일
-class _BookingTileSimple extends StatelessWidget {
+class _BookingTileSimple extends StatefulWidget {
   const _BookingTileSimple({
     required this.title,
     this.child,
@@ -1283,6 +1320,13 @@ class _BookingTileSimple extends StatelessWidget {
   final ValueChanged<bool>? onExpansionChanged;
 
   @override
+  State<_BookingTileSimple> createState() => _BookingTileSimpleState();
+}
+
+class _BookingTileSimpleState extends State<_BookingTileSimple> {
+  final GlobalKey _expansionTileKey = GlobalKey();
+
+  @override
   Widget build(BuildContext context) {
     final decoration = BoxDecoration(
       border: Border(
@@ -1290,7 +1334,7 @@ class _BookingTileSimple extends StatelessWidget {
       ),
     );
     final titleText = Text(
-      title,
+      widget.title,
       style: TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.w600,
@@ -1298,37 +1342,14 @@ class _BookingTileSimple extends StatelessWidget {
       ),
     );
 
-    if (onTap != null) {
-      return Container(
-        decoration: decoration,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
-              child: Row(
-                children: [
-                  if (leading != null) ...[
-                    SvgPicture.asset(leading!),
-                    Spacer(),
-                  ],
-                  Expanded(child: titleText),
-                  if (trailingArrow)
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: Colors.white,
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+    final bool handleTap = widget.onTap != null;
+    final List<Widget> children = handleTap || widget.child == null
+        ? const []
+        : [SizedBox(width: double.infinity, child: widget.child)];
 
     return Container(
       decoration: decoration,
+      constraints: BoxConstraints(minHeight: 64.h),
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
       child: Theme(
         data: Theme.of(context).copyWith(
@@ -1337,18 +1358,37 @@ class _BookingTileSimple extends StatelessWidget {
           splashColor: Colors.transparent,
         ),
         child: ExpansionTile(
+          key: _expansionTileKey,
+          tilePadding: EdgeInsets.zero,
           collapsedIconColor: Colors.white,
           iconColor: Colors.white,
-          leading: leading != null ? SvgPicture.asset(leading!) : null,
+          leading: widget.leading != null
+              ? SvgPicture.asset(widget.leading!, width: 24.w, height: 24.w)
+              : null,
           childrenPadding: EdgeInsets.zero,
+          shape: const RoundedRectangleBorder(
+            side: BorderSide(color: Colors.transparent),
+          ),
+          collapsedShape: const RoundedRectangleBorder(
+            side: BorderSide(color: Colors.transparent),
+          ),
           title: titleText,
-          onExpansionChanged: onExpansionChanged,
-          trailing: trailingArrow
+          trailing: widget.trailingArrow
               ? const Icon(Icons.chevron_right_rounded, color: Colors.white)
               : null,
-          children: child != null
-              ? [SizedBox(width: double.infinity, child: child)]
-              : const [],
+          onExpansionChanged: (expanded) {
+            widget.onExpansionChanged?.call(expanded);
+            if (handleTap && expanded) {
+              widget.onTap?.call();
+              Future.microtask(() {
+                final state = _expansionTileKey.currentState;
+                if (state != null) {
+                  (state as dynamic).collapse();
+                }
+              });
+            }
+          },
+          children: children,
         ),
       ),
     );
