@@ -13,7 +13,10 @@ import 'package:vybe/features/table_reservation_page/screens/cart_page.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 
 class MenuOrderScreen extends StatefulWidget {
-  const MenuOrderScreen({super.key});
+  const MenuOrderScreen({super.key, Set<CartEntry>? initialItems})
+    : initialItems = initialItems ?? const <CartEntry>{};
+
+  final Set<CartEntry> initialItems;
 
   @override
   State<MenuOrderScreen> createState() => _MenuOrderScreenState();
@@ -70,6 +73,28 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
       return num.tryParse(value) ?? 0;
     }
     return 0;
+  }
+
+  String _cartSummary(Iterable<CartEntry> items) {
+    if (items.isEmpty) {
+      return '비어 있음';
+    }
+    return items
+        .map((entry) {
+          final optionsLabel = entry.options.isEmpty
+              ? ''
+              : ' (${entry.options.map((opt) => opt['name']).join(', ')})';
+          final priceLabel = '${_comma.format(entry.totalPrice)}원';
+          return '${entry.menuName} x${entry.quantity} $priceLabel$optionsLabel';
+        })
+        .join(', ');
+  }
+
+  Set<CartEntry> _cloneCart(Iterable<CartEntry> items) =>
+      items.map((entry) => entry.copyWith()).toSet();
+
+  void _closeWithResult() {
+    Navigator.pop(context, _cloneCart(_cartItems));
   }
 
   Future<void> _addMenuToCart(Map<String, dynamic> item) async {
@@ -142,24 +167,28 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
     debugPrint('Added to cart: $name x$updatedQuantity ($optionsLabel)');
   }
 
-  void _printCartItems() {
-    final summary = _cartItems
-        .map((entry) {
-          final optionsLabel = entry.options.isEmpty
-              ? ''
-              : ' (${entry.options.map((opt) => opt['name']).join(', ')})';
-          final priceLabel = '${_comma.format(entry.totalPrice)}원';
-          return '${entry.menuName} x${entry.quantity} $priceLabel$optionsLabel';
-        })
-        .join(', ');
-    debugPrint('장바구니 메뉴: $summary');
+  Future<void> _printCartItems() async {
+    debugPrint('장바구니 메뉴: ${_cartSummary(_cartItems)}');
 
-    Navigator.push(
+    final updatedItems = await Navigator.push<Set<CartEntry>>(
       context,
       MaterialPageRoute(
-        builder: (_) => CartPage(items: Set<CartEntry>.from(_cartItems)),
+        builder: (_) => CartPage(items: _cloneCart(_cartItems)),
       ),
     );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (updatedItems != null) {
+      setState(() {
+        _cartItems
+          ..clear()
+          ..addAll(_cloneCart(updatedItems));
+      });
+      debugPrint('장바구니 메뉴 (업데이트): ${_cartSummary(_cartItems)}');
+    }
   }
 
   List<Widget> _buildMenuSections() {
@@ -227,104 +256,184 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    print(_printCartItems);
+    _cartItems.addAll(_cloneCart(widget.initialItems));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.appBackgroundColor,
-      appBar: AppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        _closeWithResult();
+        return false;
+      },
+      child: Scaffold(
         backgroundColor: AppColors.appBackgroundColor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        leadingWidth: 24.w + 48.w,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back_ios),
-        ),
-        title: Text(
-          '주문하기',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600,
-            height: 1.10,
-            letterSpacing: -0.50,
+        appBar: AppBar(
+          backgroundColor: AppColors.appBackgroundColor,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          leadingWidth: 24.w + 48.w,
+          leading: IconButton(
+            onPressed: _closeWithResult,
+            icon: const Icon(Icons.arrow_back_ios),
+          ),
+          title: Text(
+            '주문하기',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+              height: 1.10,
+              letterSpacing: -0.50,
+            ),
           ),
         ),
-      ),
-      body: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-            child: _hasCategories
-                ? SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: _categories
-                          .map(
-                            (category) => GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (_selectedCategory == category) {
-                                    _selectedCategory = null;
-                                  } else {
-                                    _selectedCategory = category;
-                                  }
-                                });
-                              },
-                              child: CategoryChip(
-                                category: category,
-                                isSelected: _selectedCategory == category,
+        body: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              child: _hasCategories
+                  ? SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _categories
+                            .map(
+                              (category) => GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    if (_selectedCategory == category) {
+                                      _selectedCategory = null;
+                                    } else {
+                                      _selectedCategory = category;
+                                    }
+                                  });
+                                },
+                                child: CategoryChip(
+                                  category: category,
+                                  isSelected: _selectedCategory == category,
+                                ),
                               ),
+                            )
+                            .toList(),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            Expanded(
+              child: _hasCategories
+                  ? ListView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.w,
+                        vertical: 8.h,
+                      ),
+                      children: [
+                        ..._buildMenuSections(),
+                        Text(_menuDisclaimer, style: AppTextStyles.disclaimer),
+                        SizedBox(height: 88.h),
+                      ],
+                    )
+                  : Center(
+                      child: Text(
+                        '메뉴 카테고리가 없습니다.',
+                        style: AppTextStyles.subtitle,
+                      ),
+                    ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          bottom: true,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            height: 40.h,
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _printCartItems(),
+                    child: Container(
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.appPurpleColor,
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 11.h,
+                        horizontal: 40.w,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            '장바구니',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w600,
                             ),
-                          )
-                          .toList(),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ),
-          Expanded(
-            child: _hasCategories
-                ? ListView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 24.w,
-                      vertical: 8.h,
-                    ),
-                    children: [
-                      ..._buildMenuSections(),
-                      Text(_menuDisclaimer, style: AppTextStyles.disclaimer),
-                      SizedBox(height: 88.h),
-                    ],
-                  )
-                : Center(
-                    child: Text(
-                      '메뉴 카테고리가 없습니다.',
-                      style: AppTextStyles.subtitle,
+                          ),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            transitionBuilder: (child, animation) {
+                              final curved = CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOutBack,
+                              );
+                              return FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(
+                                  scale: curved,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: _cartItems.isNotEmpty
+                                ? Padding(
+                                    key: ValueKey<int>(_cartQuantityTotal),
+                                    padding: EdgeInsets.only(left: 8.w),
+                                    child: Container(
+                                      width: 24.w,
+                                      height: 24.w,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF622ACF),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '$_cartQuantityTotal',
+                                          style: TextStyle(
+                                            color: const Color(
+                                              0xFFECECEC,
+                                            ) /* Gray200 */,
+                                            fontSize: 11.sp,
+                                            fontFamily: 'Pretendard',
+                                            fontWeight: FontWeight.w600,
+                                            height: 1.10,
+                                            letterSpacing: -0.55,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox(
+                                    key: ValueKey('cart-count-empty'),
+                                  ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        bottom: true,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          height: 40.h,
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: _printCartItems,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
                   child: Container(
                     height: 40.h,
                     decoration: BoxDecoration(
@@ -335,99 +444,22 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
                       vertical: 11.h,
                       horizontal: 40.w,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          '장바구니',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w600,
-                          ),
+                    child: Center(
+                      child: Text(
+                        '결제하기',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
                         ),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 220),
-                          transitionBuilder: (child, animation) {
-                            final curved = CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOutBack,
-                            );
-                            return FadeTransition(
-                              opacity: animation,
-                              child: ScaleTransition(
-                                scale: curved,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: _cartItems.isNotEmpty
-                              ? Padding(
-                                  key: ValueKey<int>(_cartQuantityTotal),
-                                  padding: EdgeInsets.only(left: 8.w),
-                                  child: Container(
-                                    width: 24.w,
-                                    height: 24.w,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF622ACF),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '$_cartQuantityTotal',
-                                        style: TextStyle(
-                                          color: const Color(
-                                            0xFFECECEC,
-                                          ) /* Gray200 */,
-                                          fontSize: 11.sp,
-                                          fontFamily: 'Pretendard',
-                                          fontWeight: FontWeight.w600,
-                                          height: 1.10,
-                                          letterSpacing: -0.55,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox(
-                                  key: ValueKey('cart-count-empty'),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.appPurpleColor,
-                    borderRadius: BorderRadius.circular(6.r),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 11.h,
-                    horizontal: 40.w,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '결제하기',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

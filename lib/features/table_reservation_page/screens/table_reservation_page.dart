@@ -8,6 +8,7 @@ import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/core/dialong_widget.dart';
 import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/dialog_button.dart';
+import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 import 'menu_order_screen.dart';
 
 class TableReservationPage extends StatefulWidget {
@@ -30,6 +31,10 @@ class _TableReservationPageState extends State<TableReservationPage> {
   String? _selectedTimeSlot;
   late final TextEditingController _nameController;
   late final TextEditingController _contactController;
+  final Set<CartEntry> _cartItems = <CartEntry>{};
+
+  Set<CartEntry> _cloneCartItems(Iterable<CartEntry> items) =>
+      items.map((entry) => entry.copyWith()).toSet();
 
   @override
   void initState() {
@@ -77,6 +82,27 @@ class _TableReservationPageState extends State<TableReservationPage> {
     setState(() {});
   }
 
+  Future<void> _openMenuOrder() async {
+    final result = await Navigator.of(context).push<Set<CartEntry>>(
+      MaterialPageRoute(
+        builder: (_) =>
+            MenuOrderScreen(initialItems: _cloneCartItems(_cartItems)),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (result != null) {
+      setState(() {
+        _cartItems
+          ..clear()
+          ..addAll(_cloneCartItems(result));
+      });
+    }
+  }
+
   Future<void> _showSoldTableDialog() async {
     await showDialog<void>(
       context: context,
@@ -106,6 +132,9 @@ class _TableReservationPageState extends State<TableReservationPage> {
     final Color payButtonColor = isAllSelected
         ? AppColors.appPurpleColor
         : const Color(0xFF2F1A5A);
+    final String orderTitle = _cartItems.isEmpty
+        ? '주문하기'
+        : '주문하기 (${_cartItems.length}개 담김)';
 
     const List<String> nightSlots = [
       '오후 11:00',
@@ -233,17 +262,11 @@ class _TableReservationPageState extends State<TableReservationPage> {
                       ),
                     ),
                     _BookingTileSimple(
-                      title: "주문하기",
+                      title: orderTitle,
                       leading:
                           "assets/icons/table_reservation_page/receipt.svg",
                       trailingArrow: true,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const MenuOrderScreen(),
-                          ),
-                        );
-                      },
+                      onTap: _openMenuOrder,
                       child: Column(),
                     ),
                     SizedBox(height: 97.h),

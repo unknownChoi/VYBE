@@ -9,11 +9,15 @@ import 'package:vybe/core/widgets/custom_divider.dart';
 class SelectOptionsPage extends StatefulWidget {
   final Map<String, dynamic> menu;
   final List<dynamic> options;
+  final List<Map<String, dynamic>> initialSelectedOptions;
+  final int initialQuantity;
 
   const SelectOptionsPage({
     super.key,
     required this.menu,
     required this.options,
+    this.initialSelectedOptions = const [],
+    this.initialQuantity = 1,
   });
 
   @override
@@ -22,16 +26,19 @@ class SelectOptionsPage extends StatefulWidget {
 
 class _SelectOptionsPageState extends State<SelectOptionsPage> {
   final _comma = NumberFormat('#,##0');
-  int _quantity = 1;
+  late int _quantity;
 
   final Set<int> _selectedOptionIndexes = {};
   List<Map<String, dynamic>> get _options =>
       widget.options.whereType<Map<String, dynamic>>().toList();
 
-  List<Map<String, dynamic>> get _selectedOptions => _selectedOptionIndexes
-      .where((index) => index >= 0 && index < _options.length)
-      .map((index) => Map<String, dynamic>.from(_options[index]))
-      .toList();
+  List<Map<String, dynamic>> get _selectedOptions {
+    final options = _options;
+    return _selectedOptionIndexes
+        .where((index) => index >= 0 && index < options.length)
+        .map((index) => Map<String, dynamic>.from(options[index]))
+        .toList();
+  }
 
   num _parsePrice(dynamic value) {
     if (value is num) {
@@ -47,9 +54,10 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
 
   num get _selectedOptionsPrice {
     num total = 0;
+    final options = _options;
     for (final index in _selectedOptionIndexes) {
-      if (index >= 0 && index < _options.length) {
-        total += _parsePrice(_options[index]['price']);
+      if (index >= 0 && index < options.length) {
+        total += _parsePrice(options[index]['price']);
       }
     }
     return total;
@@ -58,6 +66,12 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
   num get _menuTotalPrice => _menuUnitPrice * _quantity;
 
   num get _orderTotalPrice => _menuTotalPrice + _selectedOptionsPrice;
+
+  String _optionKey(Map<String, dynamic> opt) {
+    final name = (opt['name'] ?? '').toString();
+    final price = _parsePrice(opt['price']);
+    return '$name::$price';
+  }
 
   void _increaseQuantity() {
     setState(() {
@@ -77,8 +91,18 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
   @override
   void initState() {
     super.initState();
-    print(widget.options);
-    print(widget.menu);
+    _quantity = widget.initialQuantity > 0 ? widget.initialQuantity : 1;
+
+    final initialKeys = widget.initialSelectedOptions
+        .map((opt) => _optionKey(opt))
+        .toSet();
+    final options = _options;
+    for (var i = 0; i < options.length; i++) {
+      final option = options[i];
+      if (initialKeys.contains(_optionKey(option))) {
+        _selectedOptionIndexes.add(i);
+      }
+    }
   }
 
   @override
@@ -101,7 +125,7 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
         leadingWidth: 24.w + 48.w,
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context, false);
+            Navigator.pop(context);
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
