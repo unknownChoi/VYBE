@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:vybe/features/club_detail_page/screens/club_detail_main.dart';
+import 'package:vybe/features/main_shell/screens/main_shell.dart';
 import 'package:vybe/features/table_reservation_page/screens/table_reservation_page.dart';
 import 'package:vybe/services/api/naver_map_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -39,7 +41,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false, // 디버그 배너 숨김
           home: isNetworkAvailable
-              ? TableReservationPage(clubName: "어썸레드")
+              ? MainShell()
               : Scaffold(
                   body: Center(
                     child: Text(

@@ -161,7 +161,12 @@ class _TableReservationPageState extends State<TableReservationPage> {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         leadingWidth: 24.w + 48.w,
-        leading: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back_ios)),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back_ios),
+        ),
         title: Text(
           widget.clubName,
           style: TextStyle(

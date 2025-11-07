@@ -66,8 +66,8 @@ class CartItemsListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       padding: padding,
-      physics: physics,
       shrinkWrap: shrinkWrap,
+      physics: physics,
       itemCount: entries.length,
       separatorBuilder: (_, __) => SizedBox(height: 16.h),
       itemBuilder: (context, index) {
@@ -108,31 +108,33 @@ class CartItemsListView extends StatelessWidget {
           trailingActions.add(widget);
         }
 
-        addAction(
-          GestureDetector(
-            onTap: () => onChangeOptions?.call(entry),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6.r),
-                border: Border.all(width: 1, color: const Color(0xFF404042)),
-              ),
-              child: Center(
-                child: Text(
-                  '옵션 변경',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w600,
-                    height: 1.17,
-                    letterSpacing: -0.60,
+        if (hasMenuOptions) {
+          addAction(
+            GestureDetector(
+              onTap: () => onChangeOptions?.call(entry),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6.r),
+                  border: Border.all(width: 1, color: const Color(0xFF404042)),
+                ),
+                child: Center(
+                  child: Text(
+                    '옵션 변경',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w600,
+                      height: 1.17,
+                      letterSpacing: -0.60,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
+          );
+        }
 
         final showDelete = !readOnly && onRemoveEntry != null;
         if (showDelete) {
