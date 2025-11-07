@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/widgets/custom_divider.dart';
-import 'package:vybe/features/main_bottom_nav/widgets/main_tab_config.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 import 'package:vybe/features/table_reservation_page/screens/select_options_page.dart';
 import 'package:vybe/features/table_reservation_page/widgets/cart_items_list_view.dart';
