@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:vybe/core/app_colors.dart';
+import 'package:vybe/core/widgets/custom_divider.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
+import 'package:vybe/features/table_reservation_page/widgets/cart_items_list_view.dart';
 
 class PurchasePage extends StatefulWidget {
   PurchasePage({super.key, required Set<Map<String, dynamic>> reservationData})
@@ -153,7 +156,7 @@ class _PurchasePageState extends State<PurchasePage> {
   @override
   Widget build(BuildContext context) {
     final formattedDate = _reservationDate != null
-        ? DateFormat('M월 d일 (E)').format(_reservationDate!)
+        ? DateFormat('MM월 dd일 (E)', 'ko_KR').format(_reservationDate!)
         : '-';
     final totalPrice = _priceFormatter.format(_orderTotal);
     return Scaffold(
@@ -183,57 +186,200 @@ class _PurchasePageState extends State<PurchasePage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionTitle('예약 정보'),
-            _buildInfoRow(label: '예약자명', value: _reservationName),
-            _buildInfoRow(label: '연락처', value: _contactNumber),
-            _buildInfoRow(label: '날짜', value: formattedDate),
-            _buildInfoRow(label: '인원', value: '$_guestCount명'),
-            _buildInfoRow(label: '테이블', value: '$_tableId번 테이블'),
-            _buildInfoRow(label: '시간', value: _timeSlot),
-            SizedBox(height: 32.h),
-            _buildSectionTitle('선택한 메뉴'),
-            if (_cartItems.isEmpty)
-              Text(
-                '선택한 메뉴가 없습니다.',
-                style: TextStyle(
-                  color: const Color(0xFFBEBEC0),
-                  fontSize: 14.sp,
+      body: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '예약자명',
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 16,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                        letterSpacing: -0.80,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      _reservationName,
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 16,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                        letterSpacing: -0.80,
+                      ),
+                    ),
+                  ],
                 ),
-              )
-            else ...[
-              ..._cartItems.map(_buildMenuItem),
-              SizedBox(height: 16.h),
-              Divider(color: const Color(0xFF2F2F33), thickness: 1),
-              SizedBox(height: 16.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                SizedBox(height: 24.h),
+                Row(
+                  children: [
+                    Text(
+                      '연락처',
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 16,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                        letterSpacing: -0.80,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      _contactNumber,
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 16,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                        letterSpacing: -0.80,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24.h),
+                Row(
+                  children: [
+                    Text(
+                      '예약 일시',
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 16,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                        letterSpacing: -0.80,
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Text(
+                          formattedDate,
+                          style: TextStyle(
+                            color: const Color(0xFFECECEC) /* Gray200 */,
+                            fontSize: 16,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                            height: 1.25,
+                            letterSpacing: -0.80,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        SvgPicture.asset(
+                          'assets/icons/common/dot.svg',
+                          color: const Color(0xFFECECEC),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          _timeSlot,
+                          style: TextStyle(
+                            color: const Color(0xFFECECEC) /* Gray200 */,
+                            fontSize: 16,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w600,
+                            height: 1.25,
+                            letterSpacing: -0.80,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24.h),
+                Row(
+                  children: [
+                    Text(
+                      '테이블',
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 16,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                        letterSpacing: -0.80,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '$_tableId번 테이블',
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 16,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                        letterSpacing: -0.80,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const CustomDivider(),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '총 결제 금액',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  _buildSectionTitle('주문 내역'),
+                  Expanded(
+                    child: _cartItems.isEmpty
+                        ? Center(
+                            child: Text(
+                              '장바구니가 비어 있습니다.',
+                              style: TextStyle(
+                                color: const Color(0xFFECECEC),
+                                fontSize: 16.sp,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          )
+                        : CartItemsListView(
+                            entries: _cartItems,
+                            padding: EdgeInsets.zero,
+                          ),
                   ),
-                  Text(
-                    '$totalPrice원',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  SizedBox(height: 16.h),
+                  Row(
+                    children: [
+                      Text(
+                        '총 결제 금액',
+                        style: TextStyle(
+                          color: const Color(0xFFBEBEC0),
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '$totalPrice원',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

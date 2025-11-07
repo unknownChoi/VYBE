@@ -11,6 +11,7 @@ import 'package:vybe/features/table_reservation_page/screens/select_options_page
 
 import 'package:vybe/features/table_reservation_page/screens/cart_page.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
+import 'package:vybe/features/table_reservation_page/utils/menu_order_functions.dart';
 
 class MenuOrderScreen extends StatefulWidget {
   const MenuOrderScreen({super.key, Set<CartEntry>? initialItems})
@@ -35,66 +36,8 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
 
   bool get _hasCategories => _categories.isNotEmpty;
 
-  List<Map<String, dynamic>> _castMenuList(dynamic raw) {
-    if (raw is List<Map<String, dynamic>>) {
-      return raw;
-    }
-    if (raw is List) {
-      return raw.cast<Map<String, dynamic>>();
-    }
-    return [];
-  }
-
-  List<MapEntry<String, List<Map<String, dynamic>>>> _resolveMenuEntries() {
-    if (!_hasCategories) {
-      return [];
-    }
-
-    final target = _selectedCategory;
-    if (target == null) {
-      return menuItemsData.entries
-          .map((entry) => MapEntry(entry.key, _castMenuList(entry.value)))
-          .toList();
-    }
-
-    final selectedItems = menuItemsData[target];
-    if (selectedItems == null) {
-      return [];
-    }
-
-    return [MapEntry(target, _castMenuList(selectedItems))];
-  }
-
-  num _parsePrice(dynamic value) {
-    if (value is num) {
-      return value;
-    }
-    if (value is String) {
-      return num.tryParse(value) ?? 0;
-    }
-    return 0;
-  }
-
-  String _cartSummary(Iterable<CartEntry> items) {
-    if (items.isEmpty) {
-      return '비어 있음';
-    }
-    return items
-        .map((entry) {
-          final optionsLabel = entry.options.isEmpty
-              ? ''
-              : ' (${entry.options.map((opt) => opt['name']).join(', ')})';
-          final priceLabel = '${_comma.format(entry.totalPrice)}원';
-          return '${entry.menuName} x${entry.quantity} $priceLabel$optionsLabel';
-        })
-        .join(', ');
-  }
-
-  Set<CartEntry> _cloneCart(Iterable<CartEntry> items) =>
-      items.map((entry) => entry.copyWith()).toSet();
-
   void _closeWithResult() {
-    Navigator.pop(context, _cloneCart(_cartItems));
+    Navigator.pop(context, cloneCartItems(_cartItems));
   }
 
   Future<void> _addMenuToCart(Map<String, dynamic> item) async {
@@ -128,10 +71,10 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
             .map((opt) => Map<String, dynamic>.from(opt))
             .toList() ??
         <Map<String, dynamic>>[];
-    final num basePrice = _parsePrice(item['price']);
+    final num basePrice = parseMenuPrice(item['price']);
     final num optionsExtra = selectedOptions.fold<num>(
       0,
-      (sum, opt) => sum + _parsePrice(opt['price']),
+      (sum, opt) => sum + parseMenuPrice(opt['price']),
     );
     final num totalPrice =
         selectionResult?['totalPrice'] as num? ??
@@ -168,12 +111,12 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
   }
 
   Future<void> _printCartItems() async {
-    debugPrint('장바구니 메뉴: ${_cartSummary(_cartItems)}');
+    debugPrint('장바구니 메뉴: ${cartSummary(_cartItems, formatter: _comma)}');
 
     final updatedItems = await Navigator.push<Set<CartEntry>>(
       context,
       MaterialPageRoute(
-        builder: (_) => CartPage(items: _cloneCart(_cartItems)),
+        builder: (_) => CartPage(items: cloneCartItems(_cartItems)),
       ),
     );
 
@@ -185,14 +128,18 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
       setState(() {
         _cartItems
           ..clear()
-          ..addAll(_cloneCart(updatedItems));
+          ..addAll(cloneCartItems(updatedItems));
       });
-      debugPrint('장바구니 메뉴 (업데이트): ${_cartSummary(_cartItems)}');
+      debugPrint('장바구니 메뉴 (업데이트): ${cartSummary(_cartItems, formatter: _comma)}');
     }
   }
 
   List<Widget> _buildMenuSections() {
-    final entries = _resolveMenuEntries();
+    final entries = buildMenuEntries(
+      hasCategories: _hasCategories,
+      menuItemsByCategory: menuItemsData,
+      selectedCategory: _selectedCategory,
+    );
     if (entries.isEmpty) {
       return [
         Padding(
@@ -257,7 +204,7 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
   @override
   void initState() {
     super.initState();
-    _cartItems.addAll(_cloneCart(widget.initialItems));
+    _cartItems.addAll(cloneCartItems(widget.initialItems));
   }
 
   @override
@@ -277,7 +224,9 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
           surfaceTintColor: Colors.transparent,
           leadingWidth: 24.w + 48.w,
           leading: IconButton(
-            onPressed: _closeWithResult,
+            onPressed: () {
+              Navigator.pop(context);
+            },
             icon: const Icon(Icons.arrow_back_ios),
           ),
           title: Text(
@@ -434,25 +383,30 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Container(
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.appPurpleColor,
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      vertical: 11.h,
-                      horizontal: 40.w,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '결제하기',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
+                  child: GestureDetector(
+                    onTap: () {
+                      _closeWithResult();
+                    },
+                    child: Container(
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.appPurpleColor,
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 11.h,
+                        horizontal: 40.w,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '확인',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
