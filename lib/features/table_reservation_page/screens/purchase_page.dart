@@ -29,6 +29,8 @@ class PurchasePage extends StatefulWidget {
 
 class _PurchasePageState extends State<PurchasePage> {
   final NumberFormat _priceFormatter = NumberFormat('#,##0');
+  String? _selectedPaymentMethodId;
+  String? _selectedPaymentMethodName;
 
   Map<String, dynamic> get _reservation => widget.reservationData.isNotEmpty
       ? widget.reservationData.first
@@ -188,6 +190,8 @@ class _PurchasePageState extends State<PurchasePage> {
   }
 
   Widget _buildPaymentOption({
+    required String id,
+    required String displayName,
     String? label,
     String? assetPath,
     bool wrapAsset = false,
@@ -222,14 +226,34 @@ class _PurchasePageState extends State<PurchasePage> {
       child = const SizedBox();
     }
 
+    final isSelected = _selectedPaymentMethodId == id;
+
     return Expanded(
-      child: Container(
-        height: 68.h,
-        decoration: BoxDecoration(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           borderRadius: BorderRadius.circular(6.r),
-          border: Border.all(width: 1, color: const Color(0xFF2F2F33)),
+          onTap: () {
+            setState(() {
+              _selectedPaymentMethodId = id;
+              _selectedPaymentMethodName = displayName;
+            });
+          },
+          child: Container(
+            height: 68.h,
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFF2F1A5A) : Colors.transparent,
+              borderRadius: BorderRadius.circular(6.r),
+              border: Border.all(
+                width: 1,
+                color: isSelected
+                    ? const Color(0xFF7731FE)
+                    : const Color(0xFF2F2F33),
+              ),
+            ),
+            child: Center(child: child),
+          ),
         ),
-        child: Center(child: child),
       ),
     );
   }
@@ -562,31 +586,136 @@ class _PurchasePageState extends State<PurchasePage> {
                   ),
                   SizedBox(height: 24.h),
                   _buildPaymentRow([
-                    _buildPaymentOption(label: '신용카드'),
                     _buildPaymentOption(
+                      id: 'credit_card_primary',
+                      displayName: '신용카드',
+                      label: '신용카드',
+                    ),
+                    _buildPaymentOption(
+                      id: 'kakao_pay',
+                      displayName: '카카오페이',
                       assetPath: 'assets/images/purchase_page/kakaoPay.png',
                     ),
                     _buildPaymentOption(
+                      id: 'naver_pay',
+                      displayName: '네이버페이',
                       assetPath: 'assets/images/purchase_page/naverPay.png',
                     ),
                   ]),
                   SizedBox(height: 4.h),
                   _buildPaymentRow([
                     _buildPaymentOption(
+                      id: 'toss_pay',
+                      displayName: '토스페이',
                       assetPath: 'assets/images/purchase_page/tossPay.png',
                       wrapAsset: true,
                     ),
                     _buildPaymentOption(
+                      id: 'payco',
+                      displayName: '페이코',
                       assetPath: 'assets/images/purchase_page/payco.png',
                     ),
-                    _buildPaymentOption(label: '신용카드'),
+                    _buildPaymentOption(
+                      id: 'credit_card_secondary',
+                      displayName: '신용카드',
+                      label: '신용카드',
+                    ),
                   ]),
                   SizedBox(height: 4.h),
                   _buildPaymentRow([
-                    _buildPaymentOption(label: '휴대폰 결제'),
-                    _buildPaymentOption(label: '무통장 입금'),
-                    _buildPaymentOption(label: '상품권'),
+                    _buildPaymentOption(
+                      id: 'mobile_payment',
+                      displayName: '휴대폰 결제',
+                      label: '휴대폰 결제',
+                    ),
+                    _buildPaymentOption(
+                      id: 'bank_transfer',
+                      displayName: '무통장 입금',
+                      label: '무통장 입금',
+                    ),
+                    _buildPaymentOption(
+                      id: 'gift_card',
+                      displayName: '상품권',
+                      label: '상품권',
+                    ),
                   ]),
+                  SizedBox(height: 16.h),
+                  if (_selectedPaymentMethodName == "신용카드")
+                    SizedBox(
+                      width: double.infinity,
+
+                      child: DropdownButtonFormField<String>(
+                        initialValue: null,
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'shinhan',
+                            child: SizedBox(
+                              width: double.infinity, // ← 아이템 창이 필드 폭을 따르게
+                              child: Text(
+                                '신한카드',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'hyundai',
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Text(
+                                '현대카드',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'kb',
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Text(
+                                '국민카드',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ],
+                        dropdownColor: const Color(0xFF1B1B1D),
+                        isExpanded: true,
+                        onChanged: (v) {},
+                        hint: Text(
+                          '카드사를 선택해주세요.',
+                          style: TextStyle(
+                            color: const Color(0xFFCACACB) /* Gray400 */,
+                            fontSize: 14,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w400,
+                            height: 1.14,
+                            letterSpacing: -0.70,
+                          ),
+                        ),
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: AppColors.appBackgroundColor,
+                          contentPadding: EdgeInsets.all(12.w),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                              width: 1.w,
+                              color: Color(0xFF2F2F33),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                              width: 1.w,
+                              color: Color(0xFF2F2F33),
+                            ),
+                          ),
+                        ),
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+
                   SizedBox(height: 24.h),
                 ],
               ),
