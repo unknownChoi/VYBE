@@ -640,7 +640,7 @@ class _PurchasePageState extends State<PurchasePage> {
                     ),
                   ]),
                   SizedBox(height: 16.h),
-                  if (_selectedPaymentMethodName == "신용카드")
+                  if (_selectedPaymentMethodName == "신용카드") ...[
                     SizedBox(
                       width: double.infinity,
 
@@ -715,8 +715,28 @@ class _PurchasePageState extends State<PurchasePage> {
                         style: const TextStyle(color: Colors.black),
                       ),
                     ),
-
+                  ],
                   SizedBox(height: 24.h),
+                  Container(
+                    width: double.infinity,
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.appPurpleColor,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '취소하기',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
