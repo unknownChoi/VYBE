@@ -5,7 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:vybe/core/app_colors.dart';
 
 import 'package:vybe/core/widgets/custom_divider.dart';
+import 'package:vybe/features/table_reservation_page/widgets/select_options_page/menu_info_header.dart';
+import 'package:vybe/features/table_reservation_page/widgets/select_options_page/option_check_tile.dart';
+import 'package:vybe/features/table_reservation_page/widgets/select_options_page/quantity_selector.dart';
 
+/// 메뉴 옵션/수량을 선택하는 페이지.
 class SelectOptionsPage extends StatefulWidget {
   final Map<String, dynamic> menu;
   final List<dynamic> options;
@@ -40,6 +44,7 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
         .toList();
   }
 
+  /// 금액으로 들어오는 동적 타입을 숫자로 변환한다.
   num _parsePrice(dynamic value) {
     if (value is num) {
       return value;
@@ -52,6 +57,7 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
 
   num get _menuUnitPrice => _parsePrice(widget.menu['price']);
 
+  /// 선택한 옵션들의 추가 금액 합계.
   num get _selectedOptionsPrice {
     num total = 0;
     final options = _options;
@@ -67,18 +73,21 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
 
   num get _orderTotalPrice => _menuTotalPrice + _selectedOptionsPrice;
 
+  /// 옵션을 비교 가능한 키로 변환한다.
   String _optionKey(Map<String, dynamic> opt) {
     final name = (opt['name'] ?? '').toString();
     final price = _parsePrice(opt['price']);
     return '$name::$price';
   }
 
+  /// 수량 증가
   void _increaseQuantity() {
     setState(() {
       _quantity += 1;
     });
   }
 
+  /// 수량 감소
   void _decreaseQuantity() {
     if (_quantity == 1) {
       return;
@@ -107,13 +116,14 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String menuImagePath = widget.menu['image'] as String;
-    final bool isMainMenu = widget.menu['isMain'] as bool;
-    final String menuName = widget.menu['name'] as String;
-    final String menuDescription = widget.menu['description'] as String;
+    final String menuImagePath = widget.menu['image'] as String? ?? '';
+    final bool isMainMenu = widget.menu['isMain'] as bool? ?? false;
+    final String menuName = widget.menu['name'] as String? ?? '';
+    final String menuDescription = widget.menu['description'] as String? ?? '';
     final String menuPrice = _comma.format(_menuUnitPrice);
     final String totalPriceLabel = '${_comma.format(_orderTotalPrice)}원 담기';
 
+    /// 전체 옵션 선택 화면 구조.
     return Scaffold(
       backgroundColor: AppColors.appBackgroundColor,
       appBar: AppBar(
@@ -129,98 +139,28 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        title: Text(
-          '주문하기',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600,
-            height: 1.10,
-            letterSpacing: -0.50,
+          title: Text(
+            '주문하기',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.sp,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+              height: 1.10,
+              letterSpacing: -0.50,
+            ),
           ),
         ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 상단 사진
-          if (menuImagePath != '')
-            Container(
-              width: double.infinity,
-              height: 160.h,
-              decoration: BoxDecoration(color: Color(0XFF9F9FA1)),
-              child: Center(
-                child: Image.asset(
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                  menuImagePath,
-                ),
-              ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MenuInfoHeader(
+              menuImagePath: menuImagePath,
+              isMainMenu: isMainMenu,
+              menuName: menuName,
+              menuDescription: menuDescription,
+              priceLabel: '$menuPrice원',
             ),
-          // 메뉴 이름 + 설명
-          Container(
-            padding: EdgeInsets.all(24.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    if (isMainMenu) ...[
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 2.h,
-                          horizontal: 4.w,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.appPurpleColor,
-                          borderRadius: BorderRadius.circular(999.r),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '대표',
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 10,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w400,
-                              height: 1.40,
-                              letterSpacing: -0.50,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                    ],
-                    Text(
-                      menuName,
-                      style: TextStyle(
-                        color: const Color(0xFFECECEC) /* Gray200 */,
-                        fontSize: 24,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w600,
-                        height: 1.08,
-                        letterSpacing: -0.60,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12.h),
-                if (menuDescription != '')
-                  Text(
-                    menuDescription,
-                    style: TextStyle(
-                      color: const Color(0xFF9F9FA1) /* Gray500 */,
-                      fontSize: 16,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                      height: 1.12,
-                      letterSpacing: -0.80,
-                    ),
-                  ),
-              ],
-            ),
-          ),
           CustomDivider(),
           Container(
             padding: EdgeInsets.all(24.w),
@@ -233,8 +173,8 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
                       Text(
                         '가격',
                         style: TextStyle(
-                          color: Colors.white /* White */,
-                          fontSize: 20,
+                          color: Colors.white,
+                          fontSize: 20.sp,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w600,
                           height: 1.10,
@@ -245,8 +185,8 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
                       Text(
                         "$menuPrice원",
                         style: TextStyle(
-                          color: Colors.white /* White */,
-                          fontSize: 20,
+                          color: Colors.white,
+                          fontSize: 20.sp,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w600,
                           height: 1.10,
@@ -256,53 +196,10 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-
-                  child: Row(
-                    children: [
-                      Text(
-                        '수량',
-                        style: TextStyle(
-                          color: Colors.white /* White */,
-                          fontSize: 20,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.10,
-                          letterSpacing: -0.50,
-                        ),
-                      ),
-                      Spacer(),
-                      CountButton(
-                        width: 32,
-                        height: 32,
-
-                        svgPath: 'assets/icons/common/minus.svg',
-                        onTap: _decreaseQuantity,
-                        isEnabled: _quantity > 1,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        '$_quantity',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: const Color(0xFFECECEC) /* Gray200 */,
-                          fontSize: 20,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.10,
-                          letterSpacing: -0.50,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      CountButton(
-                        width: 32,
-                        height: 32,
-                        svgPath: 'assets/icons/common/plus.svg',
-                        onTap: _increaseQuantity,
-                      ),
-                    ],
-                  ),
+                QuantitySelector(
+                  quantity: _quantity,
+                  onDecrease: _decreaseQuantity,
+                  onIncrease: _increaseQuantity,
                 ),
               ],
             ),
@@ -340,7 +237,7 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
                         : '+ ${_comma.format(priceNum)}원';
                     final checked = _selectedOptionIndexes.contains(index);
 
-                    return _OptionCheckTile(
+                    return OptionCheckTile(
                       checked: checked,
                       label: name,
                       trailingPrice: priceLabel,
@@ -393,7 +290,7 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
                     ),
@@ -402,117 +299,6 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class CountButton extends StatelessWidget {
-  const CountButton({
-    super.key,
-    required this.svgPath,
-    this.onTap,
-    this.isEnabled = true,
-    required this.width,
-    required this.height,
-  });
-
-  final String svgPath;
-  final VoidCallback? onTap;
-  final bool isEnabled;
-
-  final int width;
-  final int height;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isEnabled ? onTap : null,
-      child: Container(
-        width: width.w,
-        height: height.h,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isEnabled ? Color(0xFF404042) : Color(0xFF2C2C2E),
-        ),
-        child: Center(
-          child: SvgPicture.asset(
-            width: 12.w,
-            svgPath,
-            colorFilter: isEnabled
-                ? null
-                : const ColorFilter.mode(Color(0xFF6C6C70), BlendMode.srcIn),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OptionCheckTile extends StatelessWidget {
-  const _OptionCheckTile({
-    required this.checked,
-    required this.label,
-    required this.trailingPrice,
-    required this.onChanged,
-  });
-
-  final bool checked;
-  final String label;
-  final String trailingPrice;
-  final ValueChanged<bool?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => onChanged(!checked),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.h),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 20.w,
-              height: 20.h,
-              child: Checkbox(
-                value: checked,
-                onChanged: onChanged,
-                side: BorderSide(color: Color(0xFFCACACB), width: 1.w),
-                fillColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? AppColors.appGreenColor
-                      : Colors.transparent,
-                ),
-                checkColor: AppColors.appBackgroundColor,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: const Color(0xFFECECEC) /* Gray200 */,
-                  fontSize: 16,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w400,
-                  height: 1.12,
-                  letterSpacing: -0.80,
-                ),
-              ),
-            ),
-            Text(
-              trailingPrice,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w600,
-                height: 1.12,
-                letterSpacing: -0.80,
-              ),
-            ),
-          ],
         ),
       ),
     );

@@ -6,12 +6,14 @@ import 'package:intl/intl.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/app_text_style.dart';
 import 'package:vybe/data/club_detail_mock_data.dart';
-import 'package:vybe/features/club_detail_page/widgets/atoms/category_chip.dart';
 import 'package:vybe/features/table_reservation_page/screens/select_options_page.dart';
 
 import 'package:vybe/features/table_reservation_page/screens/cart_page.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 import 'package:vybe/features/table_reservation_page/utils/menu_order_functions.dart';
+import 'package:vybe/features/table_reservation_page/widgets/menu_order_screen/menu_category_selector.dart';
+import 'package:vybe/features/table_reservation_page/widgets/menu_order_screen/menu_order_bottom_bar.dart';
+import 'package:vybe/features/table_reservation_page/widgets/menu_order_screen/order_menu_item_card.dart';
 
 class MenuOrderScreen extends StatefulWidget {
   const MenuOrderScreen({super.key, Set<CartEntry>? initialItems})
@@ -31,15 +33,18 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
   final Set<CartEntry> _cartItems = <CartEntry>{};
   final NumberFormat _comma = NumberFormat('#,##0');
 
+  /// 장바구니에 담긴 총 수량 표시를 위한 합계.
   int get _cartQuantityTotal =>
       _cartItems.fold<int>(0, (sum, entry) => sum + entry.quantity);
 
   bool get _hasCategories => _categories.isNotEmpty;
 
+  /// 현재 장바구니 상태를 반환하며 화면을 닫는다.
   void _closeWithResult() {
     Navigator.pop(context, cloneCartItems(_cartItems));
   }
 
+  /// 메뉴 아이템을 장바구니에 추가하고 옵션 선택이 필요한 경우 페이지를 띄운다.
   Future<void> _addMenuToCart(Map<String, dynamic> item) async {
     final name = item['name'] as String? ?? '이름없는 메뉴';
     final options = item['options'];
@@ -110,6 +115,7 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
     debugPrint('Added to cart: $name x$updatedQuantity ($optionsLabel)');
   }
 
+  /// 장바구니를 열어 변경된 항목이 있으면 현재 상태에 반영한다.
   Future<void> _printCartItems() async {
     debugPrint('장바구니 메뉴: ${cartSummary(_cartItems, formatter: _comma)}');
 
@@ -130,10 +136,13 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
           ..clear()
           ..addAll(cloneCartItems(updatedItems));
       });
-      debugPrint('장바구니 메뉴 (업데이트): ${cartSummary(_cartItems, formatter: _comma)}');
+      debugPrint(
+        '장바구니 메뉴 (업데이트): ${cartSummary(_cartItems, formatter: _comma)}',
+      );
     }
   }
 
+  /// 현재 선택된 카테고리에 맞춰 메뉴 섹션을 구성한다.
   List<Widget> _buildMenuSections() {
     final entries = buildMenuEntries(
       hasCategories: _hasCategories,
@@ -233,7 +242,7 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
             '주문하기',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 20,
+              fontSize: 20.sp,
               fontFamily: 'Pretendard',
               fontWeight: FontWeight.w600,
               height: 1.10,
@@ -245,32 +254,13 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-              child: _hasCategories
-                  ? SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: _categories
-                            .map(
-                              (category) => GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (_selectedCategory == category) {
-                                      _selectedCategory = null;
-                                    } else {
-                                      _selectedCategory = category;
-                                    }
-                                  });
-                                },
-                                child: CategoryChip(
-                                  category: category,
-                                  isSelected: _selectedCategory == category,
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
+              child: MenuCategorySelector(
+                categories: _categories,
+                selectedCategory: _selectedCategory,
+                onSelect: (category) {
+                  setState(() => _selectedCategory = category);
+                },
+              ),
             ),
             Expanded(
               child: _hasCategories
@@ -294,337 +284,10 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
             ),
           ],
         ),
-        bottomNavigationBar: SafeArea(
-          top: false,
-          bottom: true,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            height: 40.h,
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _printCartItems(),
-                    child: Container(
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.appPurpleColor,
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        vertical: 11.h,
-                        horizontal: 40.w,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '장바구니',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 220),
-                            transitionBuilder: (child, animation) {
-                              final curved = CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.easeOutBack,
-                              );
-                              return FadeTransition(
-                                opacity: animation,
-                                child: ScaleTransition(
-                                  scale: curved,
-                                  child: child,
-                                ),
-                              );
-                            },
-                            child: _cartItems.isNotEmpty
-                                ? Padding(
-                                    key: ValueKey<int>(_cartQuantityTotal),
-                                    padding: EdgeInsets.only(left: 8.w),
-                                    child: Container(
-                                      width: 24.w,
-                                      height: 24.w,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF622ACF),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          '$_cartQuantityTotal',
-                                          style: TextStyle(
-                                            color: const Color(
-                                              0xFFECECEC,
-                                            ) /* Gray200 */,
-                                            fontSize: 11.sp,
-                                            fontFamily: 'Pretendard',
-                                            fontWeight: FontWeight.w600,
-                                            height: 1.10,
-                                            letterSpacing: -0.55,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : const SizedBox(
-                                    key: ValueKey('cart-count-empty'),
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      _closeWithResult();
-                    },
-                    child: Container(
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.appPurpleColor,
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        vertical: 11.h,
-                        horizontal: 40.w,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '확인',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class OrderMenuItemCard extends StatelessWidget {
-  final String menuName;
-  final int menuPrice;
-  final String menuImageSrc;
-  final bool isMainMenu;
-  final String menuDescription;
-  final VoidCallback onAddToCart;
-
-  const OrderMenuItemCard({
-    super.key,
-    required this.menuName,
-    required this.menuPrice,
-    required this.menuImageSrc,
-    required this.menuDescription,
-    required this.isMainMenu,
-    required this.onAddToCart,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final NumberFormat wonFormat = NumberFormat('#,###');
-
-    // 사이즈 토큰(반응형)
-    final double cardHeight = 124.h;
-    final double verticalPadding = 12.h;
-    final double imageSize = 100.w; // 정사각
-    final double imageRadius = 8.r;
-    final double badgeSize = 32.w;
-    final double badgeInsetRight = 6.w;
-    final double badgeInsetBottom = 6.h;
-
-    return SizedBox(
-      height: cardHeight,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: verticalPadding),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 좌측 정보 영역
-            Expanded(
-              child: _MenuInfo(
-                isMainMenu: isMainMenu,
-                menuName: menuName,
-                menuDescription: menuDescription,
-                priceText: '${wonFormat.format(menuPrice)}원',
-              ),
-            ),
-            // 우측 이미지 or 카트 배지
-            if (menuImageSrc.isNotEmpty)
-              _MenuImageWithBadge(
-                imagePath: menuImageSrc,
-                imageSize: imageSize,
-                radius: imageRadius,
-                badgeSize: badgeSize,
-                badgeRight: badgeInsetRight,
-                badgeBottom: badgeInsetBottom,
-                onTap: onAddToCart,
-              )
-            else
-              Padding(
-                padding: EdgeInsets.only(left: 12.w),
-                child: GestureDetector(
-                  onTap: onAddToCart,
-                  child: _CartBadge(size: badgeSize),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 좌측 텍스트 정보 영역
-class _MenuInfo extends StatelessWidget {
-  final bool isMainMenu;
-  final String menuName;
-  final String menuDescription;
-  final String priceText;
-
-  const _MenuInfo({
-    required this.isMainMenu,
-    required this.menuName,
-    required this.menuDescription,
-    required this.priceText,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            if (isMainMenu)
-              Padding(
-                padding: EdgeInsets.only(right: 4.w),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-                  decoration: BoxDecoration(
-                    color: AppColors.appPurpleColor,
-                    borderRadius: BorderRadius.circular(999.r),
-                  ),
-                  child: Text('대표', style: AppTextStyles.representative),
-                ),
-              ),
-            Text(menuName, style: AppTextStyles.body),
-          ],
-        ),
-        SizedBox(height: 8.h),
-        if (menuDescription.isNotEmpty)
-          Text(
-            menuDescription,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: const Color(0xFF9F9FA1), // Gray500
-              fontSize: 12.sp,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w400,
-              height: 1.17,
-              letterSpacing: -0.30.w,
-            ),
-          ),
-        SizedBox(height: 12.h),
-        Text(priceText, style: AppTextStyles.price),
-      ],
-    );
-  }
-}
-
-/// 우측 이미지 + 우하단 배지
-class _MenuImageWithBadge extends StatelessWidget {
-  final String imagePath;
-  final double imageSize;
-  final double radius;
-  final double badgeSize;
-  final double badgeRight;
-  final double badgeBottom;
-  final VoidCallback onTap;
-
-  const _MenuImageWithBadge({
-    required this.imagePath,
-    required this.imageSize,
-    required this.radius,
-    required this.badgeSize,
-    required this.badgeRight,
-    required this.badgeBottom,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 12.w),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: Stack(
-          children: [
-            Image.asset(
-              imagePath,
-              width: imageSize,
-              height: imageSize, // 정사각형 유지
-              fit: BoxFit.cover,
-            ),
-            Positioned(
-              right: badgeRight,
-              bottom: badgeBottom,
-              child: GestureDetector(
-                onTap: onTap,
-                child: _CartBadge(size: badgeSize),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 공통 카트 동그라미 배지
-class _CartBadge extends StatelessWidget {
-  final double size;
-
-  const _CartBadge({required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      padding: EdgeInsets.symmetric(
-        vertical: (size * 0.09).clamp(2.0, 8.0), // 비율 기반 패딩(반응형)
-        horizontal: (size * 0.19).clamp(4.0, 12.0),
-      ),
-      decoration: const BoxDecoration(
-        color: Color(0xFF404042),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: SvgPicture.asset(
-          'assets/icons/table_reservation_page/cart.svg',
-          // 크기 자동 맞춤을 원하면 width/height 지정 생략
+        bottomNavigationBar: MenuOrderBottomBar(
+          onOpenCart: _printCartItems,
+          cartCount: _cartQuantityTotal,
+          onConfirm: _closeWithResult,
         ),
       ),
     );

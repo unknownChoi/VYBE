@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 import 'package:vybe/features/table_reservation_page/screens/select_options_page.dart';
+import 'package:vybe/features/table_reservation_page/widgets/select_options_page/quantity_selector.dart';
 
 class CartItemsListView extends StatelessWidget {
   CartItemsListView({

@@ -7,6 +7,9 @@ import 'package:vybe/core/widgets/custom_divider.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 import 'package:vybe/features/table_reservation_page/screens/select_options_page.dart';
 import 'package:vybe/features/table_reservation_page/widgets/cart_items_list_view.dart';
+import 'package:vybe/features/table_reservation_page/widgets/purchase/purchase_agreement_section.dart';
+import 'package:vybe/features/table_reservation_page/widgets/purchase_page/payment_method_grid.dart';
+import 'package:vybe/features/table_reservation_page/widgets/purchase_page/reservation_info_section.dart';
 
 class PurchasePage extends StatefulWidget {
   PurchasePage({super.key, required Set<Map<String, dynamic>> reservationData})
@@ -31,6 +34,76 @@ class _PurchasePageState extends State<PurchasePage> {
   final NumberFormat _priceFormatter = NumberFormat('#,##0');
   String? _selectedPaymentMethodId;
   String? _selectedPaymentMethodName;
+  String? _selectedCardIssuer;
+  String? _selectedInstallmentPlan;
+  final List<AgreementItem> _agreementItems = const [
+    AgreementItem(
+      id: 'confirm_notice',
+      title: '위 사항을 확인하였으며 구매 진행에 동의합니다.',
+      isRequired: true,
+    ),
+    AgreementItem(id: 'terms_of_use', title: '이용 약관에 동의합니다.', isRequired: true),
+    AgreementItem(id: 'privacy', title: '개인 정보 수집에 동의합니다.', isRequired: true),
+    AgreementItem(
+      id: 'future_payment',
+      title: '이 결제 수단으로 추후 결제 이용에 동의합니다.',
+      isRequired: false,
+    ),
+  ];
+
+  /// Keeps track of agreement ids the user checked.
+  final Set<String> _checkedAgreementIds = <String>{};
+
+  static const List<List<PaymentMethodOption>> _paymentMethodRows = [
+    [
+      PaymentMethodOption(
+        id: 'credit_card_primary',
+        displayName: '신용카드',
+        label: '신용카드',
+      ),
+      PaymentMethodOption(
+        id: 'kakao_pay',
+        displayName: '카카오페이',
+        assetPath: 'assets/images/purchase_page/kakaoPay.png',
+      ),
+      PaymentMethodOption(
+        id: 'naver_pay',
+        displayName: '네이버페이',
+        assetPath: 'assets/images/purchase_page/naverPay.png',
+      ),
+    ],
+    [
+      PaymentMethodOption(
+        id: 'toss_pay',
+        displayName: '토스페이',
+        assetPath: 'assets/images/purchase_page/tossPay.png',
+        wrapAsset: true,
+      ),
+      PaymentMethodOption(
+        id: 'payco',
+        displayName: '페이코',
+        assetPath: 'assets/images/purchase_page/payco.png',
+      ),
+      PaymentMethodOption(
+        id: 'credit_card_secondary',
+        displayName: '신용카드',
+        label: '신용카드',
+      ),
+    ],
+    [
+      PaymentMethodOption(
+        id: 'mobile_payment',
+        displayName: '휴대폰 결제',
+        label: '휴대폰 결제',
+      ),
+      PaymentMethodOption(
+        id: 'bank_transfer',
+        displayName: '무통장 입금',
+        label: '무통장 입금',
+      ),
+      PaymentMethodOption(id: 'gift_card', displayName: '상품권', label: '상품권'),
+    ],
+  ];
 
   Map<String, dynamic> get _reservation => widget.reservationData.isNotEmpty
       ? widget.reservationData.first
@@ -56,6 +129,47 @@ class _PurchasePageState extends State<PurchasePage> {
     return {};
   }
 
+  bool get _isAllAgreed =>
+      _agreementItems.isNotEmpty &&
+      _checkedAgreementIds.length == _agreementItems.length;
+
+  bool get _hasAgreedRequired => _agreementItems.every(
+    (item) => !item.isRequired || _checkedAgreementIds.contains(item.id),
+  );
+
+  num _parsePrice(dynamic value) {
+    if (value is num) {
+      return value;
+    }
+    if (value is String) {
+      return num.tryParse(value) ?? 0;
+    }
+    return 0;
+  }
+
+  /// Toggles a single agreement checkbox by id.
+  void _toggleAgreement(String id) {
+    setState(() {
+      if (!_checkedAgreementIds.add(id)) {
+        _checkedAgreementIds.remove(id);
+      }
+    });
+  }
+
+  /// Selects or clears every agreement at once.
+  void _toggleAllAgreements(bool nextValue) {
+    setState(() {
+      if (nextValue) {
+        _checkedAgreementIds
+          ..clear()
+          ..addAll(_agreementItems.map((item) => item.id));
+      } else {
+        _checkedAgreementIds.clear();
+      }
+    });
+  }
+
+  /// Opens the option selector and updates the cart entry with the result.
   Future<void> _onChangeOptions(CartEntry entry) async {
     final menuOptions = entry.menu['options'];
     if (menuOptions is! List || menuOptions.isEmpty) {
@@ -78,8 +192,62 @@ class _PurchasePageState extends State<PurchasePage> {
     if (!mounted || result == null) {
       return;
     }
+
+    final rawCartItems = _reservation['cartItems'];
+    Set<CartEntry>? cartItems;
+    bool shouldAssignCartItems = false;
+    if (rawCartItems is Set<CartEntry>) {
+      cartItems = rawCartItems;
+    } else if (rawCartItems is Iterable<CartEntry>) {
+      cartItems = rawCartItems.toSet();
+      shouldAssignCartItems = true;
+    }
+
+    if (cartItems == null) {
+      return;
+    }
+
+    final payload = Map<String, dynamic>.from(result);
+    final int nextQuantityRaw = payload['quantity'] as int? ?? entry.quantity;
+    final int nextQuantity = nextQuantityRaw < 1 ? 1 : nextQuantityRaw;
+    final List<Map<String, dynamic>> selectedOptions =
+        (payload['options'] as List?)
+            ?.whereType<Map<String, dynamic>>()
+            .map((opt) => Map<String, dynamic>.from(opt))
+            .toList() ??
+        <Map<String, dynamic>>[];
+    final num basePrice = _parsePrice(entry.menu['price']);
+    final num optionsExtra = selectedOptions.fold<num>(
+      0,
+      (sum, opt) => sum + _parsePrice(opt['price']),
+    );
+    final num resultTotal =
+        payload['totalPrice'] as num? ??
+        (basePrice * nextQuantity + optionsExtra);
+    final num nextUnitPrice = nextQuantity > 0
+        ? resultTotal / nextQuantity
+        : basePrice + optionsExtra;
+
+    setState(() {
+      if (shouldAssignCartItems) {
+        _reservation['cartItems'] = cartItems!;
+      }
+      final updatedEntry = entry.copyWith(
+        options: selectedOptions,
+        quantity: nextQuantity,
+        unitPrice: nextUnitPrice,
+      );
+      cartItems!.remove(entry);
+      final existing = cartItems.lookup(updatedEntry);
+      if (existing != null) {
+        existing.quantity += updatedEntry.quantity;
+      } else {
+        cartItems.add(updatedEntry);
+      }
+    });
   }
 
+  /// Adjusts quantity for a given cart entry, respecting the minimum of 1.
   void _updateQuantity(CartEntry entry, int delta) {
     final next = entry.quantity + delta;
     if (next < 1) {
@@ -95,6 +263,7 @@ class _PurchasePageState extends State<PurchasePage> {
   num get orderTotal =>
       _cartItemSet.fold<num>(0, (sum, item) => sum + item.totalPrice);
 
+  /// Renders section header text with consistent styling.
   Widget buildSectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
@@ -109,6 +278,7 @@ class _PurchasePageState extends State<PurchasePage> {
     );
   }
 
+  /// Displays a key/value row for static reservation information.
   Widget buildInfoRow({required String label, required String value}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.h),
@@ -141,6 +311,7 @@ class _PurchasePageState extends State<PurchasePage> {
     );
   }
 
+  /// Renders a single cart entry summary row.
   Widget buildMenuItem(CartEntry entry) {
     final options = entry.options.isEmpty
         ? '옵션 없음'
@@ -189,92 +360,14 @@ class _PurchasePageState extends State<PurchasePage> {
     );
   }
 
-  Widget _buildPaymentOption({
-    required String id,
-    required String displayName,
-    String? label,
-    String? assetPath,
-    bool wrapAsset = false,
-  }) {
-    Widget child;
-    if (assetPath != null) {
-      final image = Image.asset(assetPath);
-      child = wrapAsset
-          ? Container(
-              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(999.r),
-              ),
-              child: image,
-            )
-          : image;
-    } else if (label != null) {
-      child = Text(
-        label,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: const Color(0xFFECECEC) /* Purple300 */,
-          fontSize: 16,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w400,
-          height: 1.12,
-          letterSpacing: -0.80,
-        ),
-      );
-    } else {
-      child = const SizedBox();
-    }
-
-    final isSelected = _selectedPaymentMethodId == id;
-
-    return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(6.r),
-          onTap: () {
-            setState(() {
-              _selectedPaymentMethodId = id;
-              _selectedPaymentMethodName = displayName;
-            });
-          },
-          child: Container(
-            height: 68.h,
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF2F1A5A) : Colors.transparent,
-              borderRadius: BorderRadius.circular(6.r),
-              border: Border.all(
-                width: 1,
-                color: isSelected
-                    ? const Color(0xFF7731FE)
-                    : const Color(0xFF2F2F33),
-              ),
-            ),
-            child: Center(child: child),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentRow(List<Widget> options) {
-    return Row(
-      children: [
-        for (int i = 0; i < options.length; i++) ...[
-          options[i],
-          if (i < options.length - 1) SizedBox(width: 4.w),
-        ],
-      ],
-    );
-  }
-
   @override
+  /// Builds the widget for context).
   Widget build(BuildContext context) {
     final formattedDate = _reservationDate != null
         ? DateFormat('MM월 dd일 (E)', 'ko_KR').format(_reservationDate!)
         : '-';
     final totalPrice = _priceFormatter.format(orderTotal);
+    final bool canProceedPayment = _hasAgreedRequired && cartItems.isNotEmpty;
     return Scaffold(
       backgroundColor: AppColors.appBackgroundColor,
       appBar: AppBar(
@@ -294,7 +387,7 @@ class _PurchasePageState extends State<PurchasePage> {
           _clubName,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: 20.sp,
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w600,
             height: 1.10,
@@ -309,137 +402,14 @@ class _PurchasePageState extends State<PurchasePage> {
               padding: EdgeInsets.all(24.w),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        '예약자명',
-                        style: TextStyle(
-                          color: const Color(0xFFECECEC) /* Gray200 */,
-                          fontSize: 16,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.25,
-                          letterSpacing: -0.80,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        _reservationName,
-                        style: TextStyle(
-                          color: const Color(0xFFECECEC) /* Gray200 */,
-                          fontSize: 16,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.25,
-                          letterSpacing: -0.80,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 24.h),
-                  Row(
-                    children: [
-                      Text(
-                        '연락처',
-                        style: TextStyle(
-                          color: const Color(0xFFECECEC) /* Gray200 */,
-                          fontSize: 16,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.25,
-                          letterSpacing: -0.80,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        _contactNumber,
-                        style: TextStyle(
-                          color: const Color(0xFFECECEC) /* Gray200 */,
-                          fontSize: 16,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.25,
-                          letterSpacing: -0.80,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 24.h),
-                  Row(
-                    children: [
-                      Text(
-                        '예약 일시',
-                        style: TextStyle(
-                          color: const Color(0xFFECECEC) /* Gray200 */,
-                          fontSize: 16,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.25,
-                          letterSpacing: -0.80,
-                        ),
-                      ),
-                      const Spacer(),
-                      Row(
-                        children: [
-                          Text(
-                            formattedDate,
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 16,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w600,
-                              height: 1.25,
-                              letterSpacing: -0.80,
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          SvgPicture.asset(
-                            'assets/icons/common/dot.svg',
-                            color: const Color(0xFFECECEC),
-                          ),
-                          SizedBox(width: 8.w),
-                          Text(
-                            _timeSlot,
-                            style: TextStyle(
-                              color: const Color(0xFFECECEC) /* Gray200 */,
-                              fontSize: 16,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w600,
-                              height: 1.25,
-                              letterSpacing: -0.80,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 24.h),
-                  Row(
-                    children: [
-                      Text(
-                        '테이블',
-                        style: TextStyle(
-                          color: const Color(0xFFECECEC) /* Gray200 */,
-                          fontSize: 16,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.25,
-                          letterSpacing: -0.80,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '$_tableId번 테이블',
-                        style: TextStyle(
-                          color: const Color(0xFFECECEC) /* Gray200 */,
-                          fontSize: 16,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.25,
-                          letterSpacing: -0.80,
-                        ),
-                      ),
-                    ],
+                  ReservationInfoSection(
+                    items: buildReservationInfoItems(
+                      name: _reservationName,
+                      contact: _contactNumber,
+                      dateText: formattedDate,
+                      timeSlot: _timeSlot,
+                      tableId: _tableId,
+                    ),
                   ),
                 ],
               ),
@@ -485,7 +455,7 @@ class _PurchasePageState extends State<PurchasePage> {
                     '${_priceFormatter.format(orderTotal)}원',
                     style: TextStyle(
                       color: Colors.white /* White */,
-                      fontSize: 24,
+                      fontSize: 24.sp,
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w600,
                       height: 1.08,
@@ -510,7 +480,7 @@ class _PurchasePageState extends State<PurchasePage> {
                               '결제할 내역이 없습니다.',
                               style: TextStyle(
                                 color: const Color(0xFFCACACB) /* Gray400 */,
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontFamily: 'Pretendard',
                                 fontWeight: FontWeight.w400,
                                 height: 1.17,
@@ -535,7 +505,7 @@ class _PurchasePageState extends State<PurchasePage> {
                                           color: const Color(
                                             0xFFCACACB,
                                           ) /* Gray400 */,
-                                          fontSize: 12,
+                                          fontSize: 12.sp,
                                           fontFamily: 'Pretendard',
                                           fontWeight: FontWeight.w400,
                                           height: 1.17,
@@ -549,7 +519,7 @@ class _PurchasePageState extends State<PurchasePage> {
                                         color: const Color(
                                           0xFFCACACB,
                                         ) /* Gray400 */,
-                                        fontSize: 12,
+                                        fontSize: 12.sp,
                                         fontFamily: 'Pretendard',
                                         fontWeight: FontWeight.w400,
                                         height: 1.17,
@@ -579,164 +549,341 @@ class _PurchasePageState extends State<PurchasePage> {
                     '결제 수단 선택',
                     style: TextStyle(
                       color: const Color(0xFFECECEC) /* Gray200 */,
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   SizedBox(height: 24.h),
-                  _buildPaymentRow([
-                    _buildPaymentOption(
-                      id: 'credit_card_primary',
-                      displayName: '신용카드',
-                      label: '신용카드',
-                    ),
-                    _buildPaymentOption(
-                      id: 'kakao_pay',
-                      displayName: '카카오페이',
-                      assetPath: 'assets/images/purchase_page/kakaoPay.png',
-                    ),
-                    _buildPaymentOption(
-                      id: 'naver_pay',
-                      displayName: '네이버페이',
-                      assetPath: 'assets/images/purchase_page/naverPay.png',
-                    ),
-                  ]),
-                  SizedBox(height: 4.h),
-                  _buildPaymentRow([
-                    _buildPaymentOption(
-                      id: 'toss_pay',
-                      displayName: '토스페이',
-                      assetPath: 'assets/images/purchase_page/tossPay.png',
-                      wrapAsset: true,
-                    ),
-                    _buildPaymentOption(
-                      id: 'payco',
-                      displayName: '페이코',
-                      assetPath: 'assets/images/purchase_page/payco.png',
-                    ),
-                    _buildPaymentOption(
-                      id: 'credit_card_secondary',
-                      displayName: '신용카드',
-                      label: '신용카드',
-                    ),
-                  ]),
-                  SizedBox(height: 4.h),
-                  _buildPaymentRow([
-                    _buildPaymentOption(
-                      id: 'mobile_payment',
-                      displayName: '휴대폰 결제',
-                      label: '휴대폰 결제',
-                    ),
-                    _buildPaymentOption(
-                      id: 'bank_transfer',
-                      displayName: '무통장 입금',
-                      label: '무통장 입금',
-                    ),
-                    _buildPaymentOption(
-                      id: 'gift_card',
-                      displayName: '상품권',
-                      label: '상품권',
-                    ),
-                  ]),
+                  PaymentMethodGrid(
+                    rows: _paymentMethodRows,
+                    selectedId: _selectedPaymentMethodId,
+                    onSelect: (option) {
+                      setState(() {
+                        _selectedPaymentMethodId = option.id;
+                        _selectedPaymentMethodName = option.displayName;
+                      });
+                    },
+                  ),
                   SizedBox(height: 16.h),
-                  if (_selectedPaymentMethodName == "신용카드") ...[
-                    SizedBox(
-                      width: double.infinity,
+                  if (_selectedPaymentMethodId == "credit_card_primary") ...[
+                    GestureDetector(
+                      onTap: () async {
+                        final selectedBank = await showModalBottomSheet<String>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            final List<String> banks = [
+                              '신한',
+                              '현대',
+                              '비씨',
+                              'KB국민',
+                              '삼성',
+                              '롯데',
+                              '하나',
+                              'NH',
+                              '우리',
+                              '광주',
+                              '씨티',
+                              '전북',
+                              '카카오뱅크',
+                              '케이뱅크',
+                            ];
+                            return FractionallySizedBox(
+                              heightFactor: 0.65,
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.only(
+                                  top: 32.h,
+                                  left: 20.w,
+                                  right: 20.w,
+                                  bottom:
+                                      24.h +
+                                      MediaQuery.of(context).padding.bottom,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2F2F33),
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(24.r),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '결제를 위한 카드를 선택해주세요.',
+                                      style: TextStyle(
+                                        color: Colors.white /* White */,
+                                        fontSize: 20.sp,
+                                        fontFamily: 'Pretendard',
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    SizedBox(height: 24.h),
+                                    Expanded(
+                                      child: ListView.separated(
+                                        padding: EdgeInsets.zero,
+                                        itemCount: banks.length,
+                                        separatorBuilder: (_, __) =>
+                                            SizedBox(height: 8.h),
+                                        itemBuilder: (context, index) {
+                                          final bankName = banks[index];
 
-                      child: DropdownButtonFormField<String>(
-                        initialValue: null,
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'shinhan',
-                            child: SizedBox(
-                              width: double.infinity, // ← 아이템 창이 필드 폭을 따르게
-                              child: Text(
-                                '신한카드',
-                                overflow: TextOverflow.ellipsis,
+                                          return GestureDetector(
+                                            onTap: () {
+                                              Navigator.pop(context, bankName);
+                                            },
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 12.h,
+                                              ),
+                                              child: Text(
+                                                bankName,
+                                                style: TextStyle(
+                                                  color:
+                                                      _selectedCardIssuer ==
+                                                          bankName
+                                                      ? AppColors.appGreenColor
+                                                      : const Color(0xFFECECEC),
+                                                  fontSize: 20.sp,
+                                                  fontFamily: 'Pretendard',
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
+                            );
+                          },
+                        );
+
+                        if (selectedBank != null) {
+                          setState(() {
+                            _selectedCardIssuer = selectedBank;
+                          });
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 1.w,
+                            color: Color(0xFF2F2F33),
                           ),
-                          DropdownMenuItem(
-                            value: 'hyundai',
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                '현대카드',
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'kb',
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                '국민카드',
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                        ],
-                        dropdownColor: const Color(0xFF1B1B1D),
-                        isExpanded: true,
-                        onChanged: (v) {},
-                        hint: Text(
-                          '카드사를 선택해주세요.',
-                          style: TextStyle(
-                            color: const Color(0xFFCACACB) /* Gray400 */,
-                            fontSize: 14,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            height: 1.14,
-                            letterSpacing: -0.70,
-                          ),
+                          borderRadius: BorderRadius.circular(6.r),
                         ),
-                        icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.appBackgroundColor,
-                          contentPadding: EdgeInsets.all(12.w),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                            borderSide: BorderSide(
-                              width: 1.w,
-                              color: Color(0xFF2F2F33),
+                        child: Row(
+                          children: [
+                            Text(
+                              _selectedCardIssuer ?? '카드사를 선택해주세요.',
+                              style: TextStyle(
+                                color: _selectedCardIssuer == null
+                                    ? const Color(0xFFCACACB) /* Gray400 */
+                                    : AppColors.appGreenColor,
+                                fontSize: 14.sp,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w500,
+                                height: 1.14,
+                                letterSpacing: -0.70,
+                              ),
                             ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                            borderSide: BorderSide(
-                              width: 1.w,
-                              color: Color(0xFF2F2F33),
+                            SizedBox(width: 8.w),
+                            SvgPicture.asset(
+                              'assets/icons/common/arrow_down.svg',
                             ),
-                          ),
+                          ],
                         ),
-                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    SizedBox(height: 24.h),
+                    GestureDetector(
+                      onTap: () async {
+                        final selectedPlan = await showModalBottomSheet<String>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            final List<String> plans = [
+                              '일시불',
+                              '2개월 (무이자)',
+                              '3개월 (무이자)',
+                              '4개월',
+                              '5개월',
+                              '6개월',
+                              '7개월',
+                              '8개월',
+                              '9개월',
+                              '10개월',
+                            ];
+                            return FractionallySizedBox(
+                              heightFactor: 0.75,
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.only(
+                                  top: 32.h,
+                                  left: 20.w,
+                                  right: 20.w,
+                                  bottom:
+                                      24.h +
+                                      MediaQuery.of(context).padding.bottom,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2F2F33),
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(24.r),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '결제 방법을 선택해주세요.',
+                                      style: TextStyle(
+                                        color: Colors.white /* White */,
+                                        fontSize: 20.sp,
+                                        fontFamily: 'Pretendard',
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    SizedBox(height: 24.h),
+                                    Expanded(
+                                      child: ListView.separated(
+                                        padding: EdgeInsets.zero,
+                                        itemCount: plans.length,
+                                        separatorBuilder: (_, __) =>
+                                            SizedBox(height: 8.h),
+                                        itemBuilder: (context, index) {
+                                          final plan = plans[index];
+
+                                          return GestureDetector(
+                                            onTap: () {
+                                              Navigator.pop(context, plan);
+                                            },
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 12.h,
+                                              ),
+                                              child: Text(
+                                                plan,
+                                                style: TextStyle(
+                                                  color:
+                                                      _selectedInstallmentPlan ==
+                                                          plan
+                                                      ? AppColors.appGreenColor
+                                                      : const Color(0xFFECECEC),
+                                                  fontSize: 20.sp,
+                                                  fontFamily: 'Pretendard',
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+
+                        if (selectedPlan != null) {
+                          setState(() {
+                            _selectedInstallmentPlan = selectedPlan;
+                          });
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 1.w,
+                            color: Color(0xFF2F2F33),
+                          ),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              _selectedInstallmentPlan ?? '결제 방법을 선택해주세요.',
+                              style: TextStyle(
+                                color: const Color(0xFFCACACB) /* Gray400 */,
+                                fontSize: 14.sp,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w500,
+                                height: 1.14,
+                                letterSpacing: -0.70,
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            SvgPicture.asset(
+                              'assets/icons/common/arrow_down.svg',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      '※ 50,000원 이상 무이자 할부 3개월',
+                      style: TextStyle(
+                        color: const Color(0xFFCACACB) /* Gray400 */,
+                        fontSize: 12.sp,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        height: 1.17,
+                        letterSpacing: -0.30,
                       ),
                     ),
                   ],
+
+                  SizedBox(height: 24.h),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.all(24.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PurchaseAgreementSection(
+                    items: _agreementItems,
+                    checkedIds: _checkedAgreementIds,
+                    onToggleItem: _toggleAgreement,
+                    onToggleAll: _toggleAllAgreements,
+                  ),
                   SizedBox(height: 24.h),
                   Container(
                     width: double.infinity,
                     height: 40.h,
                     decoration: BoxDecoration(
-                      color: AppColors.appPurpleColor,
+                      color: canProceedPayment
+                          ? AppColors.appPurpleColor
+                          : const Color(0xFF2F1A5A),
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     child: Center(
                       child: Text(
-                        '취소하기',
+                        '결제하기',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
+                  SizedBox(height: 37.h),
                 ],
               ),
             ),
