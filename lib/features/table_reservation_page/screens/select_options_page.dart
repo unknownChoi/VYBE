@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:vybe/core/app_colors.dart';
 
@@ -139,28 +138,28 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
-          title: Text(
-            '주문하기',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20.sp,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w600,
-              height: 1.10,
-              letterSpacing: -0.50,
-            ),
+        title: Text(
+          '주문하기',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.sp,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w600,
+            height: 1.10,
+            letterSpacing: -0.50,
           ),
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MenuInfoHeader(
-              menuImagePath: menuImagePath,
-              isMainMenu: isMainMenu,
-              menuName: menuName,
-              menuDescription: menuDescription,
-              priceLabel: '$menuPrice원',
-            ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MenuInfoHeader(
+            menuImagePath: menuImagePath,
+            isMainMenu: isMainMenu,
+            menuName: menuName,
+            menuDescription: menuDescription,
+            priceLabel: '$menuPrice원',
+          ),
           CustomDivider(),
           Container(
             padding: EdgeInsets.all(24.w),

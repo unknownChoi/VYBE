@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:vybe/core/app_colors.dart';
-import 'package:vybe/core/app_text_style.dart';
-import 'package:vybe/core/dialong_widget.dart';
-import 'package:vybe/features/bottom_nav_passwallet/widgets/dialog/dialog_button.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 import 'package:vybe/features/table_reservation_page/screens/purchase_page.dart';
+import 'package:vybe/features/table_reservation_page/widgets/table_reservation_page/booking_tile.dart';
+import 'package:vybe/features/table_reservation_page/widgets/table_reservation_page/information_input.dart';
+import 'package:vybe/features/table_reservation_page/widgets/table_reservation_page/people_count_section.dart';
+import 'package:vybe/features/table_reservation_page/widgets/table_reservation_page/reservation_calendar.dart';
+import 'package:vybe/features/table_reservation_page/widgets/table_reservation_page/sold_table_dialog.dart';
+import 'package:vybe/features/table_reservation_page/widgets/table_reservation_page/table_select_section.dart';
+import 'package:vybe/features/table_reservation_page/widgets/table_reservation_page/time_section.dart';
 import 'menu_order_screen.dart';
 
 class TableReservationPage extends StatefulWidget {
@@ -34,6 +35,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
   late final TextEditingController _contactController;
   final Set<CartEntry> _cartItems = <CartEntry>{};
 
+  /// 장바구니 항목을 복제해 상태 공유를 방지한다.
   Set<CartEntry> _cloneCartItems(Iterable<CartEntry> items) =>
       items.map((entry) => entry.copyWith()).toSet();
 
@@ -53,19 +55,18 @@ class _TableReservationPageState extends State<TableReservationPage> {
     super.dispose();
   }
 
+  /// 인원 수를 한 명 늘린다.
   void _incrementGuestCount() {
-    setState(() {
-      _guestCount += 1;
-    });
+    setState(() => _guestCount += 1);
   }
 
+  /// 인원 수를 줄이되 1명 이하로는 내려가지 않는다.
   void _decrementGuestCount() {
     if (_guestCount <= 1) return;
-    setState(() {
-      _guestCount -= 1;
-    });
+    setState(() => _guestCount -= 1);
   }
 
+  /// 테이블 버튼 터치 시 판매 여부를 검사해 선택한다.
   void _handleTableTap(String tableId) {
     final isSold = _soldTableIds.contains(tableId);
     if (isSold) {
@@ -75,14 +76,13 @@ class _TableReservationPageState extends State<TableReservationPage> {
     setState(() => _selectedTableId = tableId);
   }
 
-  void _handleTimeTap(String time) {
-    setState(() => _selectedTimeSlot = time);
-  }
+  /// 시간 슬롯 선택
+  void _handleTimeTap(String time) => setState(() => _selectedTimeSlot = time);
 
-  void _handleReservationInfoChanged(String _) {
-    setState(() {});
-  }
+  /// 예약자/연락처 입력 시 호출되어 버튼 상태를 갱신한다.
+  void _handleReservationInfoChanged(String _) => setState(() {});
 
+  /// 메뉴 주문 화면을 열어 장바구니를 갱신한다.
   Future<void> _openMenuOrder() async {
     final result = await Navigator.of(context).push<Set<CartEntry>>(
       MaterialPageRoute(
@@ -104,6 +104,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
     }
   }
 
+  /// 이미 판매된 테이블 선택 시 안내 다이얼로그 출력.
   Future<void> _showSoldTableDialog() async {
     await showDialog<void>(
       context: context,
@@ -111,6 +112,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
     );
   }
 
+  /// 전체 예약 화면 UI를 구성한다.
   @override
   Widget build(BuildContext context) {
     final dateTitle = _selectedDay != null
@@ -137,6 +139,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
         ? '주문하기'
         : '주문하기 (${_cartItems.length}개 담김)';
 
+    // 예약 가능한 야간 시간 슬롯
     const List<String> nightSlots = [
       '오후 11:00',
       '오후 11:30',
@@ -171,7 +174,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
           widget.clubName,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: 20.sp,
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w600,
             height: 1.10,
@@ -203,7 +206,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
                       controller: _contactController,
                       onChanged: _handleReservationInfoChanged,
                       isFilled: isContactFilled,
-                      inputFormatters: const [_HyphenPhoneFormatter()],
+                      inputFormatters: const [HyphenPhoneFormatter()],
                     ),
                   ],
                 ),
@@ -217,11 +220,11 @@ class _TableReservationPageState extends State<TableReservationPage> {
                 padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
                 child: Column(
                   children: [
-                    _BookingTileSimple(
+                    BookingTile(
                       title: dateTitle,
-                      leading:
+                      leadingAsset:
                           "assets/icons/table_reservation_page/calendar.svg",
-                      child: _CalendarSection(
+                      child: ReservationCalendar(
                         focusedDay: _focusedDay,
                         selectedDay: _selectedDay,
                         onDaySelected: (selected, focused) {
@@ -235,9 +238,10 @@ class _TableReservationPageState extends State<TableReservationPage> {
                         },
                       ),
                     ),
-                    _BookingTileSimple(
+                    BookingTile(
                       title: peopleTitle,
-                      leading: "assets/icons/table_reservation_page/person.svg",
+                      leadingAsset:
+                          "assets/icons/table_reservation_page/person.svg",
                       child: PeopleCountSection(
                         count: _guestCount,
                         onIncrement: _incrementGuestCount,
@@ -249,27 +253,29 @@ class _TableReservationPageState extends State<TableReservationPage> {
                         setState(() => _hasOpenedPeopleTile = true);
                       },
                     ),
-                    _BookingTileSimple(
+                    BookingTile(
                       title: tableTitle,
-                      leading: "assets/icons/table_reservation_page/table.svg",
+                      leadingAsset:
+                          "assets/icons/table_reservation_page/table.svg",
                       child: TableSelectSection(
                         selectedTableId: _selectedTableId,
                         soldTableIds: _soldTableIds,
                         onTableTap: _handleTableTap,
                       ),
                     ),
-                    _BookingTileSimple(
+                    BookingTile(
                       title: timeTitle,
-                      leading: "assets/icons/table_reservation_page/time.svg",
+                      leadingAsset:
+                          "assets/icons/table_reservation_page/time.svg",
                       child: TimeSection(
                         slots: nightSlots,
                         selectedTime: _selectedTimeSlot,
                         onTimeSelected: _handleTimeTap,
                       ),
                     ),
-                    _BookingTileSimple(
+                    BookingTile(
                       title: orderTitle,
-                      leading:
+                      leadingAsset:
                           "assets/icons/table_reservation_page/receipt.svg",
                       trailingArrow: true,
                       onTap: _openMenuOrder,
@@ -304,7 +310,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                       ),
@@ -312,7 +318,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 child: GestureDetector(
                   onTap: () {
@@ -353,7 +359,7 @@ class _TableReservationPageState extends State<TableReservationPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
                         ),
@@ -364,1036 +370,6 @@ class _TableReservationPageState extends State<TableReservationPage> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// 시간 선택 섹션
-class TimeSection extends StatelessWidget {
-  const TimeSection({
-    super.key,
-    required this.slots,
-    required this.selectedTime,
-    required this.onTimeSelected,
-  });
-
-  final List<String> slots;
-  final String? selectedTime;
-  final ValueChanged<String> onTimeSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 24.h),
-        child: Row(
-          children: [
-            ...slots.map((time) {
-              final bool isSelected = time == selectedTime;
-              final Color backgroundColor = isSelected
-                  ? AppColors.appGreenColor
-                  : Colors.transparent;
-              final Color borderColor = isSelected
-                  ? AppColors.appGreenColor
-                  : const Color(0xFFECECEC);
-              final Color textColor = isSelected
-                  ? const Color(0xFF0E0E10)
-                  : const Color(0xFFECECEC);
-
-              return Padding(
-                padding: EdgeInsets.only(right: 8.w),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => onTimeSelected(time),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 11.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: backgroundColor,
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(color: borderColor, width: 1),
-                    ),
-                    child: Text(
-                      time,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 16,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w600,
-                        height: 1.12,
-                        letterSpacing: -0.80,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// 테이블 선택 섹션
-class TableSelectSection extends StatelessWidget {
-  const TableSelectSection({
-    super.key,
-    required this.selectedTableId,
-    required this.soldTableIds,
-    required this.onTableTap,
-  });
-
-  final String? selectedTableId;
-  final Set<String> soldTableIds;
-  final void Function(String tableId) onTableTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        children: [
-          const _TableLegend(),
-          SizedBox(height: 24.h),
-          TableSection(
-            selectedTableId: selectedTableId,
-            soldTableIds: soldTableIds,
-            onTableTap: onTableTap,
-          ),
-          SizedBox(height: 24.h),
-        ],
-      ),
-    );
-  }
-}
-
-class _TableLegend extends StatelessWidget {
-  const _TableLegend();
-
-  @override
-  Widget build(BuildContext context) {
-    Widget buildInfoRow({
-      required Color color,
-      required String label,
-      required List<String> details,
-    }) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 12.w,
-            height: 12.h,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(2.r),
-            ),
-          ),
-          SizedBox(width: 8.w),
-          Text(
-            label,
-            style: TextStyle(
-              color: const Color(0xFFECECEC),
-              fontSize: 14,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w400,
-              height: 1.14,
-              letterSpacing: -0.70,
-            ),
-          ),
-          for (final detail in details) ...[
-            SizedBox(width: 4.w),
-            SvgPicture.asset(
-              width: 2.w,
-              color: const Color(0xFFD9D9D9),
-              'assets/icons/common/dot.svg',
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              detail,
-              style: TextStyle(
-                color: const Color(0xFFECECEC),
-                fontSize: 14,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400,
-                height: 1.14,
-                letterSpacing: -0.70,
-              ),
-            ),
-          ],
-        ],
-      );
-    }
-
-    return Container(
-      padding: EdgeInsets.only(bottom: 12.h),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(width: 1.w, color: const Color(0xFF2F2F33)),
-        ),
-      ),
-      child: Column(
-        children: [
-          buildInfoRow(
-            color: AppColors.appPurpleColor,
-            label: '룸',
-            details: ['4명 이상', '최소 주문 ₩150,000'],
-          ),
-          SizedBox(height: 8.h),
-          buildInfoRow(
-            color: AppColors.appGreenColor,
-            label: '테이블',
-            details: ['2 ~ 4명', '최소 주문 ₩70,000'],
-          ),
-          SizedBox(height: 8.h),
-          buildInfoRow(
-            color: const Color(0xFFCACACB),
-            label: '예약 완료',
-            details: const [],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TableSection extends StatelessWidget {
-  const TableSection({
-    super.key,
-    required this.selectedTableId,
-    required this.soldTableIds,
-    required this.onTableTap,
-  });
-
-  final String? selectedTableId;
-  final Set<String> soldTableIds;
-  final void Function(String tableId) onTableTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final smallPadding = EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w);
-
-    final rows = <List<_TableMeta>>[
-      [
-        _TableMeta(
-          id: '1',
-          assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 24.w,
-          height: 20.h,
-          padding: smallPadding,
-          category: _TableCategory.room,
-        ),
-        _TableMeta(
-          id: '2',
-          assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 24.w,
-          height: 20.h,
-          padding: smallPadding,
-          category: _TableCategory.room,
-        ),
-        _TableMeta(
-          id: '3',
-          assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 24.w,
-          height: 20.h,
-          padding: smallPadding,
-          category: _TableCategory.room,
-        ),
-        _TableMeta(
-          id: '4',
-          assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 24.w,
-          height: 20.h,
-          padding: smallPadding,
-          category: _TableCategory.room,
-        ),
-      ],
-      [
-        _TableMeta(
-          id: '5',
-          assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 24.w,
-          height: 20.h,
-          padding: smallPadding,
-          category: _TableCategory.room,
-          quarterTurns: 1,
-        ),
-        _TableMeta(
-          id: '6',
-          assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 36.w,
-          height: 36.h,
-          padding: smallPadding,
-          category: _TableCategory.table,
-        ),
-        _TableMeta(
-          id: '7',
-          assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 36.w,
-          height: 36.h,
-          padding: smallPadding,
-          category: _TableCategory.table,
-        ),
-        _TableMeta(
-          id: '8',
-          assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 36.w,
-          height: 36.h,
-          padding: smallPadding,
-          category: _TableCategory.table,
-        ),
-        _TableMeta(
-          id: '9',
-          assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 24.w,
-          height: 20.h,
-          padding: smallPadding,
-          category: _TableCategory.room,
-          quarterTurns: 1,
-        ),
-      ],
-      [
-        _TableMeta(
-          id: '10',
-          assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 24.w,
-          height: 20.h,
-          padding: smallPadding,
-          category: _TableCategory.room,
-          quarterTurns: 1,
-        ),
-        _TableMeta(
-          id: '11',
-          assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 36.w,
-          height: 36.h,
-          padding: smallPadding,
-          category: _TableCategory.table,
-        ),
-        _TableMeta(
-          id: '12',
-          assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 36.w,
-          height: 36.h,
-          padding: smallPadding,
-          category: _TableCategory.table,
-        ),
-        _TableMeta(
-          id: '13',
-          assetPath: 'assets/icons/table_reservation_page/table_select.svg',
-          width: 36.w,
-          height: 36.h,
-          padding: smallPadding,
-          category: _TableCategory.table,
-        ),
-        _TableMeta(
-          id: '14',
-          assetPath: 'assets/icons/table_reservation_page/table(1)_select.svg',
-          width: 24.w,
-          height: 20.h,
-          padding: smallPadding,
-          category: _TableCategory.room,
-          quarterTurns: 1,
-        ),
-      ],
-    ];
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (
-                var columnIndex = 0;
-                columnIndex < rows[rowIndex].length;
-                columnIndex++
-              ) ...[
-                if (columnIndex > 0) SizedBox(width: 10.w),
-                _TableButton(
-                  meta: rows[rowIndex][columnIndex],
-                  isSelected: selectedTableId == rows[rowIndex][columnIndex].id,
-                  isSold: soldTableIds.contains(rows[rowIndex][columnIndex].id),
-                  onTap: onTableTap,
-                ),
-              ],
-            ],
-          ),
-          if (rowIndex < rows.length - 1) SizedBox(height: 6.h),
-        ],
-      ],
-    );
-  }
-}
-
-class _TableButton extends StatelessWidget {
-  const _TableButton({
-    required this.meta,
-    required this.isSelected,
-    required this.isSold,
-    required this.onTap,
-  });
-
-  final _TableMeta meta;
-  final bool isSelected;
-  final bool isSold;
-  final void Function(String tableId) onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color baseColor = meta.category == _TableCategory.room
-        ? AppColors.appPurpleColor
-        : AppColors.appGreenColor;
-    final Color iconColor = isSold ? const Color(0xFFCACACB) : baseColor;
-
-    double borderWidth = 0;
-    Color borderColor = Colors.transparent;
-    Color backgroundColor = Colors.transparent;
-
-    if (isSold) {
-      borderWidth = 1.w;
-      borderColor = const Color(0xFFCACACB);
-    } else if (isSelected) {
-      borderWidth = 2.w;
-      borderColor = baseColor;
-      backgroundColor = baseColor.withOpacity(0.18);
-    } else if (meta.category == _TableCategory.room) {
-      borderWidth = 1.w;
-      borderColor = baseColor;
-    }
-
-    final table = Container(
-      padding:
-          meta.padding ?? EdgeInsets.symmetric(vertical: 5.h, horizontal: 6.w),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(6.r),
-        border: borderWidth > 0
-            ? Border.all(color: borderColor, width: borderWidth)
-            : null,
-      ),
-      child: Opacity(
-        opacity: isSold ? 0.55 : 1,
-        child: SvgPicture.asset(
-          meta.assetPath,
-          width: meta.width,
-          height: meta.height,
-          color: iconColor,
-        ),
-      ),
-    );
-
-    final widget = meta.quarterTurns == 0
-        ? table
-        : RotatedBox(quarterTurns: meta.quarterTurns, child: table);
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => onTap(meta.id),
-      child: widget,
-    );
-  }
-}
-
-enum _TableCategory { room, table }
-
-class _TableMeta {
-  const _TableMeta({
-    required this.id,
-    required this.assetPath,
-    required this.width,
-    required this.height,
-    required this.category,
-    this.quarterTurns = 0,
-    this.padding,
-  });
-
-  final String id;
-  final String assetPath;
-  final double width;
-  final double height;
-  final _TableCategory category;
-  final int quarterTurns;
-  final EdgeInsets? padding;
-}
-
-class SoldTableDialog extends StatelessWidget {
-  const SoldTableDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final titleStyle = AppTextStyles.dialogTitleTextStyle;
-    final descriptionStyle = AppTextStyles.dialogDescriptionTextStyle;
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: DialongWidget(
-        dialogWidget: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '이미 판매된 테이블입니다',
-              textAlign: TextAlign.center,
-              style: titleStyle,
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              '다른 테이블을 선택해주세요.',
-              textAlign: TextAlign.center,
-              style: descriptionStyle,
-            ),
-            SizedBox(height: 24.h),
-            Row(
-              children: [
-                DialonButton(
-                  buttonText: '확인',
-                  onTap: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PeopleCountSection extends StatelessWidget {
-  const PeopleCountSection({
-    super.key,
-    required this.count,
-    required this.onIncrement,
-    required this.onDecrement,
-    this.minCount = 1,
-  });
-
-  final int count;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
-  final int minCount;
-
-  @override
-  Widget build(BuildContext context) {
-    final canDecrement = count > minCount;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onIncrement,
-            child: Container(
-              width: double.infinity,
-              height: 40.h,
-              padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 24.w),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2F1A5A),
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(width: 1.w, color: const Color(0xFF7731FE)),
-              ),
-              child: Wrap(
-                spacing: 10.w,
-                runSpacing: 4.h,
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    '친구 추가',
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: TextStyle(
-                      color: const Color(0xFFD9C5FF),
-                      fontSize: 14,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w600,
-                      height: 1.14,
-                      letterSpacing: -0.35,
-                    ),
-                  ),
-                  SvgPicture.asset(width: 11.w, 'assets/icons/common/plus.svg'),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Row(
-            children: [
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: canDecrement ? onDecrement : null,
-                child: Opacity(
-                  opacity: canDecrement ? 1 : 0.35,
-                  child: Container(
-                    width: 40.w,
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF404042),
-                      borderRadius: BorderRadius.circular(999.r),
-                    ),
-                    child: Center(
-                      child: SvgPicture.asset(
-                        width: 18.w,
-                        'assets/icons/common/minus.svg',
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  Text(
-                    '$count',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFFB5FF60),
-                      fontSize: 32,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w700,
-                      height: 1.06,
-                      letterSpacing: -0.80,
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    '명',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFFECECEC),
-                      fontSize: 20,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w500,
-                      height: 1.10,
-                      letterSpacing: -0.50,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onIncrement,
-                child: Container(
-                  width: 40.w,
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF404042),
-                    borderRadius: BorderRadius.circular(999.r),
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      width: 18.w,
-                      'assets/icons/common/plus.svg',
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 24.h),
-        ],
-      ),
-    );
-  }
-}
-
-// 정보 입력 창
-class InformationInput extends StatelessWidget {
-  const InformationInput({
-    super.key,
-    required this.inputTitle,
-    required this.hintText,
-    required this.controller,
-    required this.onChanged,
-    required this.isFilled,
-    this.inputFormatters,
-  });
-
-  final String inputTitle;
-  final String hintText;
-  final TextEditingController controller;
-  final ValueChanged<String> onChanged;
-  final bool isFilled;
-  final List<TextInputFormatter>? inputFormatters;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color borderColor = isFilled
-        ? AppColors.appPurpleColor
-        : const Color(0xFF2F2F33);
-
-    return Column(
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              inputTitle,
-              style: TextStyle(
-                color: const Color(0xFFECECEC) /* Gray200 */,
-                fontSize: 16,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w600,
-                height: 1.25,
-                letterSpacing: -0.80,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            SizedBox(
-              width: double.infinity,
-              height: 40.h,
-              child: TextField(
-                controller: controller,
-                keyboardType: inputTitle == "예약자명"
-                    ? TextInputType.name
-                    : TextInputType.phone,
-                textInputAction: TextInputAction.next,
-                onChanged: onChanged,
-                inputFormatters: inputFormatters,
-                decoration: InputDecoration(
-                  hintText: hintText,
-                  hintStyle: TextStyle(
-                    color: const Color(0xFFCACACB) /* Gray400 */,
-                    fontSize: 14,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w400,
-                    height: 1.14,
-                    letterSpacing: -0.70,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6.r),
-                    borderSide: BorderSide(color: borderColor, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6.r),
-                    borderSide: BorderSide(color: borderColor, width: 1),
-                  ),
-                ),
-                style: TextStyle(
-                  color: const Color(0xFFCACACB) /* Gray400 */,
-                  fontSize: 14,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w400,
-                  height: 1.14,
-                  letterSpacing: -0.70,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _HyphenPhoneFormatter extends TextInputFormatter {
-  const _HyphenPhoneFormatter();
-
-  static const int _maxDigits = 11;
-
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
-    if (digitsOnly.isEmpty) {
-      return newValue.copyWith(
-        text: '',
-        selection: const TextSelection.collapsed(offset: 0),
-        composing: TextRange.empty,
-      );
-    }
-
-    final truncated = digitsOnly.length > _maxDigits
-        ? digitsOnly.substring(0, _maxDigits)
-        : digitsOnly;
-
-    final buffer = StringBuffer();
-    if (truncated.length <= 3) {
-      buffer.write(truncated);
-    } else if (truncated.length <= 7) {
-      buffer.write(truncated.substring(0, 3));
-      buffer.write('-');
-      buffer.write(truncated.substring(3));
-    } else {
-      buffer.write(truncated.substring(0, 3));
-      buffer.write('-');
-      buffer.write(truncated.substring(3, 7));
-      buffer.write('-');
-      buffer.write(truncated.substring(7));
-    }
-
-    final formatted = buffer.toString();
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-      composing: TextRange.empty,
-    );
-  }
-}
-
-// 달력 섹션
-class _CalendarSection extends StatelessWidget {
-  const _CalendarSection({
-    required this.focusedDay,
-    required this.selectedDay,
-    required this.onDaySelected,
-    required this.onPageChanged,
-  });
-
-  final DateTime focusedDay;
-  final DateTime? selectedDay;
-  final void Function(DateTime selectedDay, DateTime focusedDay) onDaySelected;
-  final void Function(DateTime focusedDay) onPageChanged;
-
-  bool _isSameDay(DateTime? a, DateTime? b) =>
-      a != null && b != null && isSameDay(a, b);
-
-  @override
-  Widget build(BuildContext context) {
-    const primary = Color(0xFF6C3BFF);
-    const holidayColor = Color(0xFFFF6B6B);
-    const textColor = Colors.white;
-    final todayColor = AppColors.appGreenColor;
-    final now = DateTime.now();
-    final firstAllowedDay = DateTime(now.year, now.month, now.day);
-
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: TableCalendar(
-            locale: 'ko_KR',
-            firstDay: firstAllowedDay,
-            lastDay: DateTime.utc(2035, 12, 31),
-            focusedDay: focusedDay,
-            calendarFormat: CalendarFormat.month,
-            headerStyle: HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-              titleTextFormatter: (date, locale) =>
-                  DateFormat('yyyy년 M월', locale).format(date),
-              titleTextStyle: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 16.sp,
-              ),
-              leftChevronIcon: const Icon(
-                Icons.chevron_left_rounded,
-                color: textColor,
-              ),
-              rightChevronIcon: const Icon(
-                Icons.chevron_right_rounded,
-                color: textColor,
-              ),
-            ),
-            daysOfWeekStyle: DaysOfWeekStyle(
-              weekdayStyle: TextStyle(color: textColor, fontSize: 12.sp),
-              weekendStyle: TextStyle(color: holidayColor, fontSize: 12.sp),
-            ),
-            calendarStyle: CalendarStyle(
-              outsideDaysVisible: true,
-              defaultTextStyle: TextStyle(color: textColor, fontSize: 14.sp),
-              weekendTextStyle: TextStyle(color: holidayColor, fontSize: 14.sp),
-              holidayTextStyle: TextStyle(color: holidayColor, fontSize: 14.sp),
-              disabledTextStyle: TextStyle(
-                color: Colors.white.withOpacity(0.4),
-                fontSize: 14.sp,
-              ),
-              todayDecoration: const BoxDecoration(),
-              todayTextStyle: TextStyle(color: todayColor, fontSize: 14.sp),
-              holidayDecoration: const BoxDecoration(),
-              selectedDecoration: BoxDecoration(
-                color: primary,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              selectedTextStyle: const TextStyle(color: Colors.white),
-            ),
-            holidayPredicate: (day) =>
-                day.weekday == DateTime.saturday ||
-                day.weekday == DateTime.sunday,
-            enabledDayPredicate: (day) => !day.isBefore(firstAllowedDay),
-            selectedDayPredicate: (day) => _isSameDay(selectedDay, day),
-            onDaySelected: onDaySelected,
-            onPageChanged: (newFocusedDay) {
-              final clamped = newFocusedDay.isBefore(firstAllowedDay)
-                  ? firstAllowedDay
-                  : newFocusedDay;
-              onPageChanged(clamped);
-            },
-            calendarBuilders: CalendarBuilders(
-              defaultBuilder: (context, day, focusedDay) {
-                final isOutside = day.month != focusedDay.month;
-                final isWeekend =
-                    day.weekday == DateTime.saturday ||
-                    day.weekday == DateTime.sunday;
-                final baseColor = isWeekend ? holidayColor : textColor;
-                final color = isOutside
-                    ? baseColor.withOpacity(0.35)
-                    : baseColor;
-                final isDisabled = day.isBefore(firstAllowedDay);
-                return _buildDayCell(
-                  dayText: '${day.day}',
-                  color: color,
-                  isDisabled: isDisabled,
-                );
-              },
-              todayBuilder: (context, day, focusedDay) {
-                return _buildDayCell(
-                  dayText: '${day.day}',
-                  color: todayColor,
-                  isDisabled: false,
-                );
-              },
-              selectedBuilder: (context, day, focusedDay) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: primary,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${day.day}',
-                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        SizedBox(height: 24.h),
-      ],
-    );
-  }
-
-  Widget _buildDayCell({
-    required String dayText,
-    required Color color,
-    required bool isDisabled,
-  }) {
-    final displayColor = isDisabled ? color.withOpacity(0.25) : color;
-
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 6.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              dayText,
-              style: TextStyle(color: displayColor, fontSize: 14.sp),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 공용 아코디언 타일
-class _BookingTileSimple extends StatefulWidget {
-  const _BookingTileSimple({
-    required this.title,
-    this.child,
-    this.leading,
-    this.trailingArrow = false,
-    this.onTap,
-    this.onExpansionChanged,
-  });
-
-  final String title;
-  final Widget? child;
-  final String? leading;
-  final bool trailingArrow;
-  final VoidCallback? onTap;
-  final ValueChanged<bool>? onExpansionChanged;
-
-  @override
-  State<_BookingTileSimple> createState() => _BookingTileSimpleState();
-}
-
-class _BookingTileSimpleState extends State<_BookingTileSimple> {
-  final GlobalKey _expansionTileKey = GlobalKey();
-
-  @override
-  Widget build(BuildContext context) {
-    final decoration = BoxDecoration(
-      border: Border(
-        bottom: BorderSide(color: const Color(0xFF2F2F33), width: 1.w),
-      ),
-    );
-    final titleText = Text(
-      widget.title,
-      style: TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.w600,
-        fontSize: 16.sp,
-      ),
-    );
-
-    final bool handleTap = widget.onTap != null;
-    final List<Widget> children = handleTap || widget.child == null
-        ? const []
-        : [SizedBox(width: double.infinity, child: widget.child)];
-
-    return Container(
-      decoration: decoration,
-      constraints: BoxConstraints(minHeight: 64.h),
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-      child: Theme(
-        data: Theme.of(context).copyWith(
-          splashFactory: NoSplash.splashFactory,
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-        ),
-        child: ExpansionTile(
-          key: _expansionTileKey,
-          tilePadding: EdgeInsets.zero,
-          collapsedIconColor: Colors.white,
-          iconColor: Colors.white,
-          leading: widget.leading != null
-              ? SvgPicture.asset(widget.leading!, width: 24.w, height: 24.w)
-              : null,
-          childrenPadding: EdgeInsets.zero,
-          shape: const RoundedRectangleBorder(
-            side: BorderSide(color: Colors.transparent),
-          ),
-          collapsedShape: const RoundedRectangleBorder(
-            side: BorderSide(color: Colors.transparent),
-          ),
-          title: titleText,
-          trailing: widget.trailingArrow
-              ? const Icon(Icons.chevron_right_rounded, color: Colors.white)
-              : null,
-          onExpansionChanged: (expanded) {
-            widget.onExpansionChanged?.call(expanded);
-            if (handleTap && expanded) {
-              widget.onTap?.call();
-              Future.microtask(() {
-                final state = _expansionTileKey.currentState;
-                if (state != null) {
-                  (state as dynamic).collapse();
-                }
-              });
-            }
-          },
-          children: children,
         ),
       ),
     );
