@@ -866,17 +866,34 @@ class _PurchasePageState extends State<PurchasePage> {
                   SizedBox(height: 24.h),
                   GestureDetector(
                     onTap: () {
+                      final cartItemPayload = cartItems.map((entry) {
+                        final optionNames = entry.options
+                            .map((opt) => opt['name'])
+                            .whereType<String>()
+                            .map((name) => name.trim())
+                            .where((name) => name.isNotEmpty)
+                            .toList();
+                        return <String, dynamic>{
+                          'name': entry.menuName,
+                          'quantity': entry.quantity,
+                          'options': optionNames,
+                          'totalPrice': entry.totalPrice,
+                        };
+                      }).toList();
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) {
                             return PaymentSuccessPage(
                               reservationData: {
-                                'clubNㄴame': _clubName,
+                                'clubName': _clubName,
                                 'reservationDate': _reservationDate,
                                 'timeSlot': _timeSlot,
                                 'tableId': _tableId,
                                 'guestCount': _guestCount,
+                                'orderTotal': orderTotal,
+                                'cartItems': cartItemPayload,
                               },
                             );
                           },

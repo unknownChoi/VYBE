@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vybe/core/route_names.dart';
 import 'package:vybe/core/widgets/near_club_card.dart';
 import 'package:vybe/features/club_detail_page/screens/club_detail_main.dart';
 import 'package:vybe/services/firebase/firebase_service.dart';
@@ -172,7 +173,11 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                         onTap: () {
                           // 새 화면으로 이동 (스택에 push)
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => ClubDetailMain()),
+                            MaterialPageRoute(
+                              settings:
+                                  const RouteSettings(name: clubDetailRouteName),
+                              builder: (_) => const ClubDetailMain(),
+                            ),
                           );
                         },
                         child: const NearClubCard(
