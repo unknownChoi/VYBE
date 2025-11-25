@@ -30,23 +30,17 @@ class PurchaseAgreementSection extends StatelessWidget {
   final ValueChanged<String> onToggleItem;
   final ValueChanged<bool> onToggleAll;
 
-  bool get _isAllChecked => items.isNotEmpty && checkedIds.length == items.length;
+  bool get _isAllChecked =>
+      items.isNotEmpty && checkedIds.length == items.length;
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
 
     final bool isAllChecked = _isAllChecked;
-    final Color borderColor = isAllChecked
-        ? AppColors.appPurpleColor
-        : AppColors.appPurpleColor.withOpacity(0.6);
 
     return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: borderColor, width: 1),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -92,18 +86,17 @@ class PurchaseAgreementSection extends StatelessWidget {
 
   Widget _buildSelectBox(bool checked) {
     return Container(
-      width: 22.w,
-      height: 22.w,
+      width: 16.w,
+      height: 16.w,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4.r),
+        borderRadius: BorderRadius.circular(2.r),
         border: Border.all(
-          width: 1.5,
-          color: checked ? AppColors.appPurpleColor : const Color(0xFF535355),
+          width: 1.w,
+          color: checked ? AppColors.appGreenColor : const Color(0xFF535355),
         ),
-        color: checked ? AppColors.appPurpleColor : Colors.transparent,
       ),
       child: checked
-          ? Icon(Icons.check, color: Colors.white, size: 16.sp)
+          ? Icon(Icons.check, color: AppColors.appGreenColor, size: 14.sp)
           : null,
     );
   }
@@ -122,8 +115,9 @@ class _AgreementTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color iconColor =
-        checked ? AppColors.appGreenColor : const Color(0xFF535355);
+    final Color iconColor = checked
+        ? AppColors.appGreenColor
+        : const Color(0xFF535355);
 
     return InkWell(
       onTap: onTap,
@@ -160,7 +154,11 @@ class _AgreementTile extends StatelessWidget {
               ),
             ),
           ),
-          Icon(Icons.chevron_right, color: const Color(0xFF535355), size: 18.sp),
+          Icon(
+            Icons.chevron_right,
+            color: const Color(0xFF535355),
+            size: 18.sp,
+          ),
         ],
       ),
     );

@@ -150,112 +150,119 @@ class _SelectOptionsPageState extends State<SelectOptionsPage> {
           ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MenuInfoHeader(
-            menuImagePath: menuImagePath,
-            isMainMenu: isMainMenu,
-            menuName: menuName,
-            menuDescription: menuDescription,
-            priceLabel: '$menuPrice원',
-          ),
-          CustomDivider(),
-          Container(
-            padding: EdgeInsets.all(24.w),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  child: Row(
-                    children: [
-                      Text(
-                        '가격',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.sp,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.10,
-                          letterSpacing: -0.50,
-                        ),
+      body: SafeArea(
+        top: true,
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 88.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MenuInfoHeader(
+                menuImagePath: menuImagePath,
+                isMainMenu: isMainMenu,
+                menuName: menuName,
+                menuDescription: menuDescription,
+                priceLabel: '$menuPrice원',
+              ),
+              CustomDivider(),
+              Container(
+                padding: EdgeInsets.all(24.w),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      child: Row(
+                        children: [
+                          Text(
+                            '가격',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: -0.50,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            "$menuPrice원",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.sp,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.10,
+                              letterSpacing: -0.50,
+                            ),
+                          ),
+                        ],
                       ),
-                      Spacer(),
-                      Text(
-                        "$menuPrice원",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.sp,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.10,
-                          letterSpacing: -0.50,
-                        ),
+                    ),
+                    QuantitySelector(
+                      quantity: _quantity,
+                      onDecrease: _decreaseQuantity,
+                      onIncrease: _increaseQuantity,
+                    ),
+                  ],
+                ),
+              ),
+              CustomDivider(),
+              Container(
+                padding: EdgeInsets.all(24.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '추가 옵션',
+                      style: TextStyle(
+                        color: const Color(0xFFECECEC) /* Gray200 */,
+                        fontSize: 18,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                        height: 1.11,
+                        letterSpacing: -0.90,
                       ),
-                    ],
-                  ),
-                ),
-                QuantitySelector(
-                  quantity: _quantity,
-                  onDecrease: _decreaseQuantity,
-                  onIncrease: _increaseQuantity,
-                ),
-              ],
-            ),
-          ),
-          CustomDivider(),
-          Container(
-            padding: EdgeInsets.all(24.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '추가 옵션',
-                  style: TextStyle(
-                    color: const Color(0xFFECECEC) /* Gray200 */,
-                    fontSize: 18,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w600,
-                    height: 1.11,
-                    letterSpacing: -0.90,
-                  ),
-                ),
-                SizedBox(height: 9.h),
-                // 옵션 리스트
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _options.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 12.h),
-                  itemBuilder: (context, index) {
-                    final opt = _options[index];
-                    final name = (opt['name'] ?? '').toString();
-                    final priceNum = _parsePrice(opt['price']);
-                    final priceLabel = priceNum == 0
-                        ? '무료'
-                        : '+ ${_comma.format(priceNum)}원';
-                    final checked = _selectedOptionIndexes.contains(index);
+                    ),
+                    SizedBox(height: 9.h),
+                    // 옵션 리스트
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _options.length,
+                      separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                      itemBuilder: (context, index) {
+                        final opt = _options[index];
+                        final name = (opt['name'] ?? '').toString();
+                        final priceNum = _parsePrice(opt['price']);
+                        final priceLabel = priceNum == 0
+                            ? '무료'
+                            : '+ ${_comma.format(priceNum)}원';
+                        final checked = _selectedOptionIndexes.contains(index);
 
-                    return OptionCheckTile(
-                      checked: checked,
-                      label: name,
-                      trailingPrice: priceLabel,
-                      onChanged: (v) {
-                        setState(() {
-                          if (v == true) {
-                            _selectedOptionIndexes.add(index);
-                          } else {
-                            _selectedOptionIndexes.remove(index);
-                          }
-                        });
+                        return OptionCheckTile(
+                          checked: checked,
+                          label: name,
+                          trailingPrice: priceLabel,
+                          onChanged: (v) {
+                            setState(() {
+                              if (v == true) {
+                                _selectedOptionIndexes.add(index);
+                              } else {
+                                _selectedOptionIndexes.remove(index);
+                              }
+                            });
+                          },
+                        );
                       },
-                    );
-                  },
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         top: false,

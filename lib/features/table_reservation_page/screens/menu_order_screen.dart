@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/app_text_style.dart';
@@ -13,7 +11,7 @@ import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
 import 'package:vybe/features/table_reservation_page/utils/menu_order_functions.dart';
 import 'package:vybe/features/table_reservation_page/widgets/menu_order_screen/menu_category_selector.dart';
 import 'package:vybe/features/table_reservation_page/widgets/menu_order_screen/menu_order_bottom_bar.dart';
-import 'package:vybe/features/table_reservation_page/widgets/menu_order_screen/order_menu_item_card.dart';
+import 'package:vybe/features/table_reservation_page/widgets/menu_order_screen/menu_sections_list_view.dart';
 
 class MenuOrderScreen extends StatefulWidget {
   const MenuOrderScreen({super.key, Set<CartEntry>? initialItems})
@@ -26,22 +24,52 @@ class MenuOrderScreen extends StatefulWidget {
 }
 
 class _MenuOrderScreenState extends State<MenuOrderScreen> {
+  /// 메뉴 안내 문구.
   static const _menuDisclaimer = '메뉴 항목과 가격은 각 매장 사정에 따라 기재된 내용과 다를 수 있습니다.';
 
+  /// 화면에 노출할 카테고리 목록.
   late final List<String> _categories = List<String>.from(menuCategories);
+
+  /// 사용자가 선택한 카테고리 이름.
   String? _selectedCategory;
+
+  /// 장바구니에 저장된 메뉴 목록.
   final Set<CartEntry> _cartItems = <CartEntry>{};
+
+  /// 숫자를 쉼표로 포매팅하기 위한 포매터.
   final NumberFormat _comma = NumberFormat('#,##0');
+
+  /// 화면에 그릴 메뉴 섹션 캐시.
+  List<MapEntry<String, List<Map<String, dynamic>>>> _menuEntries =
+      <MapEntry<String, List<Map<String, dynamic>>>>[];
 
   /// 장바구니에 담긴 총 수량 표시를 위한 합계.
   int get _cartQuantityTotal =>
       _cartItems.fold<int>(0, (sum, entry) => sum + entry.quantity);
 
+  /// 등록된 카테고리가 있는지 여부.
   bool get _hasCategories => _categories.isNotEmpty;
 
   /// 현재 장바구니 상태를 반환하며 화면을 닫는다.
   void _closeWithResult() {
     Navigator.pop(context, cloneCartItems(_cartItems));
+  }
+
+  /// 선택된 카테고리에 맞춰 메뉴 섹션을 갱신한다.
+  void _syncMenuEntries() {
+    _menuEntries = buildMenuEntries(
+      hasCategories: _hasCategories,
+      menuItemsByCategory: menuItemsData,
+      selectedCategory: _selectedCategory,
+    );
+  }
+
+  /// 카테고리 선택 시 상태를 갱신한다.
+  void _onCategorySelected(String? category) {
+    setState(() {
+      _selectedCategory = category;
+      _syncMenuEntries();
+    });
   }
 
   /// 메뉴 아이템을 장바구니에 추가하고 옵션 선택이 필요한 경우 페이지를 띄운다.
@@ -142,86 +170,21 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
     }
   }
 
-  /// 현재 선택된 카테고리에 맞춰 메뉴 섹션을 구성한다.
-  List<Widget> _buildMenuSections() {
-    final entries = buildMenuEntries(
-      hasCategories: _hasCategories,
-      menuItemsByCategory: menuItemsData,
-      selectedCategory: _selectedCategory,
-    );
-    if (entries.isEmpty) {
-      return [
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 24.h),
-          child: Text('등록된 메뉴가 없습니다.', style: AppTextStyles.subtitle),
-        ),
-      ];
-    }
-
-    final widgets = <Widget>[];
-    for (final entry in entries) {
-      final category = entry.key;
-      final items = entry.value;
-
-      widgets
-        ..add(Text(category, style: AppTextStyles.sectionTitle))
-        ..add(SizedBox(height: 16.h))
-        ..add(
-          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF404042)),
-        );
-
-      if (items.isEmpty) {
-        widgets
-          ..add(
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h),
-              child: Text('등록된 메뉴가 없습니다.', style: AppTextStyles.subtitle),
-            ),
-          )
-          ..add(SizedBox(height: 32.h));
-        continue;
-      }
-
-      for (var i = 0; i < items.length; i++) {
-        final item = items[i];
-        final description = item['description'] as String? ?? '';
-        widgets.add(
-          OrderMenuItemCard(
-            menuName: item['name'] as String,
-            menuPrice: item['price'] as int,
-            menuImageSrc: item['image'] as String,
-            isMainMenu: item['isMain'] as bool,
-            menuDescription: description,
-            onAddToCart: () {
-              _addMenuToCart(item);
-            },
-          ),
-        );
-
-        final isLastItem = i == items.length - 1;
-        widgets.add(
-          Divider(height: 1.h, thickness: 1.h, color: const Color(0xFF404042)),
-        );
-        if (isLastItem) {
-          widgets.add(SizedBox(height: 32.h));
-        }
-      }
-    }
-    return widgets;
-  }
-
   @override
   void initState() {
     super.initState();
     _cartItems.addAll(cloneCartItems(widget.initialItems));
+    _syncMenuEntries();
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        _closeWithResult();
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _closeWithResult();
+        }
       },
       child: Scaffold(
         backgroundColor: AppColors.appBackgroundColor,
@@ -233,9 +196,7 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
           surfaceTintColor: Colors.transparent,
           leadingWidth: 24.w + 48.w,
           leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: _closeWithResult,
             icon: const Icon(Icons.arrow_back_ios),
           ),
           title: Text(
@@ -257,23 +218,15 @@ class _MenuOrderScreenState extends State<MenuOrderScreen> {
               child: MenuCategorySelector(
                 categories: _categories,
                 selectedCategory: _selectedCategory,
-                onSelect: (category) {
-                  setState(() => _selectedCategory = category);
-                },
+                onSelect: _onCategorySelected,
               ),
             ),
             Expanded(
               child: _hasCategories
-                  ? ListView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.w,
-                        vertical: 8.h,
-                      ),
-                      children: [
-                        ..._buildMenuSections(),
-                        Text(_menuDisclaimer, style: AppTextStyles.disclaimer),
-                        SizedBox(height: 88.h),
-                      ],
+                  ? MenuSectionsListView(
+                      entries: _menuEntries,
+                      disclaimer: _menuDisclaimer,
+                      onAddToCart: _addMenuToCart,
                     )
                   : Center(
                       child: Text(

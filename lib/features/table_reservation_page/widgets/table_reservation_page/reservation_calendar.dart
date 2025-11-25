@@ -47,8 +47,14 @@ class ReservationCalendar extends StatelessWidget {
           fontWeight: FontWeight.w600,
           fontSize: 16.sp,
         ),
-        leftChevronIcon: const Icon(Icons.chevron_left_rounded, color: textColor),
-        rightChevronIcon: const Icon(Icons.chevron_right_rounded, color: textColor),
+        leftChevronIcon: const Icon(
+          Icons.chevron_left_rounded,
+          color: textColor,
+        ),
+        rightChevronIcon: const Icon(
+          Icons.chevron_right_rounded,
+          color: textColor,
+        ),
       ),
       daysOfWeekStyle: DaysOfWeekStyle(
         weekdayStyle: TextStyle(color: textColor, fontSize: 12.sp),
@@ -60,14 +66,32 @@ class ReservationCalendar extends StatelessWidget {
         weekendTextStyle: TextStyle(color: holidayColor, fontSize: 14.sp),
         holidayTextStyle: TextStyle(color: holidayColor, fontSize: 14.sp),
         disabledTextStyle: TextStyle(
-          color: Colors.white.withOpacity(0.4),
+          color: Colors.white.withValues(alpha: 0.4),
           fontSize: 14.sp,
         ),
-        todayDecoration: const BoxDecoration(),
+
+        defaultDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        weekendDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        outsideDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        disabledDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        todayDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
         todayTextStyle: TextStyle(color: todayColor, fontSize: 14.sp),
-        holidayDecoration: const BoxDecoration(),
+        holidayDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
         selectedDecoration: BoxDecoration(
           color: primary,
+          shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(12.r),
         ),
         selectedTextStyle: const TextStyle(color: Colors.white),
@@ -78,11 +102,11 @@ class ReservationCalendar extends StatelessWidget {
       selectedDayPredicate: (day) => _isSameDay(selectedDay, day),
       onDaySelected: onDaySelected,
       onPageChanged: (newFocusedDay) {
-        final clamped =
-            newFocusedDay.isBefore(firstAllowedDay) ? firstAllowedDay : newFocusedDay;
+        final clamped = newFocusedDay.isBefore(firstAllowedDay)
+            ? firstAllowedDay
+            : newFocusedDay;
         onPageChanged(clamped);
       },
     );
   }
 }
-

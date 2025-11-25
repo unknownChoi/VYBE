@@ -5,9 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:vybe/core/app_colors.dart';
 import 'package:vybe/core/widgets/custom_divider.dart';
 import 'package:vybe/features/table_reservation_page/models/cart_entry.dart';
+import 'package:vybe/features/table_reservation_page/screens/payment_success_page.dart';
 import 'package:vybe/features/table_reservation_page/screens/select_options_page.dart';
 import 'package:vybe/features/table_reservation_page/widgets/cart_items_list_view.dart';
-import 'package:vybe/features/table_reservation_page/widgets/purchase/purchase_agreement_section.dart';
+import 'package:vybe/features/table_reservation_page/widgets/purchase_page/purchase_agreement_section.dart';
 import 'package:vybe/features/table_reservation_page/widgets/purchase_page/payment_method_grid.dart';
 import 'package:vybe/features/table_reservation_page/widgets/purchase_page/reservation_info_section.dart';
 
@@ -51,7 +52,7 @@ class _PurchasePageState extends State<PurchasePage> {
     ),
   ];
 
-  /// Keeps track of agreement ids the user checked.
+  /// 사용자가 체크한 동의 항목 id를 저장한다.
   final Set<String> _checkedAgreementIds = <String>{};
 
   static const List<List<PaymentMethodOption>> _paymentMethodRows = [
@@ -117,6 +118,7 @@ class _PurchasePageState extends State<PurchasePage> {
       _reservation['reservationDate'] as DateTime?;
   String get _tableId => _reservation['tableId']?.toString() ?? '';
   String get _timeSlot => _reservation['timeSlot'] as String? ?? '';
+  int get _guestCount => (_reservation['guestCount'] as num?)?.toInt() ?? 0;
 
   Set<CartEntry> get _cartItemSet {
     final value = _reservation['cartItems'];
@@ -147,7 +149,7 @@ class _PurchasePageState extends State<PurchasePage> {
     return 0;
   }
 
-  /// Toggles a single agreement checkbox by id.
+  /// id로 특정 동의 항목 체크 상태를 토글한다.
   void _toggleAgreement(String id) {
     setState(() {
       if (!_checkedAgreementIds.add(id)) {
@@ -156,7 +158,7 @@ class _PurchasePageState extends State<PurchasePage> {
     });
   }
 
-  /// Selects or clears every agreement at once.
+  /// 모든 동의 항목을 한 번에 선택/해제한다.
   void _toggleAllAgreements(bool nextValue) {
     setState(() {
       if (nextValue) {
@@ -169,7 +171,7 @@ class _PurchasePageState extends State<PurchasePage> {
     });
   }
 
-  /// Opens the option selector and updates the cart entry with the result.
+  /// 옵션 선택 화면을 열고 결과를 장바구니 항목에 반영한다.
   Future<void> _onChangeOptions(CartEntry entry) async {
     final menuOptions = entry.menu['options'];
     if (menuOptions is! List || menuOptions.isEmpty) {
@@ -247,7 +249,7 @@ class _PurchasePageState extends State<PurchasePage> {
     });
   }
 
-  /// Adjusts quantity for a given cart entry, respecting the minimum of 1.
+  /// 장바구니 항목의 수량을 1 이상으로 조정한다.
   void _updateQuantity(CartEntry entry, int delta) {
     final next = entry.quantity + delta;
     if (next < 1) {
@@ -263,7 +265,7 @@ class _PurchasePageState extends State<PurchasePage> {
   num get orderTotal =>
       _cartItemSet.fold<num>(0, (sum, item) => sum + item.totalPrice);
 
-  /// Renders section header text with consistent styling.
+  /// 섹션 제목을 동일한 스타일로 렌더링한다.
   Widget buildSectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
@@ -278,7 +280,7 @@ class _PurchasePageState extends State<PurchasePage> {
     );
   }
 
-  /// Displays a key/value row for static reservation information.
+  /// 예약 정보를 라벨/값 형태로 한 줄에 보여준다.
   Widget buildInfoRow({required String label, required String value}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.h),
@@ -311,7 +313,7 @@ class _PurchasePageState extends State<PurchasePage> {
     );
   }
 
-  /// Renders a single cart entry summary row.
+  /// 장바구니 항목 한 줄 요약을 렌더링한다.
   Widget buildMenuItem(CartEntry entry) {
     final options = entry.options.isEmpty
         ? '옵션 없음'
@@ -361,7 +363,7 @@ class _PurchasePageState extends State<PurchasePage> {
   }
 
   @override
-  /// Builds the widget for context).
+  /// 위젯 트리를 그린다.
   Widget build(BuildContext context) {
     final formattedDate = _reservationDate != null
         ? DateFormat('MM월 dd일 (E)', 'ko_KR').format(_reservationDate!)
@@ -395,6 +397,7 @@ class _PurchasePageState extends State<PurchasePage> {
           ),
         ),
       ),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -416,7 +419,7 @@ class _PurchasePageState extends State<PurchasePage> {
             ),
             const CustomDivider(),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              padding: EdgeInsets.all(24.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -446,7 +449,7 @@ class _PurchasePageState extends State<PurchasePage> {
             ),
             const CustomDivider(),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              padding: EdgeInsets.all(24.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -541,7 +544,7 @@ class _PurchasePageState extends State<PurchasePage> {
             ),
             const CustomDivider(),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              padding: EdgeInsets.all(24.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -693,7 +696,7 @@ class _PurchasePageState extends State<PurchasePage> {
                                 letterSpacing: -0.70,
                               ),
                             ),
-                            SizedBox(width: 8.w),
+                            Spacer(),
                             SvgPicture.asset(
                               'assets/icons/common/arrow_down.svg',
                             ),
@@ -822,7 +825,7 @@ class _PurchasePageState extends State<PurchasePage> {
                                 letterSpacing: -0.70,
                               ),
                             ),
-                            SizedBox(width: 8.w),
+                            Spacer(),
                             SvgPicture.asset(
                               'assets/icons/common/arrow_down.svg',
                             ),
@@ -861,24 +864,44 @@ class _PurchasePageState extends State<PurchasePage> {
                     onToggleAll: _toggleAllAgreements,
                   ),
                   SizedBox(height: 24.h),
-                  Container(
-                    width: double.infinity,
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                      color: canProceedPayment
-                          ? AppColors.appPurpleColor
-                          : const Color(0xFF2F1A5A),
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '결제하기',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15.sp,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) {
+                            return PaymentSuccessPage(
+                              reservationData: {
+                                'clubNㄴame': _clubName,
+                                'reservationDate': _reservationDate,
+                                'timeSlot': _timeSlot,
+                                'tableId': _tableId,
+                                'guestCount': _guestCount,
+                              },
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        color: canProceedPayment
+                            ? AppColors.appPurpleColor
+                            : const Color(0xFF2F1A5A),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '결제하기',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15.sp,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
