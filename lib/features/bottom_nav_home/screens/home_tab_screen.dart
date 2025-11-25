@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vybe/core/route_names.dart';
 import 'package:vybe/core/widgets/near_club_card.dart';
+import 'package:vybe/core/widgets/shimmer_skeleton.dart';
 import 'package:vybe/features/club_detail_page/screens/club_detail_main.dart';
 import 'package:vybe/services/firebase/firebase_service.dart';
 
@@ -17,10 +18,12 @@ class HomeTabScreen extends StatefulWidget {
     super.key,
     required this.banners,
     required this.featureItems,
+    this.isLoadingBanners = false,
   });
 
   final List<String> banners;
   final List<FeatureItem> featureItems;
+  final bool isLoadingBanners;
 
   @override
   State<HomeTabScreen> createState() => _HomeTabScreenState();
@@ -47,6 +50,36 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool showSkeleton = widget.isLoadingBanners || widget.banners.isEmpty;
+
+    Widget bannerSkeleton() {
+      return ShimmerSkeleton(
+        width: double.infinity,
+        height: 228.h,
+        borderRadius: 12.r,
+      );
+    }
+
+    Widget buildBanner(String url) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12.r),
+        child: Image.network(
+          url,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return bannerSkeleton();
+          },
+          errorBuilder: (_, __, ___) => bannerSkeleton(),
+        ),
+      );
+    }
+
+    final bannerItems = showSkeleton
+        ? List.generate(3, (_) => bannerSkeleton())
+        : widget.banners.map(buildBanner).toList();
+
     // ==== 기존 MainPage 의 build 내용 그대로 (Scaffold 없이) ====
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
@@ -86,15 +119,7 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
               viewportFraction: 1.0,
               enableInfiniteScroll: true,
             ),
-            items: widget.banners
-                .map(
-                  (banner) => Image.asset(
-                    banner,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                  ),
-                )
-                .toList(),
+            items: bannerItems,
           ),
           SizedBox(height: 24.h),
           Padding(
@@ -174,8 +199,9 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                           // 새 화면으로 이동 (스택에 push)
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              settings:
-                                  const RouteSettings(name: clubDetailRouteName),
+                              settings: const RouteSettings(
+                                name: clubDetailRouteName,
+                              ),
                               builder: (_) => const ClubDetailMain(),
                             ),
                           );

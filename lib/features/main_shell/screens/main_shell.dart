@@ -11,6 +11,7 @@ import 'package:vybe/features/bottom_nav_near/screens/near_tab_screen.dart';
 import 'package:vybe/features/bottom_nav_passwallet/screens/passwallet_tab_screen.dart';
 import 'package:vybe/features/bottom_nav_search/screens/search_tab_screen.dart';
 import 'package:vybe/features/bottom_nav_mypage/screens/mypage_tab_screen.dart';
+import 'package:vybe/services/firebase/firebase_service.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key, this.initialIndex = 0});
@@ -23,11 +24,8 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   late int _index;
 
-  final List<String> banners = const [
-    'assets/images/bottom_nav_home/banner_1.png',
-    'assets/images/bottom_nav_home/banner_2.png',
-    'assets/images/bottom_nav_home/banner_3.png',
-  ];
+  List<String> _banners = const [];
+  bool _isLoadingBanners = true;
 
   final List<FeatureItem> featureItems = const [
     FeatureItem(
@@ -99,12 +97,34 @@ class _MainShellState extends State<MainShell> {
   void initState() {
     super.initState();
     _index = widget.initialIndex;
+    _loadBannersFromStorage();
+  }
+
+  Future<void> _loadBannersFromStorage() async {
+    try {
+      final urls = await FirebaseService.fetchHomeBannerImages();
+      if (!mounted) return;
+      setState(() {
+        _banners = urls;
+        _isLoadingBanners = false;
+      });
+    } catch (e) {
+      // Storage에서 배너를 불러오지 못하면 빈 상태를 유지한다.
+      debugPrint('Failed to load banners from storage: $e');
+      if (mounted) {
+        setState(() => _isLoadingBanners = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final pages = [
-      HomeTabScreen(banners: banners, featureItems: featureItems),
+      HomeTabScreen(
+        banners: _banners,
+        featureItems: featureItems,
+        isLoadingBanners: _isLoadingBanners,
+      ),
       const NearTabScreen(),
       const PasswalletTabScreen(),
       SearchTabScreen(),
