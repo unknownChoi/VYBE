@@ -7,6 +7,7 @@ import 'package:vybe/features/main_shell/screens/main_shell.dart';
 import 'package:vybe/services/api/naver_map_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:vybe/services/firebase/firebase_options.dart';
+import 'package:vybe/test/test.dart';
 
 void main() async {
   // Flutter 바인딩 초기화

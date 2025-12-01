@@ -61,6 +61,7 @@ final businessHours = const [
   {'day': '토', 'hours': '11:00 - 02:00'},
   {'day': '일', 'hours': '정기휴무 (매주 일요일)'},
 ];
+
 final menuItemsData = const {
   "대표메뉴": [
     {
@@ -181,6 +182,7 @@ final menuItemsData = const {
     },
   ],
 };
+
 const menuCategories = ["대표메뉴", "SET", "HARD", "BEER", "DRINK"];
 const photoTabImageList = [
   "assets/images/test_image/club_image_1.png",

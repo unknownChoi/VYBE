@@ -20,11 +20,17 @@ class ClubDetailMain extends StatefulWidget {
 
 class _ClubDetailMainState extends State<ClubDetailMain>
     with TickerProviderStateMixin {
+  // 카테고리별로 스크롤 위치를 찾기 위해 저장해 두는 GlobalKey 맵
   final Map<String, GlobalKey> _categoryKeys = {};
+  // 현재 선택된 메뉴 카테고리
   String _selectedCategory = menuCategories.first;
+  // 상단 탭 전환을 제어하는 컨트롤러
   late final TabController _tabController;
+  // 전체 NestedScrollView 스크롤을 제어하는 컨트롤러
   late final ScrollController _scrollController;
+  // 메뉴 탭 최상단 위치를 가리키는 키
   final GlobalKey _menuTopKey = GlobalKey();
+  // 사진 탭 최상단 위치를 가리키는 키
   final GlobalKey _photoTopKey = GlobalKey();
 
   @override
@@ -44,6 +50,7 @@ class _ClubDetailMainState extends State<ClubDetailMain>
     super.dispose();
   }
 
+  // 특정 카테고리가 보이도록 스크롤 위치를 이동
   void _scrollToCategory(String category) {
     final key = _categoryKeys[category];
     if (key?.currentContext != null) {
@@ -55,6 +62,7 @@ class _ClubDetailMainState extends State<ClubDetailMain>
     }
   }
 
+  // 홈 탭에서 "모두 보기" 시 메뉴 탭 최상단으로 이동
   void _goToMenuTop() {
     _tabController.animateTo(1);
     Future.delayed(const Duration(milliseconds: 250), () {
@@ -70,6 +78,7 @@ class _ClubDetailMainState extends State<ClubDetailMain>
     });
   }
 
+  // 홈 탭에서 "모두 보기" 시 사진 탭 최상단으로 이동
   void _goToPhotoTop() {
     _tabController.animateTo(2);
     Future.delayed(const Duration(milliseconds: 250), () {
@@ -86,6 +95,7 @@ class _ClubDetailMainState extends State<ClubDetailMain>
   }
 
   @override
+  // 전체 클럽 상세 페이지 레이아웃과 탭 구성을 그리는 메서드
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appBackgroundColor,
