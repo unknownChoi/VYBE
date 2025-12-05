@@ -13,6 +13,7 @@ class ReservationClubCard extends StatelessWidget {
     required this.scheduledTime,
     required this.enteredCount,
     required this.imageSrc,
+    this.onDelete,
   });
 
   final ReservationStatus status;
@@ -21,6 +22,7 @@ class ReservationClubCard extends StatelessWidget {
   final String scheduledTime;
   final int enteredCount;
   final String imageSrc;
+  final VoidCallback? onDelete;
 
   String _statusLabel(ReservationStatus status) {
     switch (status) {
@@ -33,10 +35,9 @@ class ReservationClubCard extends StatelessWidget {
     }
   }
 
-  Color get _statusChipBackgroundColor =>
-      status == ReservationStatus.canceled
-          ? const Color(0xFF535355)
-          : AppColors.appGreenColor;
+  Color get _statusChipBackgroundColor => status == ReservationStatus.canceled
+      ? const Color(0xFF535355)
+      : AppColors.appGreenColor;
 
   Color get _statusChipTextColor => status == ReservationStatus.canceled
       ? Colors.white
@@ -80,11 +81,7 @@ class ReservationClubCard extends StatelessWidget {
       height: 1.14,
       letterSpacing: (-0.70).w,
     );
-    final infoItems = <String>[
-      scheduledDate,
-      scheduledTime,
-      '$enteredCount명',
-    ];
+    final infoItems = <String>[scheduledDate, scheduledTime, '$enteredCount명'];
 
     return Row(
       children: [
@@ -108,25 +105,29 @@ class ReservationClubCard extends StatelessWidget {
     required String label,
     required Color backgroundColor,
     Color textColor = const Color(0xFFECECEC),
+    VoidCallback? onTap,
   }) {
-    return Container(
-      height: 40.h,
-      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 11.h),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(6.r),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 14.sp,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w600,
-          height: 1.14,
-          letterSpacing: (-0.35).w,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40.h,
+        padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 11.h),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(6.r),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 14.sp,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w600,
+            height: 1.14,
+            letterSpacing: (-0.35).w,
+          ),
         ),
       ),
     );
@@ -134,11 +135,14 @@ class ReservationClubCard extends StatelessWidget {
 
   Widget _buildActions() {
     if (status == ReservationStatus.canceled) {
-      return SizedBox(
-        width: double.infinity,
-        child: _buildActionButton(
-          label: '내역 삭제하기',
-          backgroundColor: const Color(0xFF535355),
+      return GestureDetector(
+        onTap: onDelete,
+        child: SizedBox(
+          width: double.infinity,
+          child: _buildActionButton(
+            label: '내역 삭제하기',
+            backgroundColor: const Color(0xFF535355),
+          ),
         ),
       );
     }

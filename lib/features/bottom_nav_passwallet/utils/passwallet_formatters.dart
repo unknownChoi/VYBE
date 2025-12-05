@@ -49,15 +49,7 @@ String _weekdayFromCode(String? code) {
 }
 
 String _weekdayKoFromDateTime(DateTime dt) {
-  const yoil = [
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-    '일요일',
-  ];
+  const yoil = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
   return yoil[dt.weekday - 1];
 }
 

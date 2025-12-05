@@ -13,58 +13,57 @@ class ReservationSection extends StatefulWidget {
 }
 
 class _ReservationSectionState extends State<ReservationSection> {
-  late final Future<List<Map<String, dynamic>>> _future;
+  late List<Map<String, dynamic>> _items;
 
   @override
   void initState() {
     super.initState();
-    _future = fetchReservationsData();
+    _items = passWalletReservationData;
   }
 
-  Future<List<Map<String, dynamic>>> fetchReservationsData() async {
-    return passWalletReservationData;
+  void _handleDelete(int index) {
+    if (index < 0 || index >= _items.length) return;
+    setState(() {
+      _items.removeAt(index); // 원본 mock 데이터도 함께 삭제됨
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _future,
-      builder: (context, snapshot) {
-        final items = snapshot.data ?? const [];
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: _items.length * 2,
+      physics: const ClampingScrollPhysics(),
+      itemBuilder: (context, index) {
+        if (index.isOdd) {
+          return Divider(
+            height: 1.h,
+            thickness: 1.h,
+            color: const Color(0xFF2F2F33),
+          );
+        }
 
-        return ListView.builder(
-          padding: EdgeInsets.zero,
-          itemCount: items.length * 2,
-          physics: const ClampingScrollPhysics(),
-          itemBuilder: (context, index) {
-            if (index.isOdd) {
-              return Divider(
-                height: 1.h,
-                thickness: 1.h,
-                color: const Color(0xFF2F2F33),
-              );
-            }
+        final i = index ~/ 2;
+        final m = _items[i];
 
-            final i = index ~/ 2;
-            final m = items[i];
+        final ReservationStatus status = m['status'] as ReservationStatus;
+        final String clubName = m['clubName'] as String;
+        final String rawDate = m['scheduledDate'] as String;
+        final String formattedDate = formatKoreanDate(rawDate);
+        final String time = formatAmPm(m['scheduledTime'] as String);
+        final int enteredCount = m['enteredCount'] as int;
+        final String image = m['imageSrc'] as String;
 
-            final ReservationStatus status = m['status'] as ReservationStatus;
-            final String clubName = m['clubName'] as String;
-            final String rawDate = m['scheduledDate'] as String;
-            final String formattedDate = formatKoreanDate(rawDate);
-            final String time = formatAmPm(m['scheduledTime'] as String);
-            final int enteredCount = m['enteredCount'] as int;
-            final String image = m['imageSrc'] as String;
-
-            return ReservationClubCard(
-              status: status,
-              clubName: clubName,
-              scheduledDate: formattedDate,
-              scheduledTime: time,
-              enteredCount: enteredCount,
-              imageSrc: image,
-            );
-          },
+        return ReservationClubCard(
+          status: status,
+          clubName: clubName,
+          scheduledDate: formattedDate,
+          scheduledTime: time,
+          enteredCount: enteredCount,
+          imageSrc: image,
+          onDelete: status == ReservationStatus.canceled
+              ? () => _handleDelete(i)
+              : null,
         );
       },
     );
